@@ -23,6 +23,22 @@ gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc
 
+gem 'hydra-pcdm', github: 'projecthydra-labs/hydra-pcdm'
+gem 'hydra-works', github: 'projecthydra-labs/hydra-works'
+gem 'hydra-editor'
+gem 'hydra-head' # Only need some helpers from hydra-head
+
+gem 'rsolr', '~> 1.0.6'
+
+gem 'devise'
+gem 'devise_ldap_authenticatable'
+gem 'cancancan', '~> 1.10'
+
+gem 'resque'
+gem 'resque-pool'
+gem 'nest'
+gem 'redis-session-store'
+
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
@@ -35,6 +51,17 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
+
+  gem 'rspec-rails'
+  gem 'jettywrapper'
+
+  #  gem 'simplecov', require: false
+  #  gem 'coveralls', require: false
+  gem 'database_cleaner', require: false
+  gem 'capybara'
+  gem 'factory_girl_rails'
+
+  gem 'ladle', require: false
 end
 
 group :development do
@@ -44,4 +71,3 @@ group :development do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
 end
-

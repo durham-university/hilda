@@ -15,3 +15,13 @@
 /log/*
 !/log/.keep
 /tmp
+
+.vagrant/
+jetty/
+config/secrets.yml
+
+testdata/*
+
+coverage.data
+coverage/*
+spec/examples.txt

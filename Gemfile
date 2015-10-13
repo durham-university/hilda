@@ -28,6 +28,8 @@ gem 'hydra-works', github: 'projecthydra-labs/hydra-works'
 gem 'hydra-editor'
 gem 'hydra-head' # Only need some helpers from hydra-head
 
+gem 'rubyzip'
+
 gem 'rsolr', '~> 1.0.6'
 
 gem 'devise'

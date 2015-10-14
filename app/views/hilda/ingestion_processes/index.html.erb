@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Ingestion Processes</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @ingestion_processes.each do |ingestion_process| %>
+      <tr>
+        <td><%= link_to 'Show', ingestion_process %></td>
+        <td><%= link_to 'Edit', edit_ingestion_process_path(ingestion_process) %></td>
+        <td><%= link_to 'Destroy', ingestion_process, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Ingestion process', new_ingestion_process_path %>

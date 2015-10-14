@@ -1,0 +1,17 @@
+<%= form_for(@ingestion_process) do |f| %>
+  <% if @ingestion_process.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@ingestion_process.errors.count, "error") %> prohibited this ingestion_process from being saved:</h2>
+
+      <ul>
+      <% @ingestion_process.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

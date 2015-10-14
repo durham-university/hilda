@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  root 'hilda/ingestion_processes#index'
+  resources :ingestion_processes, module: 'hilda', path: 'processes', as: 'hilda_ingestion_processes'
+  resources :ingestion_processes, module: 'hilda', path: 'processes'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

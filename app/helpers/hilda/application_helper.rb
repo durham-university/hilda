@@ -1,0 +1,2 @@
+module Hilda::ApplicationHelper
+end

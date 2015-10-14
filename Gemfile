@@ -16,6 +16,8 @@ gem 'coffee-rails', '~> 4.1.0'
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
+gem 'jquery-ui-rails'
+
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
 gem 'turbolinks'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
@@ -31,6 +33,8 @@ gem 'hydra-head' # Only need some helpers from hydra-head
 gem 'rubyzip'
 
 gem 'rsolr', '~> 1.0.6'
+
+gem 'bootstrap-sass', '~> 3.3.5'
 
 gem 'devise'
 gem 'devise_ldap_authenticatable'
@@ -64,6 +68,8 @@ group :development, :test do
   gem 'factory_girl_rails'
 
   gem 'ladle', require: false
+
+  gem 'bootstrap-sass-extras'
 end
 
 group :development do

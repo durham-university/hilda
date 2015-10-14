@@ -1,0 +1,14 @@
+@import "bootstrap-sprockets";
+@import "bootstrap";
+@import "jquery-ui";
+
+body>.container {
+  padding-top: 80px;
+}
+
+.page-header {
+  margin-top: 0;
+  h1 {
+    margin-top: 0;
+  }
+}

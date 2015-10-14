@@ -1,17 +1,9 @@
-<%= form_for(@ingestion_process) do |f| %>
-  <% if @ingestion_process.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@ingestion_process.errors.count, "error") %> prohibited this ingestion_process from being saved:</h2>
-
-      <ul>
-      <% @ingestion_process.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
+<%= simple_form_for @ingestion_process, :html => { :class => 'form-horizontal' }, wrapper_mappings: { check_boxes: :horizontal_radio_and_checkboxes, radio_buttons: :horizontal_radio_and_checkboxes, file: :horizontal_file_input, boolean: :horizontal_boolean } do |f| %>
+  <div class="form-group">
+    <div class='col-sm-offset-3 col-sm-9'>
+      <%= f.button :submit, :class => 'btn-primary' %>
+      <%= link_to t('.cancel', :default => t("helpers.links.cancel")),
+                  hilda_ingestion_processes_path, :class => 'btn btn-default' %>
     </div>
-  <% end %>
-
-  <div class="actions">
-    <%= f.submit %>
   </div>
 <% end %>

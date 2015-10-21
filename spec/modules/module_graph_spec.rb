@@ -21,13 +21,13 @@ RSpec.describe Hilda::ModuleGraph do
   # B and C not autorun
   #
 
-  let!( :mod_a ) { graph.add_start_module(TestModule,'mod_a') }
-  let!( :mod_b ) { graph.add_module(TestModule,'mod_b',mod_a, autorun: false) }
-  let!( :mod_c ) { graph.add_module(TestModule,'mod_c','mod_b') }
-  let!( :mod_d ) { graph.add_module(TestModule,'mod_d',mod_a) }
-  let!( :mod_e ) { graph.add_module(TestModule,'mod_e',mod_d, autorun: false) }
-  let!( :mod_f ) { graph.add_module(TestModule,'mod_f',mod_e) }
-  let!( :mod_g ) { graph.add_start_module(TestModule,'mod_g') }
+  let!( :mod_a ) { graph.add_start_module(TestModule, module_name: 'mod_a') }
+  let!( :mod_b ) { graph.add_module(TestModule,mod_a, module_name: 'mod_b', autorun: false) }
+  let!( :mod_c ) { graph.add_module(TestModule,mod_b, module_name: 'mod_c') }
+  let!( :mod_d ) { graph.add_module(TestModule,mod_a, module_name: 'mod_d') }
+  let!( :mod_e ) { graph.add_module(TestModule,mod_d, module_name: 'mod_e', autorun: false) }
+  let!( :mod_f ) { graph.add_module(TestModule,mod_e, module_name: 'mod_f') }
+  let!( :mod_g ) { graph.add_start_module(TestModule, module_name: 'mod_g') }
 
   let!( :graph ) { Hilda::ModuleGraph.new }
 
@@ -47,6 +47,9 @@ RSpec.describe Hilda::ModuleGraph do
   describe "#find_module" do
     it "finds the module" do
       expect(graph.find_module('mod_d')).to eql mod_d
+    end
+    it "finds the module by class" do
+      expect(graph.find_module(TestModule)).to be_a TestModule
     end
     it "retruns nil if module doesn't exist" do
       expect(graph.find_module('test')).to be_nil
@@ -127,6 +130,22 @@ RSpec.describe Hilda::ModuleGraph do
     end
   end
 
+  describe "#cleanup" do
+    it "cleansup modules" do
+      [mod_a, mod_b, mod_c, mod_d, mod_e, mod_f, mod_g].each do |mod|
+        expect(mod).to receive(:cleanup)
+      end
+      graph.cleanup
+    end
+    it "won't do anything if something is still running" do
+      mod_d.run_status = :running
+      [mod_a, mod_b, mod_c, mod_d, mod_e, mod_f, mod_g].each do |mod|
+        expect(mod).not_to receive(:cleanup)
+      end
+      expect{ graph.cleanup }.to raise_error('Cannot cleanup graph while it\'s still running')
+    end
+  end
+
   describe "#rollback_graph" do
     it "roll back finished mods in revers order" do
       [mod_a, mod_b, mod_c, mod_d, mod_g].each do |mod|
@@ -179,6 +198,7 @@ RSpec.describe Hilda::ModuleGraph do
     it "continues execution" do
       [mod_a, mod_b, mod_d].each do |mod| mod.run_status=:finished end
       [mod_c, mod_e, mod_g].each do |mod| expect(mod).to receive(:execute_module) end
+      [mod_c, mod_e, mod_f, mod_g].each do |mod| expect(mod).to receive(:reset_module) end
       expect(mod_f).not_to receive(:execute_module)
       graph.continue_execution
     end
@@ -186,12 +206,22 @@ RSpec.describe Hilda::ModuleGraph do
       expect(graph).to receive(:graph_stopped)
       graph.continue_execution
     end
+    it "can be given a list of modules to run" do
+      [mod_a, mod_b, mod_d].each do |mod| mod.run_status=:finished end
+      [mod_c, mod_f, mod_g].each do |mod| expect(mod).not_to receive(:execute_module) end
+      [mod_e, mod_f].each do |mod| expect(mod).to receive(:reset_module) end
+      [mod_c, mod_g].each do |mod| expect(mod).not_to receive(:reset_module) end
+      expect(mod_e).to receive(:execute_module)
+      graph.continue_execution(mod_e)
+    end
   end
 
   describe "#module_finished" do
     it "calls next autorun modules" do
       expect(mod_b).not_to receive(:execute_module)
       expect(mod_d).to receive(:execute_module)
+      expect(mod_b).to receive(:input_changed)
+      expect(mod_d).to receive(:input_changed)
       graph.module_finished(mod_a)
     end
   end

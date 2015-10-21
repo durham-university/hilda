@@ -24,6 +24,14 @@ RSpec.describe Hilda::Modules::WithTempFiles do
       mod.add_temp_file('/tmp/bbb')
       expect(mod.module_output[:temp_files]).to eql ['/tmp/aaa','/tmp/bbb']
     end
+    it "can use other temp file indices" do
+      expect(mod.module_output[:temp_files]).to be_nil
+      index = []
+      mod.add_temp_file('/tmp/aaa', index)
+      mod.add_temp_file('/tmp/bbb', index)
+      expect(mod.module_output[:temp_files]).to be_nil
+      expect(index).to eql ['/tmp/aaa','/tmp/bbb']
+    end
   end
 
   describe "#temp_dir" do
@@ -76,6 +84,21 @@ RSpec.describe Hilda::Modules::WithTempFiles do
       expect(File.exists?(temp_dir)).to eql true
       expect(mod.module_output[:temp_files].length).to eql 2
       mod.remove_temp_files
+      expect(File.exists?(temp_file)).to eql false
+      expect(File.exists?(temp_dir)).to eql false
+    end
+    it "can use other indices" do
+      index = []
+      temp_dir = mod.make_temp_file_path
+      mod.add_temp_file(temp_dir,index)
+      Dir.mkdir(temp_dir)
+      temp_file = File.join(temp_dir,'temp_file')
+      mod.add_temp_file(temp_file,index)
+      File.new(temp_file,'wb').close
+      expect(File.exists?(temp_file)).to eql true
+      expect(File.exists?(temp_dir)).to eql true
+      expect(index.length).to eql 2
+      mod.remove_temp_files(index)
       expect(File.exists?(temp_file)).to eql false
       expect(File.exists?(temp_dir)).to eql false
     end

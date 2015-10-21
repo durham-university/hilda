@@ -2,4 +2,12 @@
 <div class="page-header">
   <h1><%=t '.title', :default => [:'helpers.titles.new', 'New %{model}'], :model => model_class.model_name.human.titleize %></h1>
 </div>
-<%= render :partial => 'form' %>
+<%= simple_form_for @ingestion_process, :html => { :class => 'form-horizontal' }, wrapper_mappings: { check_boxes: :horizontal_radio_and_checkboxes, radio_buttons: :horizontal_radio_and_checkboxes, file: :horizontal_file_input, boolean: :horizontal_boolean } do |f| %>
+  <div class="form-group">
+    <div class='col-sm-offset-3 col-sm-9'>
+      <%= f.button :submit, :class => 'btn-primary' %>
+      <%= link_to t('.cancel', :default => t("helpers.links.cancel")),
+                  hilda_ingestion_processes_path, :class => 'btn btn-default' %>
+    </div>
+  </div>
+<% end %>

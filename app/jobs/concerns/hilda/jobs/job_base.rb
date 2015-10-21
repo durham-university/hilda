@@ -1,4 +1,4 @@
-module JobBase
+module Hilda::Jobs::JobBase
   extend ActiveSupport::Concern
 
   included do
@@ -31,7 +31,7 @@ module JobBase
     hash.each do |k,v|
       self.send(:"#{k}=",v)
     end
-    @log = Log.new
+    @log = Hilda::Log.new
   end
 
   def validate_job!
@@ -43,7 +43,8 @@ module JobBase
   def queue_job
     validate_job!
     pushing_job
-    Schmit.queue.push(self)
+    Hilda.queue.push(self)
+    return true
   end
 
   def run_job

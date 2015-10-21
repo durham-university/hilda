@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe "hilda/ingestion_processes/edit", type: :view do
+RSpec.xdescribe "hilda/ingestion_processes/edit", type: :view do
   before(:each) do
     @hilda_ingestion_process = assign(:hilda_ingestion_process, Hilda::IngestionProcess.create!())
   end

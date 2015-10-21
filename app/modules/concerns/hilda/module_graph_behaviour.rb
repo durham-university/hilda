@@ -39,6 +39,7 @@ module Hilda
       self.graph_params = json[:graph_params]
       module_index = json[:modules].each_with_object({}) do |mod,o|
         parsed = Hilda::ModuleBase.module_from_json(mod)
+        parsed.module_graph = self
         o[parsed.module_name]=parsed
       end
       self.graph = json[:graph].each_with_object({}) do |(k,v),o|
@@ -64,12 +65,13 @@ module Hilda
       return nil
     end
 
-    def find_module(module_name)
-      graph.keys.find do |m| m.module_name == module_name end
+    def find_module(module_name_or_class)
+      (graph.keys.find do |m| m.module_name == module_name_or_class end) ||
+        (graph.keys.find do |m| m.class == module_name_or_class end )
     end
 
     def input_for(mod)
-      mod = find_module(mod) if mod.is_a? String
+      mod = find_module(mod) if mod.is_a?(String) || mod.is_a?(Class)
       return {} if start_modules.include?(mod)
       source_module = module_source(mod)
       raise 'No source module' unless source_module
@@ -77,23 +79,34 @@ module Hilda
       return source_module.module_output
     end
 
-    def add_start_module(module_class,module_name,params={})
-      mod = module_class.new(module_name, self, params)
+    def add_start_module(module_class,params={})
+      mod = module_class.new(self, params)
       graph[mod] = []
       start_modules << mod
       mod
     end
 
-    def add_module(module_class,module_name,after_module,params={})
-      after_module = find_module(after_module) if after_module.is_a? String
-      mod = module_class.new(module_name, self, params)
+    def add_module(module_class,after_module=nil,params={})
+      after_mod = after_module
+      after_mod = find_module(after_mod) if after_mod.is_a?(String) || after_mod.is_a?(Class)
+      raise "Module '#{after_module}' not found" unless after_mod
+      mod = module_class.new(self, params)
       graph[mod] = []
-      graph[after_module] << mod
+      graph[after_mod] << mod
       mod
+    end
+
+    def changed?(since)
+      since < change_time
+    end
+
+    def change_time
+      graph.keys.map(&:change_time).max || 0
     end
 
     def run_status
       return :running     if graph.keys.any? do |mod| mod.run_status == :running end
+      return :queued      if graph.keys.any? do |mod| mod.run_status == :queued end
       return :finished    if graph.keys.all? do |mod| mod.run_status == :finished end
       return :initialized if graph.keys.all? do |mod| mod.run_status == :initialized end
       return :error       if graph.keys.any? do |mod| mod.run_status == :error end
@@ -123,46 +136,67 @@ module Hilda
     end
 
     def finished?
-      !graph.keys.any? do |mod| mod.run_status!=:finished end
+      graph.keys.all? do |mod| mod.run_status==:finished end
     end
 
-    def continue_execution
-      traverse_modules = start_modules
-      next_modules = []
-      while !traverse_modules.empty? do
-        traverse_modules = traverse_modules.each_with_object([]) do |mod,next_traverse|
-          case mod.run_status
-          when :initialized
-            next_modules << mod
-          when :finished
-            next_traverse.concat graph[mod]
+    def traverse_modules(from_modules=nil)
+      from_modules ||= start_modules
+      while !from_modules.empty? do
+        from_modules = from_modules.each_with_object([]) do |mod,next_modules|
+          if block_given?
+            next_modules.concat(graph[mod]) if yield(mod)
           else
+            next_modules.concat(graph[mod])
           end
         end
       end
+    end
 
-      if next_modules.any?
-        log! "Continuing graph execution"
-      else
-        log! "Cannot continue graph execution, no modules ready to be ran"
+    def continue_execution(modules=nil)
+      if modules.nil?
+        ready_modules = []
+        traverse_modules do |mod|
+          ready_modules << mod if mod.ready_to_run?
+          next mod.run_status==:finished
+        end
+        modules = ready_modules
+        log! :warn, "No modules ready to run" if modules.empty?
       end
 
-      next_modules.each do |mod|
+      modules = Array(modules)
+
+      log! "Continuing graph execution"
+
+      traverse_modules(modules) do |mod|
+        mod.reset_module
+        next true
+      end
+
+      modules.each do |mod|
         mod.execute_module()
       end
       graph_stopped
     end
 
-    def module_finished(mod, execute_next=true)
-      if execute_next
-        graph[mod].each do |next_mod|
-          next_mod.execute_module() if next_mod.autorun?
+    def module_finished(mod,execute_next=true)
+      graph[mod].each do |next_mod|
+        begin
+          next_mod.input_changed()
+          next_mod.execute_module() if execute_next && next_mod.autorun?
+        rescue StandardError => e
+          next_mod.log_module_error(e)
         end
       end
     end
 
+    def module_changed(mod)
+    end
+
+    def module_starting(mod)
+    end
+
     def module_error(mod, error)
-      log! "Error executing module #{mod}", error
+      log! "Error in module #{mod}", error
     end
 
     def graph_stopped
@@ -172,6 +206,13 @@ module Hilda
 
     def graph_finished
       log! "Graph execution finished"
+    end
+
+    def cleanup
+      raise 'Cannot cleanup graph while it\'s still running' if run_status == :running
+      graph.keys.each do |mod|
+        mod.cleanup
+      end
     end
   end
 end

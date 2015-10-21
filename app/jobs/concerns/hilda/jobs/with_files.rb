@@ -38,7 +38,7 @@ module Hilda::Jobs::WithFiles
   end
 
   def temp_dir
-    Schmit.config['job_temp_dir'] || Dir.tmpdir || raise('Job temp dir not specified in Schmit config')
+    Hilda.config['job_temp_dir'] || Dir.tmpdir || raise('Job temp dir not specified in Schmit config')
   end
 
   def validate_job!

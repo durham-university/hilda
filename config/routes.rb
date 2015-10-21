@@ -2,59 +2,17 @@ Rails.application.routes.draw do
   root 'hilda/ingestion_processes#index'
   resources :ingestion_processes, module: 'hilda', path: 'processes', as: 'hilda_ingestion_processes'
   resources :ingestion_processes, module: 'hilda', path: 'processes'
+  patch 'processes/:id/module/:module' => 'hilda/ingestion_processes#update', as: 'ingestion_process_module'
+  put 'processes/:id/module/:module' => 'hilda/ingestion_processes#update'
+  post 'processes/:id/module/:module/reset' => 'hilda/ingestion_processes#reset_module', as: 'ingestion_process_module_reset'
+  post 'processes/:id/module/:module/start' => 'hilda/ingestion_processes#start_module', as: 'ingestion_process_module_start'
 
-  # The priority is based upon order of creation: first created -> highest priority.
-  # See how all your routes lay out with "rake routes".
+  if defined?(Hilda::ResqueAdmin) && defined?(Resque::Server)
+    namespace :admin do
+      constraints Hilda::ResqueAdmin do
+        mount Resque::Server.new, at: 'queues'
+      end
+    end
+  end
 
-  # You can have the root of your site routed with "root"
-  # root 'welcome#index'
-
-  # Example of regular route:
-  #   get 'products/:id' => 'catalog#view'
-
-  # Example of named route that can be invoked with purchase_url(id: product.id)
-  #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
-
-  # Example resource route (maps HTTP verbs to controller actions automatically):
-  #   resources :products
-
-  # Example resource route with options:
-  #   resources :products do
-  #     member do
-  #       get 'short'
-  #       post 'toggle'
-  #     end
-  #
-  #     collection do
-  #       get 'sold'
-  #     end
-  #   end
-
-  # Example resource route with sub-resources:
-  #   resources :products do
-  #     resources :comments, :sales
-  #     resource :seller
-  #   end
-
-  # Example resource route with more complex sub-resources:
-  #   resources :products do
-  #     resources :comments
-  #     resources :sales do
-  #       get 'recent', on: :collection
-  #     end
-  #   end
-
-  # Example resource route with concerns:
-  #   concern :toggleable do
-  #     post 'toggle'
-  #   end
-  #   resources :posts, concerns: :toggleable
-  #   resources :photos, concerns: :toggleable
-
-  # Example resource route within a namespace:
-  #   namespace :admin do
-  #     # Directs /admin/products/* to Admin::ProductsController
-  #     # (app/controllers/admin/products_controller.rb)
-  #     resources :products
-  #   end
 end

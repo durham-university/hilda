@@ -6,7 +6,7 @@ RSpec.describe Hilda::ModuleGraph do
       include Hilda::ModuleBase
     end
   }
-  let!( :mod ) { graph.add_start_module(TestModule, 'module name', autorun: false, test_out: 'test' ) }
+  let!( :mod ) { graph.add_start_module(TestModule, module_name: 'module name', autorun: false, test_out: 'test' ) }
 
   let!( :graph ) { Hilda::ModuleGraph.new }
 
@@ -19,6 +19,43 @@ RSpec.describe Hilda::ModuleGraph do
       expect(mod.log).not_to be_nil
       expect(mod.module_graph).to be_a Hilda::ModuleGraph
       expect(mod.param_values[:test_out]).to eql 'test'
+    end
+  end
+
+  describe "#default_module_name" do
+    it "returns something" do
+      expect(mod.default_module_name).to be_a String
+      expect(mod.default_module_name).to be_present
+    end
+    it "copes with duplicate module classes" do
+      mod2 = graph.add_start_module(TestModule)
+      mod3 = graph.add_start_module(TestModule)
+      expect(mod2.module_name).to be_present
+      expect(mod3.module_name).to be_present
+      expect(mod2.module_name).not_to eql mod3.module_name
+    end
+  end
+
+  describe "#add_module" do
+    it "chains module after itself" do
+      expect(graph).to receive(:add_module).with(Hilda::Modules::DebugModule,mod,{test: 'moo'})
+      mod.add_module(Hilda::Modules::DebugModule,test: 'moo')
+    end
+  end
+
+  describe "#add_start_module" do
+    it "delegates to graph" do
+      expect(graph).to receive(:add_start_module).with(Hilda::Modules::DebugModule,{test: 'moo'})
+      mod.add_start_module(Hilda::Modules::DebugModule,test: 'moo')
+    end
+  end
+
+  describe "#changed? and #changed!" do
+    before { mod.instance_variable_set(:@load_change_time, mod.change_time )}
+    it "works" do
+      expect(mod.changed?).to be_falsy
+      mod.changed!
+      expect(mod.changed?).to be_truthy
     end
   end
 

@@ -12,6 +12,10 @@ class Hilda::Log
     end
   end
 
+  def clear!
+    @log = []
+  end
+
   def errors?
     @log.any? do |log_message| log_message.level == :error end
   end
@@ -47,7 +51,11 @@ class Hilda::Log
     from_json(hash)
   end
 
-  delegate :empty?, :any?, :each, :length, :size, :count, :first, :last, to: :@log
+  delegate :empty?, :any?, :select, :find, :each, :length, :size, :count, :first, :last, :map, to: :@log
+
+  def to_a
+    return @log
+  end
 
   class LogMessage
     attr_reader :level, :message, :exception
@@ -94,7 +102,7 @@ class Hilda::Log
     def from_json(json)
       json = JSON.parse(json) if json.is_a? String
       json = json.with_indifferent_access unless json.is_a? ActiveSupport::HashWithIndifferentAccess
-      @level = json[:level]
+      @level = json[:level].to_sym
       @message = json[:message]
       @exception = self.class.parse_exception(json[:exception])
     end

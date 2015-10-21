@@ -1,0 +1,11 @@
+defaults: &defaults
+#  job_temp_dir: '/tmp' # uses system temp dir by default
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults

@@ -2,4 +2,9 @@
 <div class="page-header">
   <h1><%=t '.title', :default => [:'helpers.titles.edit', 'Edit %{model}'], :model => model_class.model_name.human.titleize %></h1>
 </div>
-<%= render :partial => 'form' %>
+<%= render partial: 'form' %>
+
+<div class="form-group">
+  <%= link_to t('.back', :default => t("helpers.links.back")),
+              hilda_ingestion_process_path(@ingestion_process), :class => 'btn btn-default'  %>
+</div>

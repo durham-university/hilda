@@ -2,18 +2,6 @@ require 'rails_helper'
 
 RSpec.describe Hilda::IngestionProcess do
 
-  before {
-    class TestModule
-      include Hilda::ModuleBase
-      def run_module
-        module_output = param_values.fetch(:output,{ test_out: 'test' })
-      end
-      def autorun?
-        param_values.fetch(:autorun,true)
-      end
-    end
-  }
-
   #
   # mod_a -> mod_b -> mod_c
   #       -> mod_d -> mod_e -> mod_f
@@ -22,17 +10,16 @@ RSpec.describe Hilda::IngestionProcess do
   # B and C not autorun
   #
 
-  let( :mod_a ) { graph_only.add_start_module(TestModule, module_name: 'mod_a') }
-  let( :mod_b ) { graph_only.add_module(TestModule, mod_a, module_name: 'mod_b', autorun: false) }
-  let( :mod_c ) { graph_only.add_module(TestModule, mod_b, module_name: 'mod_c') }
-  let( :mod_d ) { graph_only.add_module(TestModule, mod_a, module_name: 'mod_d') }
-  let( :mod_e ) { graph_only.add_module(TestModule, mod_d, module_name: 'mod_e', autorun: false) }
-  let( :mod_f ) { graph_only.add_module(TestModule, mod_e, module_name: 'mod_f') }
-  let( :mod_g ) { graph_only.add_start_module(TestModule, module_name: 'mod_g') }
+  let( :mod_a ) { graph.find_module('mod_a') }
+  let( :mod_b ) { graph.find_module('mod_b') }
+  let( :mod_c ) { graph.find_module('mod_c') }
+  let( :mod_d ) { graph.find_module('mod_d') }
+  let( :mod_e ) { graph.find_module('mod_e') }
+  let( :mod_f ) { graph.find_module('mod_f') }
+  let( :mod_g ) { graph.find_module('mod_g') }
   let( :all_modules ) { [mod_a, mod_b, mod_c, mod_d, mod_e, mod_f, mod_g] }
-  let( :graph_only ) { Hilda::IngestionProcess.new }
-  let( :graph ) { all_modules ; graph_only }
-  let( :process ) { graph }
+  let( :process ) { FactoryGirl.build(:ingestion_process,:execution) }
+  let( :graph ) { process }
 
   describe "persisting graph" do
     before {

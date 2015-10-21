@@ -2,6 +2,7 @@ module Hilda
   class IngestionProcessesController < Hilda::ApplicationController
     before_action :set_ingestion_process, only: [:show, :edit, :update, :destroy, :start_module, :reset_module]
     before_action :set_ingestion_module, only: [:update, :start_module, :reset_module]
+    before_action :set_ingestion_process_template, only: [:create]
 
     def initialize(*args)
       @module_notices = {}
@@ -21,30 +22,17 @@ module Hilda
 
     def new
       @ingestion_process = IngestionProcess.new
+      @templates = Hilda::IngestionProcessTemplate.all.to_a.sort do |a,b|
+        [a.order_hint,a.to_s] <=> [b.order_hint,b.to_s]
+      end
     end
 
     def edit
       render layout: false unless use_layout?
     end
 
-    def create_test_process
-      graph = IngestionProcess.new(title: "Test process #{DateTime.now.to_formatted_s}")
-      graph.add_start_module(Hilda::Modules::FileReceiver) \
-           .add_module(Hilda::Modules::FileMetadata, metadata_fields: {
-              title: {label: 'Title', type: :string},
-              test: {label: 'Test', type: :string}
-             }) \
-           .add_module(Hilda::Modules::DebugModule, sleep: 20 ) \
-           .add_module(Hilda::Modules::Preservation) \
-           .add_module(Hilda::Modules::DebugModule,
-              param_defs: { test: {label: 'test param', type: :string, default: 'moo'} },
-              info_template: 'hilda/modules/debug_info',
-              sleep: 20 )
-      graph
-    end
-
     def create
-      @ingestion_process = create_test_process
+      @ingestion_process = @ingestion_process_template.build_process
 
       respond_to do |format|
         if @ingestion_process.save
@@ -139,6 +127,22 @@ module Hilda
         if params[:module]
           @ingestion_module = @ingestion_process.find_module(params[:module])
           raise 'Module not found' unless @ingestion_module
+        end
+      end
+
+      def set_ingestion_process_template
+        template_id_or_key = params[:hilda_ingestion_process].try(:[],:template)
+        raise 'Template not found' unless template_id_or_key
+        result = Hilda::IngestionProcessTemplate.where( id: template_id_or_key )
+        if result.any?
+          @ingestion_process_template = result.first
+        else
+          result = Hilda::IngestionProcessTemplate.where( template_key: template_id_or_key )
+          if result.any?
+            @ingestion_process_template = result.first
+          else
+            raise 'Template not found'
+          end
         end
       end
 

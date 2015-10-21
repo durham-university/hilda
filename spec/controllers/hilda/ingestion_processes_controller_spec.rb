@@ -2,9 +2,9 @@ require 'rails_helper'
 
 RSpec.describe Hilda::IngestionProcessesController, type: :controller do
 
-  let( :ingestion_process ) { controller.create_test_process.tap do |p| p.save end }
+  let( :ingestion_process ) { FactoryGirl.create(:ingestion_process,:params) }
   let( :mod ) {
-    ingestion_process.find_module('hilda_modules_debug_module').tap do |mod|
+    ingestion_process.find_module('mod_a').tap do |mod|
       expect(mod).to be_a Hilda::ModuleBase
     end
   }
@@ -26,9 +26,18 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
   end
 
   describe "GET #new" do
+    before { FactoryGirl.create(:ingestion_process_template) }
     it "assigns a new ingestion_process as @ingestion_process" do
       get :new, {}
       expect(assigns(:ingestion_process)).to be_a_new(Hilda::IngestionProcess)
+    end
+    it "assigns a list of templates as @templates" do
+      get :new, {}
+      expect(assigns(:templates)).to be_a Array
+      expect(assigns(:templates)).not_to be_empty
+      assigns(:templates).each do |template|
+        expect(template).to be_a Hilda::IngestionProcessTemplate
+      end
     end
   end
 
@@ -40,22 +49,53 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
   end
 
   describe "POST #create" do
-    context "with valid params" do
-      it "creates a new IngestionProcess" do
+    let( :template ) { FactoryGirl.create(:ingestion_process_template,:params) }
+
+    describe "template loading" do
+      it "creates a new IngestionProcess when using template_key" do
         expect {
-          post :create, {ingestion_process: {}}
+          post :create, {hilda_ingestion_process: { template: template.template_key }}
         }.to change(Hilda::IngestionProcess, :count).by(1)
       end
+      it "creates a new IngestionProcess when using template id" do
+        expect {
+          post :create, {hilda_ingestion_process: { template: template.id }}
+        }.to change(Hilda::IngestionProcess, :count).by(1)
+      end
+      it "doesn't creat a new IngestionProcess when using an invalid template_key" do
+        expect {
+          expect {
+            post :create, {hilda_ingestion_process: { template: 'moo' }}
+          }.to raise_error('Template not found')
+        }.not_to change(Hilda::IngestionProcess, :count)
+      end
+      it "doesn't creat a new IngestionProcess when not specifying template" do
+        expect {
+          expect {
+            post :create, {hilda_ingestion_process: { }}
+          }.to raise_error('Template not found')
+        }.not_to change(Hilda::IngestionProcess, :count)
+      end
+    end
 
+    context "with valid params" do
       it "assigns a newly created ingestion_process as @ingestion_process" do
-        post :create, {ingestion_process: {}}
+        post :create, {hilda_ingestion_process: { template: template.template_key }}
         expect(assigns(:ingestion_process)).to be_a(Hilda::IngestionProcess)
         expect(assigns(:ingestion_process)).to be_persisted
       end
 
       it "redirects to the created ingestion_process" do
-        post :create, {ingestion_process: {}}
+        post :create, {hilda_ingestion_process: { template: template.template_key }}
         expect(response).to redirect_to(edit_ingestion_process_path(Hilda::IngestionProcess.last))
+      end
+
+      it "copies the template" do
+        post :create, {hilda_ingestion_process: { template: template.template_key }}
+        mod = assigns(:ingestion_process).find_module('mod_a')
+        expect(mod).to be_a Hilda::Modules::DebugModule
+        expect(mod.param_defs[:moo]).to eql({ label: 'moo', type: :string, default: nil, group: nil })
+        expect(assigns(:ingestion_process).title).to be_present
       end
     end
   end
@@ -113,12 +153,6 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
   end
 
   describe "POST #start_module" do
-    before {
-      mod.run_status = :initialized
-      ingestion_process.module_source(mod).run_status = :finished
-      ingestion_process.module_source(mod).module_output = {}
-      ingestion_process.save
-    }
     it "pushes a run job" do
       expect(Hilda.queue).to receive(:push) do |job|
         expect(job.resource_id).to eql ingestion_process.id

@@ -1,17 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe Hilda::ModuleGraph do
-  before {
-    class TestModule
-      include Hilda::ModuleBase
-      def run_module
-        module_output = param_values.fetch(:output,{ test_out: 'test' })
-      end
-      def autorun?
-        param_values.fetch(:autorun,true)
-      end
-    end
-  }
 
   #
   # mod_a -> mod_b -> mod_c
@@ -21,17 +10,15 @@ RSpec.describe Hilda::ModuleGraph do
   # B and C not autorun
   #
 
-  let!( :mod_a ) { graph.add_start_module(TestModule, module_name: 'mod_a') }
-  let!( :mod_b ) { graph.add_module(TestModule,mod_a, module_name: 'mod_b', autorun: false) }
-  let!( :mod_c ) { graph.add_module(TestModule,mod_b, module_name: 'mod_c') }
-  let!( :mod_d ) { graph.add_module(TestModule,mod_a, module_name: 'mod_d') }
-  let!( :mod_e ) { graph.add_module(TestModule,mod_d, module_name: 'mod_e', autorun: false) }
-  let!( :mod_f ) { graph.add_module(TestModule,mod_e, module_name: 'mod_f') }
-  let!( :mod_g ) { graph.add_start_module(TestModule, module_name: 'mod_g') }
+  let( :mod_a ) { graph.find_module('mod_a') }
+  let( :mod_b ) { graph.find_module('mod_b') }
+  let( :mod_c ) { graph.find_module('mod_c') }
+  let( :mod_d ) { graph.find_module('mod_d') }
+  let( :mod_e ) { graph.find_module('mod_e') }
+  let( :mod_f ) { graph.find_module('mod_f') }
+  let( :mod_g ) { graph.find_module('mod_g') }
 
-  let!( :graph ) { Hilda::ModuleGraph.new }
-
-  after{ Object.send(:remove_const, :TestModule) }
+  let!( :graph ) { FactoryGirl.build(:module_graph,:execution)  }
 
   describe "#module_source" do
     it "gets returns nil for start modules" do
@@ -49,7 +36,7 @@ RSpec.describe Hilda::ModuleGraph do
       expect(graph.find_module('mod_d')).to eql mod_d
     end
     it "finds the module by class" do
-      expect(graph.find_module(TestModule)).to be_a TestModule
+      expect(graph.find_module(Hilda::Modules::DebugModule)).to be_a Hilda::Modules::DebugModule
     end
     it "retruns nil if module doesn't exist" do
       expect(graph.find_module('test')).to be_nil

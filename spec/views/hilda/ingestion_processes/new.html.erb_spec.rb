@@ -1,14 +1,23 @@
 require 'rails_helper'
 
-RSpec.xdescribe "hilda/ingestion_processes/new", type: :view do
+RSpec.describe "hilda/ingestion_processes/new", type: :view do
+  let(:templates) { [
+      FactoryGirl.build(:ingestion_process_template,:params),
+      FactoryGirl.build(:ingestion_process_template,:execution),
+    ] }
   before(:each) do
-    assign(:hilda_ingestion_process, Hilda::IngestionProcess.new())
+    assign(:ingestion_process, Hilda::IngestionProcess.new())
+    assign(:templates, templates)
   end
 
-  it "renders new hilda_ingestion_process form" do
+  let(:page) { Capybara::Node::Simple.new(rendered) }
+
+  it "renders all template options" do
     render
 
-    assert_select "form[action=?][method=?]", hilda_ingestion_processes_path, "post" do
+    templates.each do |template|
+      expect(rendered).to include template.title
+      expect(page).to have_selector("input[name='hilda_ingestion_process[template]'][value='#{template.template_key}']")
     end
   end
 end

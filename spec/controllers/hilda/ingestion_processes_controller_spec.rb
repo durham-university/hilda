@@ -55,7 +55,7 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
 
       it "redirects to the created ingestion_process" do
         post :create, {ingestion_process: {}}
-        expect(response).to redirect_to(Hilda::IngestionProcess.last)
+        expect(response).to redirect_to(edit_ingestion_process_path(Hilda::IngestionProcess.last))
       end
     end
   end

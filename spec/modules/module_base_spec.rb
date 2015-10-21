@@ -78,8 +78,8 @@ RSpec.describe Hilda::ModuleGraph do
 
   describe "#rollback" do
     it "calls cleanup and rollback" do
-      expect(mod).to receive(:cleanup)
-      expect(mod).to receive(:reset_module)
+      expect(mod).to receive(:cleanup).and_return(true)
+      expect(mod).to receive(:reset_module).and_return(true)
       mod.rollback
     end
   end

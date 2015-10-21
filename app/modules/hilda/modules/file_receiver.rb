@@ -10,6 +10,8 @@ module Hilda::Modules
     end
 
     def receive_params(params)
+      raise 'No file received' unless params.key?(:file)
+
       remove_received_temp_files
       received_temp_files = []
       self.param_values = {
@@ -32,9 +34,9 @@ module Hilda::Modules
       end
     end
 
-    def cleanup
+    def cleanup(*args)
       remove_received_temp_files
-      super
+      return super(*args)
     end
 
     def file_basename(file)

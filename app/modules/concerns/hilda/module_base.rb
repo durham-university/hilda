@@ -105,6 +105,7 @@ module Hilda
     def clear_log
       self.log.clear!
       changed!
+      return true
     end
 
     def reset_module
@@ -112,16 +113,17 @@ module Hilda
       self.module_output = nil
       clear_log
       changed!
+      return true
     end
 
     def cleanup
       self.run_status = :cleaned
       changed!
+      return true
     end
 
     def rollback
-      cleanup
-      reset_module
+      return cleanup && reset_module
     end
 
     def autorun?

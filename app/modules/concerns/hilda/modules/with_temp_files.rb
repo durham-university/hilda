@@ -23,15 +23,15 @@ module Hilda::Modules
       file_name.gsub(/(\.\.)|[^a-zA-Z0-9_.]/,'_')
     end
 
-    def reset_module
+    def reset_module(*args)
       remove_temp_files
       self.module_output.try(:[]=,:temp_files,[])
-      super
+      return super(*args)
     end
 
-    def cleanup
+    def cleanup(*args)
       remove_temp_files
-      super
+      return super(*args)
     end
 
     def remove_temp_files(files=nil)

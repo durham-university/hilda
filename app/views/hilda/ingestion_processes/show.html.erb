@@ -1,6 +1,6 @@
 <%- model_class = Hilda::IngestionProcess -%>
 <div class="page-header">
-  <h1><%=t '.title', :default => model_class.model_name.human.titleize %></h1>
+  <h1><%= @ingestion_process.to_s %></h1>
 </div>
 
 <div class="fieldset">

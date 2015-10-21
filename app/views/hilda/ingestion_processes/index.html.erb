@@ -6,21 +6,14 @@
   <thead>
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
-      <th><%=t '.actions', :default => t("helpers.actions") %></th>
+      <th>Status</th>
     </tr>
   </thead>
   <tbody>
     <% @ingestion_processes.each do |ingestion_process| %>
       <tr>
-        <td><%= link_to ingestion_process.id, hilda_ingestion_process_path(ingestion_process) %></td>
-        <td>
-          <%= link_to edit_hilda_ingestion_process_path(ingestion_process), :class => 'btn btn-xs', :title => "#{ t('.edit', :default => t('helpers.links.edit')) }" do %>
-            <%= glyph 'pencil' %>
-          <%- end -%>
-          <%= link_to hilda_ingestion_process_path(ingestion_process), :method => :delete, :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) }, :class => 'btn btn-xs', :title => "#{ t('.destroy', :default => t('helpers.links.destroy')) }" do %>
-            <%= glyph 'remove' %>
-          <%- end -%>
-        </td>
+        <td><%= link_to ingestion_process.to_s, edit_hilda_ingestion_process_path(ingestion_process) %></td>
+        <td><span class='graph_status <%= ingestion_process.run_status %>'><%= ingestion_process.run_status %></span></td>
       </tr>
     <% end %>
   </tbody>

@@ -3,6 +3,11 @@ module Hilda
     before_action :set_ingestion_process, only: [:show, :edit, :update, :destroy, :start_module, :reset_module]
     before_action :set_ingestion_module, only: [:update, :start_module, :reset_module]
 
+    def initialize(*args)
+      @module_notices = {}
+      super(*args)
+    end
+
     def use_layout?
       !(params.key?(:no_layout) || params[:hilda_ingestion_process].try(:key?,:no_layout))
     end
@@ -23,7 +28,7 @@ module Hilda
     end
 
     def create_test_process
-      graph = IngestionProcess.new
+      graph = IngestionProcess.new(title: "Test process #{DateTime.now.to_formatted_s}")
       graph.add_start_module(Hilda::Modules::FileReceiver) \
            .add_module(Hilda::Modules::FileMetadata, metadata_fields: {
               title: {label: 'Title', type: :string},
@@ -43,7 +48,7 @@ module Hilda
 
       respond_to do |format|
         if @ingestion_process.save
-          format.html { redirect_to @ingestion_process, notice: 'Ingestion process was successfully created.' }
+          format.html { redirect_to edit_ingestion_process_path(@ingestion_process), notice: 'Ingestion process was successfully created.' }
           format.json { render :show, status: :created, location: @ingestion_process }
         else
           format.html { render :new }
@@ -70,37 +75,59 @@ module Hilda
     end
 
     def start_module
-      raise 'Module is not ready to run' unless @ingestion_module.ready_to_run?
-      @ingestion_module.run_status=:queued
-      @ingestion_module.changed!
-      Hilda::Jobs::IngestionJob.new(resource: @ingestion_process, module_name: @ingestion_module).queue_job
-      # queue_job saves the object
+      if @ingestion_module.ready_to_run?
+        @ingestion_module.run_status=:queued
+        @ingestion_module.changed!
+        Hilda::Jobs::IngestionJob.new(resource: @ingestion_process, module_name: @ingestion_module).queue_job
+        # queue_job saves the object
+        add_module_notice("Module was queued to be ran", :success)
+      else
+        add_module_notice("Module is not ready to run")
+      end
 
       disable_layout = use_layout? ? {} : { layout: false }
       render :edit, {notice: 'Module was successfully queued to be ran.'}.merge(disable_layout)
     end
 
     def reset_module
-      @ingestion_module.reset_module
-      @ingestion_process.save!
+      begin
+        if @ingestion_module.reset_module
+          if @ingestion_process.save!
+            add_module_notice('Module was successfully reset', :success)
+          else
+            add_module_notice('Error saving ingestion process')
+          end
+        end
+      rescue StandardError => e
+        add_module_notice("Error resetting module: #{e.to_s}")
+      end
       disable_layout = params.key?(:no_layout) ? { layout: false } : {}
-      render :edit, {notice: 'Module was reset.'}.merge(disable_layout)
+      render :edit, disable_layout
     end
 
     private
 
+      # levels: :info, :success, :warning, :danger
+      def add_module_notice(message, level=:danger, mod=nil)
+        mod ||= @ingestion_module
+        @module_notices[mod] ||= []
+        @module_notices[mod] << {message: message, level: level}
+      end
+
       def receive_module_params
-        if @ingestion_module.receive_params(params[:hilda_ingestion_process])
-          if @ingestion_process.save
-            disable_layout = use_layout? ? {} : { layout: false }
-            render :edit, {notice: 'Ingestion process was successfully updated.'}.merge(disable_layout)
-#            redirect_to @ingestion_process, notice: 'Ingestion process was successfully updated.'
-          else
-            raise 'Error saving ingestion process'
+        begin
+          if @ingestion_module.receive_params(params[:hilda_ingestion_process])
+            if @ingestion_process.save
+              add_module_notice('Module parameters were successfully updated', :success)
+            else
+              @ingestion_module.add_notice('Error saving ingestion process')
+            end
           end
-        else
-          raise 'Module refused submitted values'
+        rescue StandardError => e
+          @ingestion_module.add_notice("Error setting module parameters: #{e.to_s}")
         end
+        disable_layout = use_layout? ? {} : { layout: false }
+        render :edit, disable_layout
       end
 
       # Use callbacks to share common setup or constraints between actions.

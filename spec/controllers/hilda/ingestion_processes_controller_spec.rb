@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Hilda::IngestionProcessesController, type: :controller do
+  routes { Hilda::Engine.routes }
 
   let( :ingestion_process ) { FactoryGirl.create(:ingestion_process,:params) }
   let( :mod ) {
@@ -54,25 +55,25 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
     describe "template loading" do
       it "creates a new IngestionProcess when using template_key" do
         expect {
-          post :create, {hilda_ingestion_process: { template: template.template_key }}
+          post :create, {ingestion_process: { template: template.template_key }}
         }.to change(Hilda::IngestionProcess, :count).by(1)
       end
       it "creates a new IngestionProcess when using template id" do
         expect {
-          post :create, {hilda_ingestion_process: { template: template.id }}
+          post :create, {ingestion_process: { template: template.id }}
         }.to change(Hilda::IngestionProcess, :count).by(1)
       end
       it "doesn't creat a new IngestionProcess when using an invalid template_key" do
         expect {
           expect {
-            post :create, {hilda_ingestion_process: { template: 'moo' }}
+            post :create, {ingestion_process: { template: 'moo' }}
           }.to raise_error('Template not found')
         }.not_to change(Hilda::IngestionProcess, :count)
       end
       it "doesn't creat a new IngestionProcess when not specifying template" do
         expect {
           expect {
-            post :create, {hilda_ingestion_process: { }}
+            post :create, {ingestion_process: { }}
           }.to raise_error('Template not found')
         }.not_to change(Hilda::IngestionProcess, :count)
       end
@@ -80,18 +81,18 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
 
     context "with valid params" do
       it "assigns a newly created ingestion_process as @ingestion_process" do
-        post :create, {hilda_ingestion_process: { template: template.template_key }}
+        post :create, {ingestion_process: { template: template.template_key }}
         expect(assigns(:ingestion_process)).to be_a(Hilda::IngestionProcess)
         expect(assigns(:ingestion_process)).to be_persisted
       end
 
       it "redirects to the created ingestion_process" do
-        post :create, {hilda_ingestion_process: { template: template.template_key }}
+        post :create, {ingestion_process: { template: template.template_key }}
         expect(response).to redirect_to(edit_ingestion_process_path(Hilda::IngestionProcess.last))
       end
 
       it "copies the template" do
-        post :create, {hilda_ingestion_process: { template: template.template_key }}
+        post :create, {ingestion_process: { template: template.template_key }}
         mod = assigns(:ingestion_process).find_module('mod_a')
         expect(mod).to be_a Hilda::Modules::DebugModule
         expect(mod.param_defs[:moo]).to eql({ label: 'moo', type: :string, default: nil, group: nil })
@@ -128,7 +129,7 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
         ingestion_process.save
       }
       it "sets param values" do
-        put :update, {id: ingestion_process.to_param, module: mod.module_name, hilda_ingestion_process: {
+        put :update, {id: ingestion_process.to_param, module: mod.module_name, ingestion_process: {
           moo: 'new moo',
           baa: 'new baa'
         } }
@@ -183,8 +184,8 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
       let(:params){ { no_layout: ''} }
       it "returns false" do expect(controller.use_layout?).to eql false end
     end
-    context "with no_layout under hilda_ingestion_process" do
-      let(:params){ { hilda_ingestion_process: { no_layout: ''} } }
+    context "with no_layout under ingestion_process" do
+      let(:params){ { ingestion_process: { no_layout: ''} } }
       it "returns false" do expect(controller.use_layout?).to eql false end
     end
   end

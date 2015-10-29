@@ -15,7 +15,7 @@ RSpec.describe "hilda/ingestion_processes/edit", type: :view do
   it "renders the edit form with all modules" do
     render
     ingestion_process.graph.keys.each do |mod|
-      expect(page).to have_selector("form[action='#{ingestion_process_module_path(ingestion_process.id,mod.module_name)}']")
+      expect(page).to have_selector("form[action='#{hilda.ingestion_process_module_path(ingestion_process.id,mod.module_name)}']")
     end
   end
 

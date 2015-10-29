@@ -10,11 +10,11 @@
 
 <div class="form-group">
   <%= link_to t('.back', :default => t("helpers.links.back")),
-              hilda_ingestion_processes_path, :class => 'btn btn-default'  %>
+              hilda.ingestion_processes_path, :class => 'btn btn-default'  %>
   <%= link_to t('.edit', :default => t("helpers.links.edit")),
-              edit_hilda_ingestion_process_path(@ingestion_process), :class => 'btn btn-default' %>
+              hilda.edit_ingestion_process_path(@ingestion_process), :class => 'btn btn-default' %>
   <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
-              hilda_ingestion_process_path(@ingestion_process),
+              hilda.ingestion_process_path(@ingestion_process),
               :method => 'delete',
               :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
               :class => 'btn btn-danger' %>

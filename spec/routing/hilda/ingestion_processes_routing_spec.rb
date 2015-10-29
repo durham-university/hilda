@@ -2,6 +2,7 @@ require "rails_helper"
 
 RSpec.describe Hilda::IngestionProcessesController, type: :routing do
   describe "routing" do
+    routes { Hilda::Engine.routes }
 
     it "routes to #index" do
       expect(:get => "/processes").to route_to("hilda/ingestion_processes#index")

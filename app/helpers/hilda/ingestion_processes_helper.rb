@@ -24,14 +24,14 @@ module Hilda::IngestionProcessesHelper
 
     components << %Q|
         <button type="button" class="btn btn-default reset_module_button" aria-label="Reset module"
-                data-url="#{ingestion_process_module_reset_path(mod.module_graph,mod.module_name)}">
+                data-url="#{hilda.ingestion_process_module_reset_path(mod.module_graph,mod.module_name)}">
           <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
         </button>
       |.html_safe
 
     components << %Q|
         <button type="button" class="#{'disabled' unless mod.ready_to_run?} btn btn-default start_module_button" aria-label="Start module"
-                data-url="#{ingestion_process_module_start_path(mod.module_graph,mod.module_name)}">
+                data-url="#{hilda.ingestion_process_module_start_path(mod.module_graph,mod.module_name)}">
           <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
         </button>
       |.html_safe
@@ -55,10 +55,14 @@ module Hilda::IngestionProcessesHelper
       case param[:type]
       when :file
         uploaded = mod.param_values.try(:[],key)
-        o << f.input(key, as: :file, label: param[:label], input_html: disabled )
-        o << %Q|<div class="form-group uploaded_file_info">Uploaded file: #{html_escape uploaded}</div>|.html_safe if uploaded
+        o << %Q|<div class="form-group">|.html_safe
+        o << f.input(key, as: :file, label: param[:label], input_html: { class: 'form-control' }.merge(disabled) )
+        o << %Q|<div class="uploaded_file_info">Uploaded file: #{html_escape uploaded}</div>|.html_safe if uploaded
+        o << %Q|</div>|.html_safe
       else
-        o << f.input(key, label: param[:label], input_html: { value: mod.param_values.try(:[],key) || param[:default] }.merge(disabled) )
+        o << %Q|<div class="form-group">|.html_safe
+        o << f.input(key, label: param[:label], input_html: { class: 'form-control', value: mod.param_values.try(:[],key) || param[:default] }.merge(disabled) )
+        o << %Q|</div>|.html_safe
       end
     end)
   end

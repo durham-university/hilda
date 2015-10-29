@@ -10,7 +10,7 @@ module Hilda
     end
 
     def use_layout?
-      !(params.key?(:no_layout) || params[:hilda_ingestion_process].try(:key?,:no_layout))
+      !(params.key?(:no_layout) || params[:ingestion_process].try(:key?,:no_layout))
     end
 
     def index
@@ -104,15 +104,15 @@ module Hilda
 
       def receive_module_params
         begin
-          if @ingestion_module.receive_params(params[:hilda_ingestion_process])
+          if @ingestion_module.receive_params(params[:ingestion_process])
             if @ingestion_process.save
               add_module_notice('Module parameters were successfully updated', :success)
             else
-              @ingestion_module.add_notice('Error saving ingestion process')
+              add_module_notice('Error saving ingestion process')
             end
           end
         rescue StandardError => e
-          @ingestion_module.add_notice("Error setting module parameters: #{e.to_s}")
+          add_module_notice("Error setting module parameters: #{e.to_s}")
         end
         disable_layout = use_layout? ? {} : { layout: false }
         render :edit, disable_layout
@@ -131,7 +131,7 @@ module Hilda
       end
 
       def set_ingestion_process_template
-        template_id_or_key = params[:hilda_ingestion_process].try(:[],:template)
+        template_id_or_key = params[:ingestion_process].try(:[],:template)
         raise 'Template not found' unless template_id_or_key
         result = Hilda::IngestionProcessTemplate.where( id: template_id_or_key )
         if result.any?

@@ -12,7 +12,7 @@
   <tbody>
     <% @ingestion_processes.each do |ingestion_process| %>
       <tr>
-        <td><%= link_to ingestion_process.to_s, edit_hilda_ingestion_process_path(ingestion_process) %></td>
+        <td><%= link_to ingestion_process.to_s, hilda.edit_ingestion_process_path(ingestion_process) %></td>
         <td><span class='graph_status <%= ingestion_process.run_status %>'><%= ingestion_process.run_status %></span></td>
       </tr>
     <% end %>
@@ -20,5 +20,5 @@
 </table>
 
 <%= link_to t('.new', :default => t("helpers.links.new")),
-            new_hilda_ingestion_process_path,
+            hilda.new_ingestion_process_path,
             :class => 'btn btn-primary' %>

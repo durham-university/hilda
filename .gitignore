@@ -8,17 +8,22 @@
 /.bundle
 
 # Ignore the default SQLite database.
+test_app/db/*.sqlite3
+test_app/db/*.sqlite3-journal
 /db/*.sqlite3
 /db/*.sqlite3-journal
 
 # Ignore all logfiles and tempfiles.
-/log/*
+test_app/log/*.log
+test_app/tmp/
+/log/*.log
+/tmp/
 !/log/.keep
-/tmp
+!/test_app/log/.keep
 
 .vagrant/
-jetty/
-config/secrets.yml
+test_app/jetty/
+test_app/config/secrets.yml
 
 testdata/*
 

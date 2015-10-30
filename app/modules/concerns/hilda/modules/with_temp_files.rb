@@ -3,7 +3,12 @@ module Hilda::Modules
     extend ActiveSupport::Concern
 
     def add_temp_file(file, index=nil)
-      index ||= ( module_output[:temp_files] ||= [] )
+      unless index
+        # param_values has indifferent access and things like a = ( b[:temp_files] ||= [])
+        # don't work as you might expect
+        param_values[:temp_files] ||= []
+        index = param_values[:temp_files]
+      end
       index << file
     end
 
@@ -25,7 +30,7 @@ module Hilda::Modules
 
     def reset_module(*args)
       remove_temp_files
-      self.module_output.try(:[]=,:temp_files,[])
+      self.param_values.try(:[]=,:temp_files,[])
       return super(*args)
     end
 
@@ -35,7 +40,7 @@ module Hilda::Modules
     end
 
     def remove_temp_files(files=nil)
-      files ||= self.module_output.try(:[],:temp_files) || []
+      files ||= self.param_values.try(:[],:temp_files) || []
       # Go in reverse order so that directories are removed after contents
       files.reverse.each do |file|
         if !file.start_with? temp_dir

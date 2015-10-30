@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
   # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
   s.add_dependency 'jbuilder', '~> 2.0'
 
+  s.add_dependency 'dropzonejs-rails'
   s.add_dependency 'rubyzip'
   s.add_dependency 'simple_form'
 

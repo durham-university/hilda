@@ -14,5 +14,7 @@
 //= require jquery_ujs
 //= require jquery-ui
 //= require bootstrap-sprockets
+//= require dropzone
 //# require turbolinks
 //= require hilda/modules
+//= require hilda/file_upload

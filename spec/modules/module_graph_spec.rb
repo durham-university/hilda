@@ -117,6 +117,26 @@ RSpec.describe Hilda::ModuleGraph do
     end
   end
 
+  describe "#reset_module_cascading" do
+    before {
+      mod_a.run_status = :finished
+      mod_b.run_status = :finished
+      mod_c.run_status = :finished
+      mod_d.run_status = :finished
+      mod_g.run_status = :finished
+    }
+    it "resets all needed modules" do
+      [mod_a, mod_b, mod_c, mod_d].each do |mod| expect(mod).to receive(:reset_module) end
+      [mod_e, mod_f, mod_g].each do |mod| expect(mod).not_to receive(:reset_module) end
+      graph.reset_module_cascading(mod_a)
+    end
+    it "doesn't reset modules that don't need to be reset" do
+      [mod_b, mod_c].each do |mod| expect(mod).to receive(:reset_module) end
+      [mod_a, mod_d, mod_e, mod_f, mod_g].each do |mod| expect(mod).not_to receive(:reset_module) end
+      graph.reset_module_cascading(mod_b)
+    end
+  end
+
   describe "#cleanup" do
     it "cleansup modules" do
       [mod_a, mod_b, mod_c, mod_d, mod_e, mod_f, mod_g].each do |mod|

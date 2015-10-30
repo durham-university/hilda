@@ -1,0 +1,13 @@
+.file_uploader {
+  .form-control.progress {
+    height: 34px;
+  }
+
+  .file-row {
+    .input-group { width: 100%; }
+    margin-top: 5px;
+  }
+
+  .file_uploader_preview_template { display: none; }
+  .form_template { display: none; }
+}

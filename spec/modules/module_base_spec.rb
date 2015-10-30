@@ -22,6 +22,32 @@ RSpec.describe Hilda::ModuleGraph do
     end
   end
 
+  describe "#rendering_option and #set_rendering_option" do
+    it "can set and get values" do
+      expect(mod.rendering_option(:test)).to be_nil
+      mod.set_rendering_option(:test,'moo')
+      expect(mod.rendering_option(:test)).to eql 'moo'
+    end
+    it "stores options in param_values" do
+      mod.set_rendering_option(:test,'moo')
+      mod.set_rendering_option(:test2,'baa')
+      expect(mod.param_values[:rendering_options]).to eql({test: 'moo', test2: 'baa'})
+    end
+  end
+
+  describe "#can_receive_params?" do
+    it "works" do
+      mod.run_status=:running
+      expect(mod.can_receive_params?).to eql false
+      mod.run_status=:finished
+      expect(mod.can_receive_params?).to eql false
+      mod.run_status=:initialized
+      expect(mod.can_receive_params?).to eql true
+      allow(graph).to receive(:run_status).and_return(:running)
+      expect(mod.can_receive_params?).to eql false
+    end
+  end
+
   describe "#default_module_name" do
     it "returns something" do
       expect(mod.default_module_name).to be_a String

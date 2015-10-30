@@ -7,12 +7,17 @@ function init_modules_ajax() {
     var last_change = -1;
     return {
       isGraphRunning: function(){
+        if(!this.isOnGraphPage()) return false;
         return $('.module_graph').hasClass('graph_running') || $('.module_graph').hasClass('graph_queued');
+      },
+      isOnGraphPage: function(){
+        return $('.module_graph').length>0;
       },
       updateModule: function(new_module_container){
         //console.log("updating module");
         var old_module_container = $('#'+new_module_container.attr('id'))
         old_module_container.replaceWith(new_module_container);
+        new_module_container.trigger("hilda:module_replaced",[new_module_container]);
       },
       updateLastChange: function(){
         last_change = Math.max.apply(null, $('.module_container>.module_timestamp').map(function(){return parseInt($(this).text());}) );
@@ -32,7 +37,10 @@ function init_modules_ajax() {
         this.updateLastChange()
 
         waiting_for_response--;
+
         if(requests.length>0 && waiting_for_response==0) this.sendNow();
+
+        if(this.isGraphRunning() && !this.isRunning()) this.run();
       },
       handleFail: function(resp){
         alert("Error!  Status: " + resp.status);
@@ -85,7 +93,7 @@ function init_modules_ajax() {
       run: function(){
         if(waiting_for_response == 0) this.poll();
         var _this = this;
-        if(this.isOnGraphPage()) {
+        if(this.isGraphRunning()) {
           timeout_id = setTimeout(function(){ _this.run() }, 5000)
         }
         else {
@@ -105,12 +113,9 @@ function init_modules_ajax() {
         this.updateLastChange();
         this.pageChanged();
       },
-      isOnGraphPage: function(){
-        return $('.module_graph').length>0;
-      },
       pageChanged: function(){
         this.setSubmitHandlers();
-        if(this.isOnGraphPage() && !this.isRunning()) this.run();
+        if(this.isGraphRunning() && !this.isRunning()) this.run();
       },
       setSubmitHandlers: function(){
         if(!this.isOnGraphPage()) return;
@@ -118,7 +123,8 @@ function init_modules_ajax() {
         if(graph_elem.data('submit_handlers_set')) return;
         graph_elem.data('submit_handlers_set',true);
         var _this = this;
-        $(".module_graph").on('click',".module_container .module input[type='submit']",function(event){
+
+        var submitForm = function(event){
           event.preventDefault();
           if(_this.isGraphRunning()) return false;
           var button = $(this);
@@ -132,7 +138,10 @@ function init_modules_ajax() {
           form.find('input').attr('disabled','true');
 
           return false;
-        });
+        };
+
+        $(".module_graph").on('click',".module_container .module input[type='submit']", submitForm );
+        $(".module_graph").on('click',".module_container .module button[type='submit']", submitForm );
 
         $(".module_graph").on('click',".module_container .module button.reset_module_button",function(event){
           if(_this.isGraphRunning()) return false;
@@ -153,6 +162,8 @@ function init_modules_ajax() {
     };
   })();
   ajax_manager.start();
+
+  hilda_modules_poll_change = function(){ ajax_manager.poll(); }
 
   dajax_manager = ajax_manager; // expose ajax_manager for debugging
 }

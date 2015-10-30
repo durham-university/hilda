@@ -5,6 +5,7 @@ module Hilda::Modules
     attr_accessor :param_defs
 
     def receive_params(params)
+      raise "Module cannot receive params in current state" unless can_receive_params?
       # Don't clear param_values, there might be other needed stuff in there
       # besides submitted params
 

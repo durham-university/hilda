@@ -38,6 +38,12 @@ RSpec.describe Hilda::Modules::WithParams do
       ret = mod.receive_params({'title' => 'new title', 'te_st' => 'new test', 'other' => 'something else'})
       expect( ret ).to eql true
     end
+    it "doesn't take in params if module cannot receive params" do
+      expect(mod).to receive(:can_receive_params?).and_return(false)
+      expect{
+        mod.receive_params({'title' => 'new title', 'te_st' => 'new test', 'other' => 'something else'})
+      }.to raise_error("Module cannot receive params in current state")
+    end
   end
 
   describe "#got_all_param_values?" do

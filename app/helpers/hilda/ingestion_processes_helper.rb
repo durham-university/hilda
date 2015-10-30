@@ -50,15 +50,16 @@ module Hilda::IngestionProcessesHelper
   end
 
   def render_module_params(mod,f)
-    disabled = (mod.run_status == :running) ? { disabled: 'true' } : {}
+    disabled = (!mod.can_receive_params?) ? { disabled: 'true' } : {}
     safe_join( (mod.param_defs || {}).each_with_object([]) do |(key,param),o|
       case param[:type]
       when :file
-        uploaded = mod.param_values.try(:[],key)
-        o << %Q|<div class="form-group">|.html_safe
-        o << f.input(key, as: :file, label: param[:label], input_html: { class: 'form-control' }.merge(disabled) )
-        o << %Q|<div class="uploaded_file_info">Uploaded file: #{html_escape uploaded}</div>|.html_safe if uploaded
-        o << %Q|</div>|.html_safe
+        #        uploaded = mod.param_values.try(:[],key)
+        #        o << %Q|<div class="form-group">|.html_safe
+        #        o << f.input(key, as: :file, label: param[:label], input_html: { class: 'form-control' }.merge(disabled) )
+        #        o << %Q|<div class="uploaded_file_info">Uploaded file: #{html_escape uploaded}</div>|.html_safe if uploaded
+        #        o << %Q|</div>|.html_safe
+        o << capture do render('hilda/modules/file_upload', mod: mod, param: param, param_key: key) end
       else
         o << %Q|<div class="form-group">|.html_safe
         o << f.input(key, label: param[:label], input_html: { class: 'form-control', value: mod.param_values.try(:[],key) || param[:default] }.merge(disabled) )

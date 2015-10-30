@@ -1,5 +1,5 @@
 <% if mod.respond_to? :param_defs %>
-  <% form_disabled = (mod.run_status==:running) %>
+  <% form_disabled = (!mod.can_receive_params?) %>
   <li class="list-group-item">
     <% has_files = mod.param_defs.any? do |key,param| param[:type]==:file end || false %>
     <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_path(@ingestion_process, mod.module_name), html: { class: 'form', multipart: has_files } do |f| %>
@@ -7,7 +7,9 @@
       <div class="form-group">
         <%= render_module_params(mod, f) %>
       </div>
-      <%= f.button :submit, 'Update module', class: "btn btn-primary #{'disabled' if form_disabled}" %>
+      <% if mod.can_receive_params? %>
+        <%= f.button(:submit, 'Update module', class: "btn btn-primary #{'disabled' if form_disabled}") unless mod.rendering_option(:no_submit) %>
+      <% end %>
     <% end %>
   </li>
 <% end %>

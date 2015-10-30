@@ -6,25 +6,54 @@ module Hilda::Modules
 
     def initialize(*args)
       super(*args)
-      self.param_defs = { file: { name: 'file', type: :file, default: nil } }
+      self.param_defs = { files: { name: 'files', type: :file, default: nil } }
+      self.param_values.merge!({form_template: 'hilda/modules/file_upload'})
+      set_rendering_option(:no_submit,true)
     end
 
     def receive_params(params)
-      raise 'No file received' unless params.key?(:file)
-
-      remove_received_temp_files
-      received_temp_files = []
-      self.param_values = {
-        received_files: make_copies_of_files( [params[:file]],received_temp_files),
-        copy_files: false,
-        received_temp_files: received_temp_files
-      }
-
-      # this is just feedback for user that the file was received.
-      self.param_values[:file] = "#{params[:file].original_filename} (#{params[:file].size} bytes)"
-
-      changed!
+      raise "Module cannot receive params in current state" unless can_receive_params?
+      if params.key?(:files)
+        files = sanitise_files_params(params[:files])
+        add_received_files( files )
+        changed!
+      end
+      if params.key?(:remove_file)
+        remove_received_file(params[:remove_file])
+        changed!
+      end
+      if params.key?(:remove_all_files)
+        remove_received_temp_files
+        self.param_values.merge!({
+            files: {},
+            received_temp_files: []
+          })
+        changed!
+      end
       return true
+    end
+
+    def add_received_files(files)
+      make_copies_of_files(files)
+    end
+
+    def remove_received_file(file_key)
+      received_files = self.param_values[:files] || {}
+      if received_files.key?(file_key)
+        file_path = received_files[file_key][:path]
+        raise 'file path not in temp file index' unless self.param_values[:received_temp_files].index(file_path)
+        remove_temp_files([file_path])
+        self.param_values[:received_temp_files].delete(file_path)
+        received_files.delete(file_key)
+      end
+    end
+
+    def remove_all_received_files
+      remove_received_temp_files
+      self.param_values.merge!({
+          files: {},
+          received_temp_files: []
+        })
     end
 
     def remove_received_temp_files
@@ -46,6 +75,7 @@ module Hilda::Modules
     end
 
     def file_key(hash,basename)
+      basename ||= 'unnamed_file'
       key = basename
       counter = 1
       while(hash.key?(key)) do
@@ -55,27 +85,40 @@ module Hilda::Modules
       key
     end
 
-    def make_copies_of_files(files, temp_file_index=nil )
-      dir = make_temp_file_path
-      Dir.mkdir(dir)
-      add_temp_file(dir, temp_file_index)
+    def make_copies_of_files(files)
+      self.param_values ||= {}
+      self.param_values[:files] ||= {}
+      self.param_values[:received_temp_files] ||= []
+      # param_values has indifferent access and this won't work files = (self.param_values[:files] ||= {})
+      file_values = self.param_values[:files]
+      temp_files = self.param_values[:received_temp_files]
+      temp_dir = self.param_values[:temp_dir]
 
-      return files.each_with_object({}) do |file,hash|
+      unless temp_dir
+        temp_dir = make_temp_file_path
+        Dir.mkdir(temp_dir)
+        add_temp_file(temp_dir, temp_files)
+        self.param_values[:temp_dir] = temp_dir
+      end
+
+      files.each do |file|
         basename = file_basename(file)
         if basename
-          file_path = File.join(dir,sanitise_filename(basename))
+          file_path = File.join(temp_dir,sanitise_filename(basename))
+          file_path = make_temp_file_path(temp_dir) if File.exists?(file_path)
         else
-          file_path = make_temp_file_path(dir)
+          file_path = make_temp_file_path(temp_dir)
         end
         raise 'Temporary file already exists' if File.exists?(file_path)
 
         out = File.open(file_path,'wb')
         IO.copy_stream(file, out)
         out.close
-        add_temp_file(file_path,temp_file_index)
+        add_temp_file(file_path, temp_files)
 
-        hash[file_key(hash,basename)] = {path: file_path, original_filename: basename}
+        file_values[file_key(file_values,basename)] = {path: file_path, original_filename: basename}
       end
+      return file_values
     end
 
     def unzip(file)
@@ -115,11 +158,25 @@ module Hilda::Modules
     end
 
     def run_module
-      files = param_values[:received_files]
-      files = make_copies_of_files(files) if param_values.fetch(:copy_files, true)
+      files = param_values[:files]
       files = unpack_files(files) if module_graph.fetch(:unpack_files, true)
       module_output.merge!({ source_files: files })
     end
+
+    private
+
+      def sanitise_files_params(params)
+        if params.is_a? Hash
+          params.each_with_object([]) do |(key,value),obj| obj << [key,value] end \
+              .sort do |a,b| a[0].to_i <=> b[0].to_i end \
+              .map do |a| a[1] end
+        elsif params.is_a? Array
+          # Do not use just Array(params), it causes problems with files
+          params
+        else
+          [params]
+        end
+      end
 
   end
 end

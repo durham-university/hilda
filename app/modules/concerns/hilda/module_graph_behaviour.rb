@@ -118,6 +118,18 @@ module Hilda
       graph.keys.each do |mod| mod.reset_module end
     end
 
+    def reset_module_cascading(from,done=[])
+      from = Array(from)
+      from.each do |mod|
+        if mod.run_status==:finished
+          reset_module_cascading(graph[mod],done)
+          mod.reset_module
+          done << mod
+        end
+      end
+      done
+    end
+
     def rollback_graph(from=nil)
       from ||= start_modules
       from.each do |mod|

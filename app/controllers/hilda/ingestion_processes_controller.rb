@@ -50,7 +50,7 @@ module Hilda
         receive_module_params
       else
         # set graph attributes, if there ever are any
-        redirect_to @ingestion_process
+        redirect_to edit_ingestion_process_path(@ingestion_process)
       end
     end
 
@@ -79,9 +79,12 @@ module Hilda
 
     def reset_module
       begin
-        if @ingestion_module.reset_module
+        reset_modules = @ingestion_process.reset_module_cascading(@ingestion_module)
+        if reset_modules.any?
           if @ingestion_process.save!
-            add_module_notice('Module was successfully reset', :success)
+            reset_modules.each do |mod|
+              add_module_notice('Module was successfully reset', :success, mod)
+            end
           else
             add_module_notice('Error saving ingestion process')
           end

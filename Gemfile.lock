@@ -3,6 +3,7 @@ PATH
   specs:
     hilda (0.0.1)
       active-fedora
+      dropzonejs-rails
       jbuilder (~> 2.0)
       jquery-rails
       rails (~> 4.2.4)
@@ -35,7 +36,7 @@ GEM
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    active-fedora (9.4.3)
+    active-fedora (9.5.0)
       active-triples (~> 0.7.1)
       activesupport (>= 4.1.0)
       deprecation
@@ -45,7 +46,7 @@ GEM
       om (~> 3.1)
       rdf-rdfxml (~> 1.1.0)
       rsolr (~> 1.0.10)
-    active-triples (0.7.1)
+    active-triples (0.7.2)
       activemodel (>= 3.0.0)
       activesupport (>= 3.0.0)
       deprecation (~> 0.1)
@@ -109,6 +110,8 @@ GEM
       devise (>= 3.4.1)
       net-ldap (>= 0.6.0, <= 0.11)
     diff-lcs (1.2.5)
+    dropzonejs-rails (0.7.2)
+      rails (> 3.1)
     ebnf (0.3.9)
       rdf (~> 1.1)
       sxp (~> 0.1, >= 0.1.3)
@@ -281,7 +284,7 @@ GEM
     rdf-turtle (1.1.8)
       ebnf (~> 0.3, >= 0.3.6)
       rdf (~> 1.1, >= 1.1.10)
-    rdf-vocab (0.8.5)
+    rdf-vocab (0.8.6)
       rdf (~> 1.1, >= 1.1.10)
     rdf-xsd (1.1.4)
       rdf (~> 1.1, >= 1.1.9)
@@ -305,7 +308,7 @@ GEM
     resque-pool (0.6.0)
       rake
       resque (~> 1.22)
-    rsolr (1.0.12)
+    rsolr (1.0.13)
       builder (>= 2.1.2)
     rspec-core (3.3.2)
       rspec-support (~> 3.3.0)
@@ -335,7 +338,7 @@ GEM
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
-    simple_form (3.1.1)
+    simple_form (3.2.0)
       actionpack (~> 4.0)
       activemodel (~> 4.0)
     sinatra (1.4.6)

@@ -1,0 +1,72 @@
+<% form_disabled = (mod.can_receive_params?) %>
+<% param_key = :files %>
+<% param = mod.param_defs[param_key] %>
+<li class="list-group-item file_uploader">
+  <% if mod.param_values.try(:[],param_key).try(:any?) %>
+    <div class="form-group existing_files">
+      <h4>Uploaded files</h4>
+      <div class="table table-striped files">
+        <% mod.param_values[param_key].each do |key,file| %>
+          <div class="file-row">
+            <div class="input-group">
+              <div class="form-control" style="width: 100%;">
+                <span class="name"><%= key %></span> (<span class="size"><%= number_to_human_size(File.size(file[:path])) %></span>)
+              </div>
+              <% if mod.can_receive_params? %>
+                <div class="input-group-btn">
+                  <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_path(@ingestion_process, mod.module_name), html: { class: 'form' } do |f| %>
+                    <%= f.input :no_layout, as: :hidden, input_html: { value: 'true' } %>
+                    <%= f.input :remove_file, as: :hidden, input_html: { value: key } %>
+                    <button type="submit" class="btn btn-danger delete">
+                      <i class="glyphicon glyphicon-trash"></i>
+                    </button>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+  <% if mod.can_receive_params? %>
+    <div class="form-group">
+      <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_path(@ingestion_process, mod.module_name), html: { class: 'form_template' } do |f| %>
+        <%= f.input :no_layout, as: :hidden, input_html: { value: 'true' } %>
+      <% end %>
+      <h4>Add files</h4>
+      <div class="table table-striped files file_uploader_previews_container">
+        <div class="file-row file_uploader_preview_template">
+          <div class="error text-danger" data-dz-errormessage></div>
+          <div class="input-group">
+            <div class="form-control progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="progress-bar progress-bar-success" style="position: absolute; top: 0; left: 0; width:0%;" data-dz-uploadprogress></div>
+              <div style="position: absolute"><span class="name" data-dz-name></span> (<span class="size" data-dz-size></span>)</div>
+            </div>
+            <div class="input-group-btn">
+              <button data-dz-remove class="btn btn-warning cancel">
+                  <i class="glyphicon glyphicon-ban-circle"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row upload_action_buttons">
+        <div class="col-lg-12">
+          <span class="btn btn-success fileinput-button dz-clickable">
+              <i class="glyphicon glyphicon-plus"></i>
+              <span>Add files...</span>
+          </span>
+          <span class="btn btn-primary start">
+              <i class="glyphicon glyphicon-upload"></i>
+              <span>Start upload</span>
+          </span>
+          <span class="btn btn-warning cancel">
+              <i class="glyphicon glyphicon-ban-circle"></i>
+              <span>Cancel upload</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</li>

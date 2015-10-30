@@ -1,5 +1,6 @@
 require 'sass-rails'
 require 'jquery-rails'
+require 'dropzonejs-rails'
 require 'simple_form'
 require 'active-fedora'
 require "hilda/engine"

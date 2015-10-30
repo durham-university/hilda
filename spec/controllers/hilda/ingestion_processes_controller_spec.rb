@@ -9,7 +9,13 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
       expect(mod).to be_a Hilda::ModuleBase
     end
   }
+  let( :other_mod ) {
+    ingestion_process.find_module('mod_b').tap do |mod|
+      expect(mod).to be_a Hilda::ModuleBase
+    end
+  }
   let( :mod_loaded ) { Hilda::IngestionProcess.find(ingestion_process.id).find_module(mod.module_name) }
+  let( :other_mod_loaded ) { Hilda::IngestionProcess.find(ingestion_process.id).find_module(other_mod.module_name) }
 
   describe "GET #index" do
     it "assigns all ingestion_processes as @ingestion_processes" do
@@ -116,7 +122,7 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
 
       it "redirects to the ingestion_process" do
         put :update, {id: ingestion_process.to_param, ingestion_process: {}}
-        expect(response).to redirect_to(ingestion_process)
+        expect(response).to redirect_to(edit_ingestion_process_path(ingestion_process))
       end
     end
 
@@ -166,11 +172,21 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
   end
 
   describe "POST #reset_module" do
-    it "resets the module" do
+    it "resets the module and cascades" do
       mod.run_status = :finished
+      other_mod.run_status = :finished
       ingestion_process.save
       post :reset_module, {id: ingestion_process.to_param, module: mod.module_name }
       expect(mod_loaded.run_status).to eql :initialized
+      expect(other_mod_loaded.run_status).to eql :initialized
+    end
+    it "doesn't reset modules unnecessarily" do
+      mod.run_status = :finished
+      other_mod.run_status = :finished
+      ingestion_process.save
+      post :reset_module, {id: ingestion_process.to_param, module: other_mod.module_name }
+      expect(mod_loaded.run_status).to eql :finished
+      expect(other_mod_loaded.run_status).to eql :initialized
     end
   end
 

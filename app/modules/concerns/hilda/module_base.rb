@@ -20,6 +20,14 @@ module Hilda
       changed!
     end
 
+    def rendering_option(key,default=nil)
+      self.param_values[:rendering_options].try(:[],key.to_sym) || default
+    end
+    def set_rendering_option(key,value)
+      self.param_values[:rendering_options] ||= {}
+      self.param_values[:rendering_options][key.to_sym] = value
+    end
+
     def default_module_name
       base_name = self.class.to_s.underscore.gsub(/[^a-zA-Z0-9_.-]/,'_')
       return base_name unless module_graph.find_module(base_name)
@@ -29,6 +37,10 @@ module Hilda
         name = "#{base_name}_#{counter}"
       end while module_graph.find_module(name)
       return name
+    end
+
+    def can_receive_params?
+      return run_status!=:running && run_status!=:finished && module_graph.run_status!=:running
     end
 
     def add_module(module_class,after_module=nil,params={})

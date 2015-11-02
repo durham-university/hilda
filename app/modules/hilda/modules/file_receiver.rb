@@ -14,8 +14,9 @@ module Hilda::Modules
     def receive_params(params)
       raise "Module cannot receive params in current state" unless can_receive_params?
       if params.key?(:files)
-        files = sanitise_files_params(params[:files])
-        add_received_files( files )
+        files = params_array(params[:files])
+        md5s = params_array(params[:md5s])
+        add_received_files( files.zip(md5s).map do |x| {file: x[0], md5: x[1]} end )
         changed!
       end
       if params.key?(:remove_file)
@@ -33,8 +34,8 @@ module Hilda::Modules
       return true
     end
 
-    def add_received_files(files)
-      make_copies_of_files(files)
+    def add_received_files(files_and_md5s)
+      make_copies_of_files(files_and_md5s)
     end
 
     def remove_received_file(file_key)
@@ -94,14 +95,22 @@ module Hilda::Modules
       temp_files = self.param_values[:received_temp_files]
       temp_dir = self.param_values[:temp_dir]
 
-      unless temp_dir
+      unless temp_dir && File.exists?(temp_dir)
         temp_dir = make_temp_file_path
         Dir.mkdir(temp_dir)
         add_temp_file(temp_dir, temp_files)
         self.param_values[:temp_dir] = temp_dir
       end
 
-      files.each do |file|
+      new_files = []
+      files.each do |file_hash|
+        if file_hash.is_a? File
+          file = file_hash
+          file_hash = { file: file }
+        else
+          file = file_hash[:file]
+        end
+
         basename = file_basename(file)
         if basename
           file_path = File.join(temp_dir,sanitise_filename(basename))
@@ -116,9 +125,33 @@ module Hilda::Modules
         out.close
         add_temp_file(file_path, temp_files)
 
-        file_values[file_key(file_values,basename)] = {path: file_path, original_filename: basename}
+        new_file = {path: file_path, original_filename: basename}.merge(file_hash.except(:file))
+        file_values[file_key(file_values,basename)] = new_file
+        new_files << new_file
       end
-      return file_values
+      return new_files
+    end
+
+    def calculate_md5(file)
+      Digest::MD5.file(file).hexdigest
+    end
+
+    def verify_md5s(files)
+      errors = false
+      files.each do |key,file|
+        if file[:md5].present?
+          md5 = calculate_md5(file[:path])
+          unless md5 == file[:md5]
+            log! :error, "MD5 mismatch for #{file[:original_filename]}!"
+            errors = true
+          end
+        else
+          log! :warn, "No MD5 received for #{file[:original_filename]}. Adding one now."
+          file[:md5] = calculate_md5(file[:path])
+        end
+      end
+      log! :info, "All MD5s match" unless errors
+      return errors
     end
 
     def unzip(file)
@@ -133,7 +166,7 @@ module Hilda::Modules
           dest = File.join(dir, key)
           entry.extract(dest)
           add_temp_file(dest)
-          files[key] = { path: dest, original_filename: File.basename(entry.name) }
+          files[key] = { path: dest, original_filename: File.basename(entry.name), md5: calculate_md5(dest) }
         end
       end
       files
@@ -142,6 +175,7 @@ module Hilda::Modules
     def unpack_files(files)
       return (files.values.each_with_object({}) do |file,hash|
         if File.extname(file[:original_filename]).downcase == '.zip'
+          log! :info, "Unpacking #{file[:original_filename]}"
           unzip(file[:path]).values.each do |unzipped|
             hash[file_key(hash,unzipped[:original_filename])] = unzipped
           end
@@ -159,13 +193,18 @@ module Hilda::Modules
 
     def run_module
       files = param_values[:files]
+      log! :info, "Received #{files.length} files"
+      if verify_md5s(files)
+        self.run_status = :error
+        return
+      end
       files = unpack_files(files) if module_graph.fetch(:unpack_files, true)
       module_output.merge!({ source_files: files })
     end
 
     private
 
-      def sanitise_files_params(params)
+      def params_array(params)
         if params.is_a? Hash
           params.each_with_object([]) do |(key,value),obj| obj << [key,value] end \
               .sort do |a,b| a[0].to_i <=> b[0].to_i end \

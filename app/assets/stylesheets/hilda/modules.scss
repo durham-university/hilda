@@ -69,16 +69,19 @@ $graph-paused: #b85cb8;
     }
 
     .module_log {
-      tr {
-        &.error {
-          background-color: lighten($module-error, 30%);
-        }
-        &.warn {
-          background-color: lighten($module-running, 30%);
-        }
-        td {
-          vertical-align: top;
-          padding-left: 10px;
+      table {
+        margin-bottom: 0;
+        tr {
+          &.error {
+            background-color: lighten($module-error, 30%);
+          }
+          &.warn {
+            background-color: lighten($module-running, 30%);
+          }
+          td {
+            vertical-align: top;
+            padding-left: 10px;
+          }
         }
       }
     }

@@ -1,0 +1,35 @@
+<% if mod.log.any? %>
+  <% log_id = "log_#{mod.module_name.underscore}" %>
+  <% module_id = "module_#{mod.module_name.underscore}" %>
+  <% log_level = case mod.log.highest_level
+        when :fatal, :error
+          :danger
+        when :warn
+          :warning
+        else
+          :info
+        end
+  %>
+  <a class="list-group-item" data-toggle="collapse" data-target="#<%= log_id %>" data-parent="#<%= module_id %>">Log <span class="label label-<%= log_level %>"><%= mod.log.size %> <%= 'message'.pluralize(mod.log.size) %></span></a>
+  <div id="<%= log_id %>" class="collapse module_log">
+    <table class="table">
+      <tr><th>Level</th><th>Time</th><th>Message</th></tr>
+      <% mod.log.each do |message| %>
+        <tr class="log_message <%= message.level %>">
+          <td class="level"><%= message.level %></td>
+          <td class="time"><%= message.time.to_s %></td>
+          <td class="message">
+            <%= message.message %>
+            <% if message.exception %>
+              <div class="exception">
+                <% message.exepcion.backtrace.each do |trace| %>
+                  <%= trace %><br />
+                <% end %>
+              </div>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </table>
+  </div>
+<% end %>

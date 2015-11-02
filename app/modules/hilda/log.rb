@@ -16,6 +16,16 @@ class Hilda::Log
     @log = []
   end
 
+  def highest_level
+    return :fatal if @log.any? do |log_message| log_message.level == :fatal end
+    return :error if @log.any? do |log_message| log_message.level == :error end
+    return :warn if @log.any? do |log_message| log_message.level == :warn end
+    return :info if @log.any? do |log_message| log_message.level == :info end
+    return :debug if @log.any? do |log_message| log_message.level == :debug end
+    return :trace if @log.any? do |log_message| log_message.level == :trace end
+    return :other
+  end
+
   def errors?
     @log.any? do |log_message| log_message.level == :error end
   end
@@ -58,7 +68,7 @@ class Hilda::Log
   end
 
   class LogMessage
-    attr_reader :level, :message, :exception
+    attr_reader :level, :message, :exception, :time
     def initialize(*args)
       if args.count==1
         if args[0].is_a? Exception
@@ -79,6 +89,7 @@ class Hilda::Log
       else
         @level, @message, @exception = args
       end
+      @time = DateTime.now
     end
 
     def to_s
@@ -105,10 +116,11 @@ class Hilda::Log
       @level = json[:level].to_sym
       @message = json[:message]
       @exception = self.class.parse_exception(json[:exception])
+      @time = DateTime.parse(json[:time]) if json[:time].present?
     end
 
     def as_json(*args)
-      {level: level, message: message, exception: exception_as_json}.compact
+      {level: level, time: time.try(:to_s,:iso8601), message: message, exception: exception_as_json}.compact
     end
 
     def self.parse(json)

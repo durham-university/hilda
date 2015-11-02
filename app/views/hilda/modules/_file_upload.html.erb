@@ -10,7 +10,12 @@
           <div class="file-row">
             <div class="input-group">
               <div class="form-control" style="width: 100%;">
-                <span class="name"><%= key %></span> (<span class="size"><%= number_to_human_size(File.size(file[:path])) %></span>)
+                <% if File.exists?(file[:path]) %>
+                  <span class="name"><%= key %></span> (<span class="size"><%= number_to_human_size(File.size(file[:path])) %></span>)
+                  - <span class="md5">MD5: <%= file[:md5] %></span>
+                <% else %>
+                <span class="name"><%= key %></span> - <span class="error alert-danger">File doesn't exist on server!</span>
+                <% end %>
               </div>
               <% if mod.can_receive_params? %>
                 <div class="input-group-btn">
@@ -41,7 +46,7 @@
           <div class="input-group">
             <div class="form-control progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
               <div class="progress-bar progress-bar-success" style="position: absolute; top: 0; left: 0; width:0%;" data-dz-uploadprogress></div>
-              <div style="position: absolute"><span class="name" data-dz-name></span> (<span class="size" data-dz-size></span>)</div>
+              <div style="position: absolute"><span class="name" data-dz-name></span> (<span class="size" data-dz-size></span>) <span class="md5"></span></div>
             </div>
             <div class="input-group-btn">
               <button data-dz-remove class="btn btn-warning cancel">

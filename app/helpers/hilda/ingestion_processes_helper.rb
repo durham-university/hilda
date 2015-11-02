@@ -44,6 +44,11 @@ module Hilda::IngestionProcessesHelper
     capture do render(template, mod: mod) end
   end
 
+  def render_module_log(mod)
+    template = mod.param_values.fetch(:log_template,'hilda/modules/default_log')
+    capture do render(template, mod: mod) end
+  end
+
   def render_module_form(mod)
     template = mod.param_values.fetch(:form_template,'hilda/modules/default_form')
     capture do render(template, mod: mod) end
@@ -86,8 +91,8 @@ module Hilda::IngestionProcessesHelper
         #{html_escape mod.run_status}
        </div>|.html_safe
   end
-
-  def render_module_log(mod,last=5,errors_only=true)
+=begin
+  def render_module_log(mod,last=5,errors_only=false)
     last = mod.log.size if last.nil? || last<0
     messages = mod.log
     if errors_only
@@ -125,4 +130,5 @@ module Hilda::IngestionProcessesHelper
     return '' unless exception
     %Q|<div class="exception">#{safe_join exception.backtrace, '<br/>'}</div>|.html_safe
   end
+=end
 end

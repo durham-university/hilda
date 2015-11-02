@@ -5,6 +5,7 @@ $(function(){
     if(!dropzone) return init_dropzone(uploader);
     return dropzone;
   };
+
   var init_dropzone = function(uploader){
     var formTemplate = uploader.find('.form_template')
 
@@ -17,13 +18,15 @@ $(function(){
 
     var dropzone = new Dropzone(actionButtons[0], {
       url: formTemplate.attr('action'),
-      sending: function(event, xhr, formData){
+      sending: function(event,xhr,formData){
         formData.append('authenticity_token', formTemplate.find("input[name='authenticity_token']").val());
         formData.append('ingestion_process[no_layout]','true');
+        var md5=$(event.previewElement).data('md5') || '';
+        formData.append("ingestion_process[md5s][]",md5);
       },
       method: "put",
       paramName: "ingestion_process[files]",
-      parallelUploads: 1,
+      parallelUploads: 10,
       uploadMultiple: true,
       previewTemplate: previewTemplate,
       autoQueue: false,
@@ -39,10 +42,31 @@ $(function(){
     return dropzone;
   };
 
+  var calculateMD5s = function(files,callback){
+    getFileMD5s(files,function(status,result){
+      if(status!='OK') {
+        $(result.previewElement).find('.error').text('Error calculating MD5');
+      }
+      else {
+        for(var i=0;i<files.length;i++){
+          $(files[i].previewElement).data('md5',result[i]);
+        }
+        callback();
+      }
+    },function(file,pos,size,result){
+      var status = 'Calculating MD5 '+(Math.floor(100.0*pos/size))+'%';
+      if(result) status = 'MD5: '+result;
+      $(file.previewElement).find('.md5').text(status);
+    });
+  };
+
   $('.module_graph').on('click','.file_uploader .upload_action_buttons .start',function(event) {
-    var dropzone=get_dropzone($(this));
-    dropzone.enqueueFiles(dropzone.getFilesWithStatus(Dropzone.ADDED));
     event.preventDefault();
+    var dropzone=get_dropzone($(this));
+    var files = dropzone.getFilesWithStatus(Dropzone.ADDED);
+    calculateMD5s(files,function(){
+      dropzone.enqueueFiles(files);
+    });
     return false;
   });
   $('.module_graph').on('click','.file_uploader .upload_action_buttons .cancel',function(event) {

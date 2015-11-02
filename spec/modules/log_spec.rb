@@ -29,6 +29,14 @@ RSpec.describe Hilda::Log do
         it "works" do expect(log.errors?).to eql true end
       end
     end
+    describe "#highest_level" do
+      it "works " do
+        expect(log.highest_level).to eql :warn
+        log.log!(:error,'error message')
+        expect(log.highest_level).to eql :error
+      end
+    end
+
     describe "each" do
       it "iterates over messages" do
         a = []
@@ -37,19 +45,19 @@ RSpec.describe Hilda::Log do
         expect(a[1].message).to eql 'warning'
       end
     end
-    describe "count" do
+    describe "#count" do
       it "works" do expect(log.count).to eql 2 end
     end
-    describe "size" do
+    describe "#size" do
       it "works" do expect(log.size).to eql 2 end
     end
-    describe "length" do
+    describe "#length" do
       it "works" do expect(log.length).to eql 2 end
     end
-    describe "first" do
+    describe "#first" do
       it "works" do expect(log.first.message).to eql 'information' end
     end
-    describe "last" do
+    describe "#last" do
       it "works" do expect(log.last.message).to eql 'warning' end
     end
   end
@@ -90,6 +98,11 @@ RSpec.describe Hilda::Log do
         expect(msg.level).to eql :warn
         expect(msg.exception).to eql ex
       end
+      it "sets time automatically" do
+        msg = Hilda::Log::LogMessage.new(:warn, 'message')
+        expect(msg.time).to be_a DateTime
+        expect(msg.time.to_i).to be_within(10).of(DateTime.now.to_i)
+      end
     end
   end
 
@@ -105,6 +118,7 @@ RSpec.describe Hilda::Log do
       expect(log2.size).to eql log.size
       expect(log2.first).to be_a Hilda::Log::LogMessage
       expect(log2.first.message).to eql log.first.message
+      expect(log2.first.time).to be_a DateTime
       expect(log2.last.message).to eql log.last.message
       expect(log2.last.exception).to be_present
       expect(log2.last.exception.backtrace.length).to be > 2

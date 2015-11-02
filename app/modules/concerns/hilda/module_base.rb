@@ -158,6 +158,7 @@ module Hilda
 
     def execute_module()
       begin
+        self.log! :info, "Executing module"
         self.run_status = :running
         changed!
 
@@ -165,6 +166,7 @@ module Hilda
         self.module_graph.module_starting(self)
         run_module
 
+        self.log! :info, "Module execution finished"
         self.run_status = :finished unless self.run_status != :running
         changed!
         self.module_graph.module_finished(self) if self.run_status == :finished

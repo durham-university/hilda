@@ -54,22 +54,32 @@ module Hilda::IngestionProcessesHelper
     capture do render(template, mod: mod) end
   end
 
-  def render_module_params(mod,f)
+  def render_module_params(mod,f,&block)
     disabled = (!mod.can_receive_params?) ? { disabled: 'true' } : {}
-    safe_join( (mod.param_defs || {}).each_with_object([]) do |(key,param),o|
-      case param[:type]
-      when :file
-        #        uploaded = mod.param_values.try(:[],key)
-        #        o << %Q|<div class="form-group">|.html_safe
-        #        o << f.input(key, as: :file, label: param[:label], input_html: { class: 'form-control' }.merge(disabled) )
-        #        o << %Q|<div class="uploaded_file_info">Uploaded file: #{html_escape uploaded}</div>|.html_safe if uploaded
-        #        o << %Q|</div>|.html_safe
-        o << capture do render('hilda/modules/file_upload', mod: mod, param: param, param_key: key) end
-      else
-        o << %Q|<div class="form-group">|.html_safe
-        o << f.input(key, label: param[:label], input_html: { class: 'form-control', value: mod.param_values.try(:[],key) || param[:default] }.merge(disabled) )
-        o << %Q|</div>|.html_safe
+
+
+    by_group = (mod.param_defs || {}).map do |k,v| v.merge(key: k) end \
+                                     .group_by do |x| x[:group] end
+
+
+    safe_join( by_group.each.with_object([]).with_index do |((group,params),o),index|
+      o << %Q|<li class="list-group-item">|.html_safe
+      o << %Q|<h4 class="group_heading">#{html_escape(group)}</h4>|.html_safe if group.present?
+      params.each_with_object(o) do |param,o|
+        key = param[:key]
+        case param[:type]
+        when :file
+          o << capture do render('hilda/modules/file_upload', mod: mod, param: param, param_key: key) end
+        else
+          o << %Q|<div class="form-group">|.html_safe
+          o << f.input(key, label: param[:label], input_html: { class: 'form-control', value: mod.param_values.try(:[],key) || param[:default] }.merge(disabled) )
+          o << %Q|</div>|.html_safe
+        end
       end
+
+      o << capture do block.call end if block_given? && index == by_group.length-1
+
+      o << %Q|</li>|.html_safe
     end)
   end
 

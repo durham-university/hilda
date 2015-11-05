@@ -67,13 +67,17 @@ module Hilda::IngestionProcessesHelper
       o << %Q|<h4 class="group_heading">#{html_escape(group)}</h4>|.html_safe if group.present?
       params.each_with_object(o) do |param,o|
         key = param[:key]
-        case param[:type]
-        when :file
-          o << capture do render('hilda/modules/file_upload', mod: mod, param: param, param_key: key) end
+        if param[:template].present?
+          o << capture do render(template, mod: mod, param: param, param_key: key) end
         else
-          o << %Q|<div class="form-group">|.html_safe
-          o << f.input(key, label: param[:label], input_html: { class: 'form-control', value: mod.param_values.try(:[],key) || param[:default] }.merge(disabled) )
-          o << %Q|</div>|.html_safe
+          case param[:type]
+          when :file
+            o << capture do render('hilda/modules/file_upload', mod: mod, param: param, param_key: key) end
+          else
+            o << %Q|<div class="form-group">|.html_safe
+            o << f.input(key, label: param[:label], input_html: { class: 'form-control', value: mod.param_values.try(:[],key) || param[:default] }.merge(disabled) )
+            o << %Q|</div>|.html_safe
+          end
         end
       end
 

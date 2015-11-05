@@ -99,8 +99,12 @@ RSpec.describe Hilda::Modules::FileMetadata do
   describe "#run_module" do
     before {
       allow(mod).to receive(:param_values).and_return({
-          '_tmp_testfile_pdf_title': 'moo',
-          '_tmp_othertestfile_pdf_title': 'oink'
+          :'_tmp_testfile_pdf__title' => 'moo',
+          :'_tmp_othertestfile_pdf__title' => 'oink'
+        })
+      allow(mod).to receive(:param_defs).and_return({
+          :'_tmp_testfile_pdf__title' => {},
+          :'_tmp_othertestfile_pdf__title' => {}
         })
       mod.module_output = {}
     }
@@ -116,8 +120,8 @@ RSpec.describe Hilda::Modules::FileMetadata do
       mod.run_module
       expect(mod.run_status).not_to eql :error
       expect(mod.module_output[:file_metadata]).to eql({
-          '_tmp_testfile_pdf_title': 'moo',
-          '_tmp_othertestfile_pdf_title': 'oink'
+          '_tmp_testfile_pdf__title': 'moo',
+          '_tmp_othertestfile_pdf__title': 'oink'
         })
     end
   end

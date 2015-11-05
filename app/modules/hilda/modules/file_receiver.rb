@@ -185,13 +185,13 @@ module Hilda::Modules
       end)
     end
 
-    def ready_to_run?
-      return false unless super
-      return false unless got_all_param_values?
-      return true
-    end
-
     def run_module
+      unless all_params_valid?
+        log! :error, 'Submitted values are not valid, cannot proceed.'
+        self.run_status = :error
+        return
+      end
+
       files = param_values[:files]
       log! :info, "Received #{files.length} files"
       if verify_md5s(files)

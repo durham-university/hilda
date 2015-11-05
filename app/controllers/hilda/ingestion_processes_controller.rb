@@ -1,7 +1,7 @@
 module Hilda
   class IngestionProcessesController < Hilda::ApplicationController
-    before_action :set_ingestion_process, only: [:show, :edit, :update, :destroy, :start_module, :reset_module]
-    before_action :set_ingestion_module, only: [:update, :start_module, :reset_module]
+    before_action :set_ingestion_process, only: [:show, :edit, :update, :destroy, :start_module, :reset_module, :query_module]
+    before_action :set_ingestion_module, only: [:update, :start_module, :reset_module, :query_module]
     before_action :set_ingestion_process_template, only: [:create]
 
     def initialize(*args)
@@ -68,13 +68,13 @@ module Hilda
         @ingestion_module.changed!
         Hilda::Jobs::IngestionJob.new(resource: @ingestion_process, module_name: @ingestion_module).queue_job
         # queue_job saves the object
-        add_module_notice("Module was queued to be ran", :success)
+        add_module_notice("Module was queued to be run", :success)
       else
         add_module_notice("Module is not ready to run")
       end
 
       disable_layout = use_layout? ? {} : { layout: false }
-      render :edit, {notice: 'Module was successfully queued to be ran.'}.merge(disable_layout)
+      render :edit, {notice: 'Module was successfully queued to be run.'}.merge(disable_layout)
     end
 
     def reset_module
@@ -96,6 +96,16 @@ module Hilda
       render :edit, disable_layout
     end
 
+    def query_module
+      begin
+        response = @ingestion_module.query_module(params[:ingestion_process]) || { status: "ERROR", error_message: "Error querying module"}
+        response[:status] = 'OK' unless response.key?(:status)
+        render json: response
+      rescue StandardError => e
+        render json: { status: "ERROR", error_message: "Error querying module: #{e.to_s}"}
+      end
+    end
+
     private
 
       # levels: :info, :success, :warning, :danger
@@ -107,6 +117,8 @@ module Hilda
 
       def receive_module_params
         begin
+          raise "Module cannot receive params" unless @ingestion_module.can_receive_params?
+
           if @ingestion_module.receive_params(params[:ingestion_process])
             if @ingestion_process.save
               add_module_notice('Module parameters were successfully updated', :success)

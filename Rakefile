@@ -21,6 +21,8 @@ load 'rails/tasks/statistics.rake'
 
 Bundler::GemHelper.install_tasks
 
-task :spec do
-  RSpec::Core::RakeTask.new(:spec)
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new(:spec) do |t|
+  ENV['RAILS_ENV'] = 'test'
+  t.pattern =  'spec/**/*_spec.rb'
 end

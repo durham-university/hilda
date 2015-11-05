@@ -39,8 +39,13 @@ module Hilda
       return name
     end
 
+    def query_module(params)
+      return { status: 'ERROR', error_message: "Module doesn't support querying" }
+    end
+
     def can_receive_params?
-      return run_status!=:running && run_status!=:finished && module_graph.run_status!=:running
+      return respond_to?(:receive_params) && run_status!=:running &&
+              run_status!=:finished && module_graph.run_status!=:running
     end
 
     def add_module(module_class,after_module=nil,params={})
@@ -159,15 +164,22 @@ module Hilda
     def execute_module()
       begin
         self.log! :info, "Executing module"
-        self.run_status = :running
-        changed!
 
-        self.module_output = {}
-        self.module_graph.module_starting(self)
-        run_module
+        if self.ready_to_run?
+          self.run_status = :running
+          changed!
+          
+          self.module_output = {}
+          self.module_graph.module_starting(self)
+          run_module
 
-        self.log! :info, "Module execution finished"
-        self.run_status = :finished unless self.run_status != :running
+          self.log! :info, "Module execution finished"
+          self.run_status = :finished unless self.run_status != :running
+        else
+          self.log! :error, "Module is not ready to run"
+          self.run_status = :error
+        end
+
         changed!
         self.module_graph.module_finished(self) if self.run_status == :finished
       rescue StandardError => e

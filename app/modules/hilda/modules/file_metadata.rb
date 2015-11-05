@@ -44,30 +44,11 @@ module Hilda::Modules
     end
 
     def autorun?
-      got_all_metadata?
+      ready_to_run?
     end
 
-    def got_all_metadata?
-      got_all_param_values?
+    def params_output_key
+      :file_metadata
     end
-
-    def ready_to_run?
-      return false unless super
-      return false unless got_all_metadata?
-      return true
-    end
-
-    def run_module
-      unless got_all_metadata?
-        log! :error, 'Metadata values not yet submitted, cannot proceed.'
-        self.run_status = :error
-        return
-      end
-
-      self.module_output = module_input.deep_dup.merge({
-        file_metadata: param_values
-      })
-    end
-
   end
 end

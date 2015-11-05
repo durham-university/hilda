@@ -21,11 +21,19 @@ module Hilda::Modules
       return true
     end
 
-    def got_all_param_values?
+    def all_params_submitted?
       return false unless param_values
       return false unless param_defs.try(:any?)
       param_defs.each do |key,param|
-        return false unless param_values[key].present?
+        return false unless param_values.key? key
+      end
+      return true
+    end
+
+    def all_params_valid?
+      return false unless all_params_submitted?
+      param_defs.each do |key,param|
+        return false unless validate_param(key,param_values[key])
       end
       return true
     end
@@ -41,6 +49,34 @@ module Hilda::Modules
       super(*args).tap do |json|
         json[:param_defs] = param_defs
       end
+    end
+
+    def validate_param(key,value)
+      return value.present?
+    end
+
+    def submitted_params
+      self.param_values.slice(*self.param_defs.keys)
+    end
+
+    def ready_to_run?
+      super && all_params_valid?
+    end
+
+    def params_output_key
+      :submitted_params
+    end
+
+    def run_module
+      unless all_params_valid?
+        log! :error, 'Submitted values are not valid, cannot proceed.'
+        self.run_status = :error
+        return
+      end
+
+      self.module_output = module_input.deep_dup.merge({
+        params_output_key => submitted_params
+      })
     end
 
 

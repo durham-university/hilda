@@ -112,6 +112,7 @@ RSpec.describe Hilda::ModuleGraph do
 
   describe "#execute_module" do
     it "calls essential functions and sets status" do
+      expect(mod).to receive(:ready_to_run).and_return(true)
       expect(mod).to receive(:run_module) {
         expect(mod.run_status).to eql :running
         expect(mod.module_output).to eql({})

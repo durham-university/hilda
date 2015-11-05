@@ -10,23 +10,32 @@
 # Ignore the default SQLite database.
 test_app/db/*.sqlite3
 test_app/db/*.sqlite3-journal
+hilda_durham/test_app/db/*.sqlite3
+hilda_durham/test_app/db/*.sqlite3-journal
 /db/*.sqlite3
 /db/*.sqlite3-journal
 
 # Ignore all logfiles and tempfiles.
 test_app/log/*.log
 test_app/tmp/
+hilda_durham/test_app/log/*.log
+hilda_durham/test_app/tmp/
 /log/*.log
 /tmp/
 !/log/.keep
 !/test_app/log/.keep
+!/hilda_durham/test_app/log/.keep
 
 .vagrant/
 test_app/jetty/
 test_app/config/secrets.yml
+hilda_durham/test_app/jetty/
+hilda_durham/test_app/config/secrets.yml
 
 testdata/*
 
 coverage.data
 coverage/*
 spec/examples.txt
+hilda_durham/spec/examples.txt
+

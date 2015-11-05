@@ -1,0 +1,46 @@
+source 'https://rubygems.org'
+
+# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
+gem 'rails', '4.2.4'
+# Use sqlite3 as the database for Active Record
+gem 'sqlite3'
+# See https://github.com/rails/execjs#readme for more supported runtimes
+# gem 'therubyracer', platforms: :ruby
+
+# Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
+# gem 'turbolinks'
+# bundle exec rake doc:rails generates the API under doc/api.
+gem 'sdoc', '~> 0.4.0', group: :doc
+
+gem 'devise'
+gem 'devise_ldap_authenticatable'
+gem 'cancancan', '~> 1.10'
+
+gem 'resque'
+gem 'resque-pool'
+gem 'nest'
+gem 'redis-session-store'
+
+gem 'sass-rails', '~> 5.0'
+gem 'bootstrap-sass', '~> 3.3.5'
+gem 'bootstrap-sass-extras'
+gem 'jquery-ui-rails'
+
+gem 'hilda', path: File.expand_path("../../..", __FILE__)
+gem 'hilda_durham', path: File.expand_path("../..", __FILE__)
+gem 'schmit_api', path: File.expand_path('../../../../schmit/schmit_api', __FILE__)
+
+group :development, :test do
+  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  gem 'byebug'
+  gem 'jettywrapper'
+  gem 'rspec-rails'
+end
+
+group :development do
+  # Access an IRB console on exception pages or by using <%= console %> in views
+  gem 'web-console', '~> 2.0'
+
+  # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
+  gem 'spring'
+end

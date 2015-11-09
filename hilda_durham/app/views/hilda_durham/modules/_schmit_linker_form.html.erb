@@ -1,0 +1,44 @@
+<div class="schmit_selector">
+  <% disabled = (!mod.can_receive_params?) ? { disabled: 'true' } : {} %>
+  <% label_method = Proc.new do |x| "#{x.title} (#{x.public_id})" end %>
+  <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_query_path(@ingestion_process, mod.module_name), method: :post, html: { style: 'display: none;', class: 'schmit_query' } do |f| %>
+  <% end %>
+  <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_path(@ingestion_process, mod.module_name), html: { class: 'form' } do |f| %>
+    <%= f.input :no_layout, as: :hidden, input_html: { value: 'true' } %>
+    <li class="list-group-item">
+      <div class="form-group">
+        <% collection_options = Schmit::API::Repository.all.sort do |a,b| a.title <=> b.title end %>
+        <%= f.input :schmit_repository, label: 'Repository', as: :select, collection: collection_options,
+                    label_method: :title, value_method: :id, selected: mod.value_for(:schmit_repository),
+                    include_blank: true, input_html: { class: 'form-control select_repository' }.merge(disabled) %>
+      </div>
+      <% if mod.include_fonds? %>
+        <%
+          fonds_options = []
+          catalogue_options = []
+          repository_id = mod.value_for(:schmit_repository)
+          if repository_id.present?
+            repository = Schmit::API::Repository.find(repository_id)
+            fonds_options = Schmit::API::Fonds.all_in(repository).sort do |a,b| a.title <=> b.title end  if mod.include_fonds?
+            catalogue_options = Schmit::API::Catalogue.all_in(repository).sort do |a,b| a.title <=> b.title end  if mod.include_catalogue?
+          end
+        %>
+        <div class="form-group">
+          <%= f.input :schmit_fonds, label: 'Fonds', as: :select, collection: fonds_options,
+                      label_method: label_method, value_method: :id, selected: mod.value_for(:schmit_fonds),
+                      include_blank: true, input_html: { class: 'form-control select_fonds' }.merge(disabled) %>
+        </div>
+      <% end %>
+      <% if mod.include_catalogue? %>
+        <div class="form-group">
+          <%= f.input :schmit_catalogue, label: 'Catalogue', as: :select, collection: catalogue_options,
+                      label_method: label_method, value_method: :id, selected: mod.value_for(:schmit_catalogue),
+                      include_blank: true, input_html: { class: 'form-control select_catalogue' }.merge(disabled) %>
+        </div>
+      <% end %>
+      <% if mod.can_receive_params? %>
+        <%= f.button(:submit, 'Update module', class: "btn btn-primary") unless mod.rendering_option(:no_submit) %>
+      <% end %>
+    </li>
+  <% end %>
+</div>

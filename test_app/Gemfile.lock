@@ -102,6 +102,7 @@ GEM
     devise_ldap_authenticatable (0.8.5)
       devise (>= 3.4.1)
       net-ldap (>= 0.6.0, <= 0.11)
+    diff-lcs (1.2.5)
     dropzonejs-rails (0.7.2)
       rails (> 3.1)
     ebnf (0.3.9)
@@ -297,6 +298,23 @@ GEM
       resque (~> 1.22)
     rsolr (1.0.13)
       builder (>= 2.1.2)
+    rspec-core (3.3.2)
+      rspec-support (~> 3.3.0)
+    rspec-expectations (3.3.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.3.0)
+    rspec-mocks (3.3.2)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.3.0)
+    rspec-rails (3.3.3)
+      actionpack (>= 3.0, < 4.3)
+      activesupport (>= 3.0, < 4.3)
+      railties (>= 3.0, < 4.3)
+      rspec-core (~> 3.3.0)
+      rspec-expectations (~> 3.3.0)
+      rspec-mocks (~> 3.3.0)
+      rspec-support (~> 3.3.0)
+    rspec-support (3.3.0)
     rubyzip (1.1.7)
     sass (3.4.19)
     sass-rails (5.0.4)
@@ -377,6 +395,7 @@ DEPENDENCIES
   redis-session-store
   resque
   resque-pool
+  rspec-rails
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
   spring

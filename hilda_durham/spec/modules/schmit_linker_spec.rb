@@ -28,16 +28,17 @@ RSpec.describe HildaDurham::Modules::SchmitLinker do
 
   describe "#query_module" do
     let(:repository) { Schmit::API::Repository.from_json({title: 'test repo', public_id: 'test_repo', id: 'test_repo_id', fonds: [fonds.as_json,fonds2.as_json]}.with_indifferent_access) }
-    let(:fonds) { Schmit::API::Fonds.from_json({title: 'test fonds', public_id: 'test_fon', id: 'test_fon_id', catalogues: [catalogue.as_json]}.with_indifferent_access) }
-    let(:fonds2) { Schmit::API::Fonds.from_json({title: 'test fonds 2', public_id: 'test_fon2', id: 'test_fon2_id', catalogues: []}.with_indifferent_access) }
-    let(:catalogue) { Schmit::API::Catalogue.from_json({title: 'test catalogue', public_id: 'test_cat', id: 'test_cat_id'}.with_indifferent_access) }
+    let(:fonds) { Schmit::API::Fonds.from_json({title: 'test fonds', public_id: 'test_fon', id: 'test_fon_id', parent_id: 'test_repo_id', catalogues: [catalogue.as_json]}.with_indifferent_access) }
+    let(:fonds2) { Schmit::API::Fonds.from_json({title: 'test fonds 2', public_id: 'test_fon2', id: 'test_fon2_id', parent_id: 'test_repo_id', catalogues: [catalogue2.as_json]}.with_indifferent_access) }
+    let(:catalogue) { Schmit::API::Catalogue.from_json({title: 'test catalogue', public_id: 'test_cat', id: 'test_cat_id', parent_id: 'test_fon_id'}.with_indifferent_access) }
+    let(:catalogue2) { Schmit::API::Catalogue.from_json({title: 'test catalogue 2', public_id: 'test_cat2', id: 'test_cat2_id', parent_id: 'test_fon2_id'}.with_indifferent_access) }
 
     before {
       allow(Schmit::API::Repository).to receive(:all).and_return([repository])
       allow(Schmit::API::Repository).to receive(:find).with(repository.id).and_return(repository)
       allow(Schmit::API::Fonds).to receive(:all_in).with(repository).and_return([fonds,fonds2])
       allow(Schmit::API::Fonds).to receive(:find).with(fonds.id).and_return(fonds)
-      allow(Schmit::API::Catalogue).to receive(:all_in).with(repository).and_return([catalogue])
+      allow(Schmit::API::Catalogue).to receive(:all_in).with(repository).and_return([catalogue,catalogue2])
       allow(Schmit::API::Catalogue).to receive(:find).with(catalogue.id).and_return(catalogue)
     }
 
@@ -56,10 +57,25 @@ RSpec.describe HildaDurham::Modules::SchmitLinker do
     end
 
     it "returns a list of catalogues" do
-      res = mod.query_module({schmit_type: :catalogue, schmit_repository: repository.id})
+      res = mod.query_module({schmit_type: :catalogue, schmit_repository: repository.id, schmit_fonds: fonds.id})
       expect(res[:status]).to eql 'OK'
       expect(res[:result].length).to eql 1
       expect(res[:result][0]).to eql({title: 'test catalogue', public_id: 'test_cat', id: 'test_cat_id'})
+    end
+
+    it "returns all catalogues when not using fonds" do
+      mod_params[:no_fonds] = true
+      res = mod.query_module({schmit_type: :catalogue, schmit_repository: repository.id})
+      expect(res[:status]).to eql 'OK'
+      expect(res[:result].length).to eql 2
+      expect(res[:result][0][:title]).to eql('test catalogue')
+      expect(res[:result][1][:title]).to eql('test catalogue 2')
+    end
+
+    it "returns an empty list of catalogues if no fonds selected" do
+      res = mod.query_module({schmit_type: :catalogue, schmit_repository: repository.id})
+      expect(res[:status]).to eql 'OK'
+      expect(res[:result].length).to eql 0
     end
 
     it "returns error when not found" do

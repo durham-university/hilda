@@ -55,6 +55,17 @@ module HildaDurham
           return { status: 'ERROR', error_message: "Unable to get objects. #{e.message}"}
         end
 
+        if cls == Schmit::API::Catalogue && include_fonds?
+          fonds_id = params[:schmit_fonds]
+          if fonds_id
+            res.select! do |obj|
+              obj.parent_id == fonds_id
+            end
+          else
+            res = []
+          end
+        end
+
         res.select! do |obj|
           obj.title.try(:index,query)
         end if query.present?

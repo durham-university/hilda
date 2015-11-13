@@ -1,0 +1,14 @@
+defaults: &defaults
+  # Apache FOP
+  transform_command: ['fop-2.0/fop','-c','scripts/fop.conf','-fo','-','-pdf','-']
+  # RenderX XEP
+  # transform_command: ['scripts/xep.sh']
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults

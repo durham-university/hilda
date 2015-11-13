@@ -16,4 +16,5 @@
 //= require bootstrap-sprockets
 //= require hilda/hilda
 //= require hilda_durham/hilda_durham
+//= require schmit/schmit
 //= require_tree .

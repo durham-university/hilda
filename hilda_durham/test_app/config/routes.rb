@@ -3,6 +3,10 @@ Rails.application.routes.draw do
 
   mount Hilda::Engine => "/hilda"
 
+  mount Schmit::Engine => "/schmit"
+
+  devise_for :users  
+
   if defined?(Hilda::ResqueAdmin) && defined?(Resque::Server)
     namespace :admin do
       constraints Hilda::ResqueAdmin do

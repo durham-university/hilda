@@ -1,6 +1,6 @@
 defaults: &defaults
-  layout: 'application'
-#  job_temp_dir: '/tmp' # uses system temp dir by default
+  schmit_local_mode: true
+  #schmit_base_url: 'http://localhost:3000/schmit'
 
 development:
   <<: *defaults

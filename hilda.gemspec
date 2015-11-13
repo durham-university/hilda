@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'dropzonejs-rails'
   s.add_dependency 'rubyzip'
-  s.add_dependency 'simple_form'
+  s.add_dependency 'simple_form', '~> 3.1.0'
 
   s.add_dependency 'rsolr', '~> 1.0.6'
   s.add_dependency 'active-fedora'

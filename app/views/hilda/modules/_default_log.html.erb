@@ -22,7 +22,7 @@
             <%= message.message %>
             <% if message.exception %>
               <div class="exception">
-                <% message.exepcion.backtrace.each do |trace| %>
+                <% message.exception.backtrace.each do |trace| %>
                   <%= trace %><br />
                 <% end %>
               </div>

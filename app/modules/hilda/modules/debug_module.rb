@@ -8,6 +8,12 @@ module Hilda::Modules
       self.param_defs = self.class.sanitise_field_defs(param_values.fetch(:param_defs,{}))
     end
 
+    def all_params_submitted?
+      # Normal WithParams behaviour returns false if nothing is defined.
+      return true unless param_defs.try(:any?)
+      return super
+    end
+
     def run_module
       sleep(param_values.fetch(:sleep, 0))
       output = param_values.fetch(:module_output, :input)

@@ -83,16 +83,9 @@ RSpec.describe Hilda::Modules::FileMetadata do
   end
 
   describe "#autorun?" do
-    it "calls got_all_metadata?" do
-      expect(mod).to receive(:got_all_metadata?)
+    it "calls ready_to_run?" do
+      expect(mod).to receive(:ready_to_run?)
       mod.autorun?
-    end
-  end
-
-  describe "#got_all_metadata?" do
-    it "calls got_all_param_values?" do
-      expect(mod).to receive(:got_all_param_values?)
-      mod.got_all_metadata?
     end
   end
 
@@ -109,14 +102,14 @@ RSpec.describe Hilda::Modules::FileMetadata do
       mod.module_output = {}
     }
     it "won't run without all values" do
-      expect(mod).to receive(:got_all_metadata?).and_return(false)
+      expect(mod).to receive(:all_params_valid?).and_return(false)
       mod.run_module
       expect(mod.run_status).to eql :error
       expect(mod.module_output).to be_empty
     end
 
     it "sets param_values if they're set" do
-      expect(mod).to receive(:got_all_metadata?).and_return(true)
+      expect(mod).to receive(:all_params_valid?).and_return(true)
       mod.run_module
       expect(mod.run_status).not_to eql :error
       expect(mod.module_output[:file_metadata]).to eql({

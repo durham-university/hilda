@@ -160,7 +160,9 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
   end
 
   describe "POST #start_module" do
-    it "pushes a run job" do
+    it "pushes a run job if module is ready to run" do
+      mod.param_values.merge!({moo: 'moo', baa: 'baa'})
+      ingestion_process.save
       expect(Hilda.queue).to receive(:push) do |job|
         expect(job.resource_id).to eql ingestion_process.id
         expect(job.module_name).to eql mod.module_name
@@ -168,6 +170,14 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
       end
       post :start_module, {id: ingestion_process.to_param, module: mod.module_name }
       expect(mod_loaded.run_status).to eql :queued
+    end
+
+    it "doesn't run the job if module is not ready to run" do
+      mod.param_values[:moo]=nil
+      ingestion_process.save
+      expect(Hilda.queue).not_to receive(:push)
+      post :start_module, {id: ingestion_process.to_param, module: mod.module_name }
+      expect(mod_loaded.run_status).not_to eql :queued
     end
   end
 

@@ -123,5 +123,22 @@ RSpec.describe Hilda::IngestionProcess do
     end
   end
 
+  describe "file service" do
+    let( :dir ) { process.file_service.add_dir }
+    let( :file1 ) { process.file_service.add_file do |file| file.write('test content 1') end }
+    let( :file2 ) { process.file_service.add_file(nil,dir) do |file| file.write('test content 2') end }
+    it "uses FedoraFileService" do
+      expect(process.file_service).to be_a(Hilda::Services::FedoraFileService)
+    end
+    it "destroys files when process is destroyed" do
+      expect(Hilda::FileServiceFile.where(id: file1).to_a).not_to be_empty
+      expect(Hilda::FileServiceFile.where(id: file2).to_a).not_to be_empty
+      expect(Hilda::FileServiceFile.where(id: dir).to_a).not_to be_empty
+      process.destroy
+      expect(Hilda::FileServiceFile.where(id: file1).to_a).to be_empty
+      expect(Hilda::FileServiceFile.where(id: file2).to_a).to be_empty
+      expect(Hilda::FileServiceFile.where(id: dir).to_a).to be_empty
+    end
+  end
 
 end

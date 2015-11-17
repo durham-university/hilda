@@ -226,5 +226,9 @@ module Hilda
         mod.cleanup
       end
     end
+
+    def file_service
+      @file_service ||= Hilda::Services::FileService.new(self)
+    end
   end
 end

@@ -10,8 +10,8 @@
           <div class="file-row">
             <div class="input-group">
               <div class="form-control" style="width: 100%;">
-                <% if File.exists?(file[:path]) %>
-                  <span class="name"><%= key %></span> (<span class="size"><%= number_to_human_size(File.size(file[:path])) %></span>)
+                <% if mod.module_graph.file_service.file_exists?(file[:path]) %>
+                  <span class="name"><%= key %></span> (<span class="size"><%= number_to_human_size(mod.module_graph.file_service.file_size(file[:path])) %></span>)
                   - <span class="md5">MD5: <%= file[:md5] %></span>
                 <% else %>
                 <span class="name"><%= key %></span> - <span class="error alert-danger">File doesn't exist on server!</span>

@@ -42,7 +42,7 @@ module Hilda::Modules
       received_files = self.param_values[:files] || {}
       if received_files.key?(file_key)
         file_path = received_files[file_key][:path]
-        raise 'file path not in temp file index' unless self.param_values[:received_temp_files].index(file_path)
+        raise 'file not in temp file index' unless self.param_values[:received_temp_files].index(file_path)
         remove_temp_files([file_path])
         self.param_values[:received_temp_files].delete(file_path)
         received_files.delete(file_key)
@@ -69,12 +69,6 @@ module Hilda::Modules
       return super(*args)
     end
 
-    def file_basename(file)
-      return File.basename(file) if file.is_a?(String) || file.is_a?(File)
-      return file.original_filename if file.respond_to?(:original_filename)
-      return nil
-    end
-
     def file_key(hash,basename)
       basename ||= 'unnamed_file'
       key = basename
@@ -95,10 +89,8 @@ module Hilda::Modules
       temp_files = self.param_values[:received_temp_files]
       temp_dir = self.param_values[:temp_dir]
 
-      unless temp_dir && File.exists?(temp_dir)
-        temp_dir = make_temp_file_path
-        Dir.mkdir(temp_dir)
-        add_temp_file(temp_dir, temp_files)
+      unless temp_dir && module_graph.file_service.dir_exists?(temp_dir)
+        temp_dir = add_temp_dir(nil,temp_files,nil)
         self.param_values[:temp_dir] = temp_dir
       end
 
@@ -112,18 +104,7 @@ module Hilda::Modules
         end
 
         basename = file_basename(file)
-        if basename
-          file_path = File.join(temp_dir,sanitise_filename(basename))
-          file_path = make_temp_file_path(temp_dir) if File.exists?(file_path)
-        else
-          file_path = make_temp_file_path(temp_dir)
-        end
-        raise 'Temporary file already exists' if File.exists?(file_path)
-
-        out = File.open(file_path,'wb')
-        IO.copy_stream(file, out)
-        out.close
-        add_temp_file(file_path, temp_files)
+        file_path = add_temp_file(temp_dir, temp_files, file)
 
         new_file = {path: file_path, original_filename: basename}.merge(file_hash.except(:file))
         file_values[file_key(file_values,basename)] = new_file
@@ -132,22 +113,29 @@ module Hilda::Modules
       return new_files
     end
 
-    def calculate_md5(file)
-      Digest::MD5.file(file).hexdigest
+    def calculate_md5(readable)
+      digest = Digest::MD5.new
+      buf = ""
+      while readable.read(16384, buf)
+        digest.update(buf)
+      end
+      digest.hexdigest
     end
 
     def verify_md5s(files)
       errors = false
       files.each do |key,file|
-        if file[:md5].present?
-          md5 = calculate_md5(file[:path])
-          unless md5 == file[:md5]
-            log! :error, "MD5 mismatch for #{file[:original_filename]}!"
-            errors = true
+        module_graph.file_service.get_file(file[:path]) do |stored|
+          if file[:md5].present?
+            md5 = calculate_md5(stored)
+            unless md5 == file[:md5]
+              log! :error, "MD5 mismatch for #{file[:original_filename]}!"
+              errors = true
+            end
+          else
+            log! :warn, "No MD5 received for #{file[:original_filename]}. Adding one now."
+            file[:md5] = calculate_md5(stored)
           end
-        else
-          log! :warn, "No MD5 received for #{file[:original_filename]}. Adding one now."
-          file[:md5] = calculate_md5(file[:path])
         end
       end
       log! :info, "All MD5s match" unless errors
@@ -156,19 +144,27 @@ module Hilda::Modules
 
     def unzip(file)
       files = {}
-      dir = make_temp_file_path
-      Dir.mkdir(dir)
-      add_temp_file(dir)
+      dir = add_temp_dir
 
-      Zip::File.open(file) do |zip_file|
+      module_graph.file_service.get_file(file) do |in_file|
+        zip_file = Zip::File.new(nil, true, true)
+        zip_file.read_from_stream(in_file)
+
         zip_file.each do |entry|
+          next unless entry.file?
           key = file_key(files, File.basename(entry.name))
-          dest = File.join(dir, key)
-          entry.extract(dest)
-          add_temp_file(dest)
-          files[key] = { path: dest, original_filename: File.basename(entry.name), md5: calculate_md5(dest) }
+          path = add_temp_file(dir, nil, File.basename(entry.name)) do |out_file|
+            entry.get_input_stream do |in_file|
+              IO.copy_stream(in_file, out_file)
+            end
+          end
+          md5 = module_graph.file_service.get_file(path) do |file|
+            calculate_md5(file)
+          end
+          files[key] = { path: path, original_filename: File.basename(entry.name), md5: md5 }
         end
       end
+
       files
     end
 

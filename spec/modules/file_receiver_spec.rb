@@ -122,19 +122,31 @@ RSpec.describe Hilda::Modules::FileReceiver do
   end
 
   describe "#verify_md5s" do
+    before {
+      allow(graph.file_service).to receive(:get_file) do |key,&block|
+        block.call(image_file1) if key=='1'
+        block.call(image_file2) if key=='2'
+      end
+    }
     it "fails when md5s don't match" do
-      errors = mod.verify_md5s({'test1.jpg' => {path: image_file1, md5: image_file1_md5}, 'test2.jpg' => {path: image_file2, md5: image_file1_md5}})
+      errors = mod.verify_md5s({'test1.jpg' => {path: '1', md5: image_file1_md5}, 'test2.jpg' => {path: '2', md5: image_file1_md5}})
       expect(errors).to eql true
       expect(mod.log.errors?).to eql true
     end
     it "passes when everything matches" do
-      errors = mod.verify_md5s({'test1.jpg' => {path: image_file1, md5: image_file1_md5}, 'test2.jpg' => {path: image_file2, md5: image_file2_md5}})
+      errors = mod.verify_md5s({'test1.jpg' => {path: '1', md5: image_file1_md5}, 'test2.jpg' => {path: '2', md5: image_file2_md5}})
       expect(errors).to eql false
       expect(mod.log.errors?).to eql false
     end
   end
 
   describe "#unzip" do
+    before {
+      allow(graph.file_service).to receive(:get_file).and_call_original
+      allow(graph.file_service).to receive(:get_file).with(zip_file.path) do |key,&block|
+        block.call(zip_file)
+      end
+    }
     let( :new_files ) { mod.unzip(zip_file.path) }
     it "unzips file contents" do
       expect(new_files.length).to eql 2
@@ -152,9 +164,23 @@ RSpec.describe Hilda::Modules::FileReceiver do
       new_files # make by referencing
       expect(mod.param_values[:temp_files].length).to eql 3
     end
+
+    it "works with StringIO" do
+      allow(graph.file_service).to receive(:get_file).with('1') do |key,&block|
+        block.call(StringIO.new(zip_file.read))
+      end
+      expect(mod.unzip('1').length).to eql 2
+    end
   end
 
   describe "#unpack_files" do
+    before {
+      allow(graph.file_service).to receive(:get_file) do |key,&block|
+        block.call(image_file1) if key==image_file1.path
+        block.call(zip_file) if key==zip_file.path
+      end
+    }
+
     let( :files ) { {
       'test1.jpg' => { path: image_file1.path, original_filename: 'test1.jpg' },
       'test.zip' => { path: zip_file.path, original_filename: 'test.zip' },

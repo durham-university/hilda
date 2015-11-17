@@ -2,30 +2,34 @@ module Hilda::Modules
   module WithTempFiles
     extend ActiveSupport::Concern
 
-    def add_temp_file(file, index=nil)
+    def file_basename(file)
+      return File.basename(file) if file.is_a?(String) || file.is_a?(File)
+      return file.original_filename if file.respond_to?(:original_filename)
+      return nil
+    end
+
+    def add_temp_file(in_path=nil, index=nil, file=nil, &block)
       unless index
         # param_values has indifferent access and things like a = ( b[:temp_files] ||= [])
         # don't work as you might expect
         param_values[:temp_files] ||= []
         index = param_values[:temp_files]
       end
-      index << file
-    end
-
-    def temp_dir
-      module_graph.fetch(:temp_dir,Dir.tmpdir) || raise('Couldn\'t resolve temp dir')
-    end
-
-    def make_temp_file_path(dir=nil)
-      dir ||= temp_dir
-      loop do
-        path = File.join(dir,SecureRandom.hex)
-        break path unless File.exists?(path)
+      module_graph.file_service.add_file(file_basename(file), in_path, block_given? ? nil : file, &block).tap do |key|
+        index << key
       end
     end
 
-    def sanitise_filename(file_name)
-      file_name.gsub(/(\.\.)|[^a-zA-Z0-9_.]/,'_')
+    def add_temp_dir(in_path=nil, index=nil, dir=nil)
+      unless index
+        # param_values has indifferent access and things like a = ( b[:temp_files] ||= [])
+        # don't work as you might expect
+        param_values[:temp_files] ||= []
+        index = param_values[:temp_files]
+      end
+      module_graph.file_service.add_dir(dir, in_path).tap do |key|
+        index << key
+      end
     end
 
     def reset_module(*args)
@@ -41,25 +45,10 @@ module Hilda::Modules
 
     def remove_temp_files(files=nil)
       files ||= self.param_values.try(:[],:temp_files) || []
+      file_service = module_graph.file_service
       # Go in reverse order so that directories are removed after contents
       files.reverse.each do |file|
-        if !file.start_with? temp_dir
-          log! :warning, "Not removing temp file \"#{file}\". It's not under temp dir \"#{temp_dir}\""
-        elsif File.exists?(file)
-          if File.directory?(file)
-            begin
-              Dir.unlink(file)
-            rescue e
-              log! "Unable to delete temp directory \"#{file}\"", e
-            end
-          else
-            begin
-              File.unlink(file)
-            rescue e
-              log! "Unable to delete temp file \"#{file}\"", e
-            end
-          end
-        end
+        module_graph.file_service.remove_file(file) if file_service.file_exists?(file) || file_service.dir_exists?(file)
       end
     end
 

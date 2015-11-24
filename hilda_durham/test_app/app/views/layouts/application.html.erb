@@ -9,6 +9,8 @@
       <%=
         if request.fullpath.starts_with? schmit.root_path
           'SCHMIT'
+        elsif request.fullpath.starts_with? oubliette.root_path
+          'Oubliette'
         else
           'HILDA'
         end
@@ -63,6 +65,7 @@
           <ul class="nav navbar-nav">
             <li class="<%= 'active' if request.fullpath.starts_with? hilda.root_path %>"><%= link_to "HILDA", hilda.root_path %></li>
             <li class="<%= 'active' if request.fullpath.starts_with? schmit.root_path %>"><%= link_to "SCHMIT", schmit.root_path %></li>
+            <li class="<%= 'active' if request.fullpath.starts_with? oubliette.root_path %>"><%= link_to "Oubliette", oubliette.root_path %></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <%= render 'schmit/navbar_login' %>

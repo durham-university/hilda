@@ -30,6 +30,8 @@ gem 'hilda', path: File.expand_path("../../..", __FILE__)
 gem 'hilda_durham', path: File.expand_path("../..", __FILE__)
 gem 'schmit_api', path: File.expand_path('../../../../schmit/schmit_api', __FILE__)
 gem 'schmit', path: File.expand_path('../../../../schmit', __FILE__)
+gem 'oubliette_api', path: File.expand_path('../../../../oubliette/oubliette_api', __FILE__)
+gem 'oubliette', path: File.expand_path('../../../../oubliette', __FILE__)
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

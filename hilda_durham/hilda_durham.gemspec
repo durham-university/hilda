@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency "rails"
   s.add_dependency "hilda"
   s.add_dependency "schmit_api"
+  s.add_dependency "oubliette_api"
 
   s.add_development_dependency 'rspec-rails'
   s.add_development_dependency 'capybara'

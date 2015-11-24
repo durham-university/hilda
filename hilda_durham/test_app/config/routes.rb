@@ -5,7 +5,9 @@ Rails.application.routes.draw do
 
   mount Schmit::Engine => "/schmit"
 
-  devise_for :users  
+  mount Oubliette::Engine => "/oubliette"
+
+  devise_for :users
 
   if defined?(Hilda::ResqueAdmin) && defined?(Resque::Server)
     namespace :admin do

@@ -1,0 +1,13 @@
+defaults: &defaults
+  local_mode: true
+  #base_url: 'http://localhost:3000/oubliette'
+
+development:
+  <<: *defaults
+  #api_debug: true
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults

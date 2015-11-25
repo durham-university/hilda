@@ -18,7 +18,7 @@ module Hilda::Modules
             group: file_key,
             label: field[:label],
             type: field[:type],
-            default: field[:default]
+            default: ( field[:default] == '__key__' ? file_key : field[:default] )
           }
         end
       end )
@@ -44,7 +44,7 @@ module Hilda::Modules
     end
 
     def autorun?
-      ready_to_run?
+      false
     end
 
     def params_output_key

@@ -82,13 +82,6 @@ RSpec.describe Hilda::Modules::FileMetadata do
     end
   end
 
-  describe "#autorun?" do
-    it "calls ready_to_run?" do
-      expect(mod).to receive(:ready_to_run?)
-      mod.autorun?
-    end
-  end
-
   describe "#run_module" do
     before {
       allow(mod).to receive(:param_values).and_return({

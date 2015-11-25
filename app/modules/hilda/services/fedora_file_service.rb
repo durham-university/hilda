@@ -9,6 +9,15 @@ module Hilda
           rewind
         end
 
+        def size
+          @fedora_file.size
+        end
+
+        def binmode
+          # Do nothing.
+          # Some code insists on calling binmode on readable objects.
+        end
+
         def read(amount=nil, buf=nil)
           raise IOError, "stream closed" if @closed
           buf ||= ''
@@ -25,8 +34,9 @@ module Hilda
             return buf if buf.length >= amount
             while chunk = @stream_fiber.resume
               if buf.length + chunk.length >= amount
-                buf << chunk.slice!(0, amount-buf.length)
-                @buffer = chunk
+                d = amount-buf.length
+                buf << chunk[0..(d-1)]
+                @buffer = chunk[d..-1]
                 break
               else
                 buf << chunk
@@ -44,7 +54,7 @@ module Hilda
             @fedora_file.stream.each do |chunk|
               Fiber.yield chunk
             end
-            nil
+            Fiber.yield nil
           end
         end
 

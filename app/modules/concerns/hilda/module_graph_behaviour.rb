@@ -227,6 +227,21 @@ module Hilda
       end
     end
 
+    def combined_log()
+      all_messages = []
+      graph.keys.each do |mod|
+        next if block_given? && !yield(mod)
+        prefix = "#{mod.module_name}: "
+        mod.log.to_a.each do |message|
+          new_message = Log::LogMessage.new(message.level,prefix+message.message,message.exception,message.time)
+          all_messages << new_message
+        end
+      end
+      all_messages.sort! do |a,b|
+        a.time <=> b.time
+      end
+    end
+
     def file_service
       @file_service ||= Hilda::Services::FileService.new(self)
     end

@@ -48,16 +48,24 @@ RSpec.describe Hilda::Modules::WithParams do
 
   describe "#all_params_valid?" do
     it "returns false if something's not valid" do
-      expect(mod).to receive(:validate_param).at_least(:once).and_call_original
-      mod.param_values[:title] = 'new title'
+      mod.param_values[:title] = ''
       expect(mod.all_params_valid?).to eql false
-      mod.param_values[:te_st] = ''
+      mod.param_values[:title] = nil
       expect(mod.all_params_valid?).to eql false
     end
     it "returns true when everything's present" do
       expect(mod).to receive(:validate_param).at_least(:once).and_call_original
       mod.param_values[:title] = 'new title'
       mod.param_values[:te_st] = 'new test'
+      expect(mod.all_params_valid?).to eql true
+    end
+    it "returns true when a param only has a default value" do
+      expect(mod).to receive(:validate_param).at_least(:once).and_call_original
+      mod.param_values[:title] = 'new title'
+      expect(mod.all_params_valid?).to eql true
+      mod.param_values[:te_st] = ''
+      expect(mod.all_params_valid?).to eql true
+      mod.param_values[:te_st] = nil
       expect(mod.all_params_valid?).to eql true
     end
   end
@@ -87,7 +95,7 @@ RSpec.describe Hilda::Modules::WithParams do
   describe "#submitted_params" do
     it "returns only defined params" do
       mod.param_values.merge!({title: 'title_test', other: 'other_test' })
-      expect(mod.submitted_params).to eql({title: 'title_test'})
+      expect(mod.submitted_params).to eql({title: 'title_test', te_st: 'moo'})
     end
   end
 

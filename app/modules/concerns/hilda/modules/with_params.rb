@@ -21,19 +21,29 @@ module Hilda::Modules
       return true
     end
 
+    def param_values_with_defaults
+      values = {}
+      param_defs.each do |key,param|
+        value = param_values.try(:[],key)
+        value = param[:default] unless value.present?
+        values[key] = value if value.present?
+      end
+      values
+    end
+
     def all_params_submitted?
-      return false unless param_values
       return false unless param_defs.try(:any?)
       param_defs.each do |key,param|
-        return false unless param_values.key? key
+        return false unless param_values_with_defaults.key? key
       end
       return true
     end
 
     def all_params_valid?
       return false unless all_params_submitted?
+      values = param_values_with_defaults
       param_defs.each do |key,param|
-        return false unless validate_param(key,param_values[key])
+        return false unless validate_param(key,values[key])
       end
       return true
     end
@@ -56,7 +66,7 @@ module Hilda::Modules
     end
 
     def submitted_params
-      self.param_values.slice(*self.param_defs.keys)
+      self.param_values_with_defaults.slice(*self.param_defs.keys)
     end
 
     def ready_to_run?

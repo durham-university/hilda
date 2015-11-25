@@ -15,6 +15,7 @@ PATH
       dropzonejs-rails
       jbuilder (~> 2.0)
       jquery-rails
+      mimemagic
       rails (~> 4.2.4)
       resque
       resque-pool

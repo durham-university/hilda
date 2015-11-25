@@ -7,11 +7,11 @@ namespace :hilda_durham do
       template \
         .add_start_module(Hilda::Modules::FileReceiver) \
         .add_module(Hilda::Modules::FileMetadata, metadata_fields: {
-          title: {label: 'Title', type: :string},
-          test: {label: 'Test', type: :string}
+          title: {label: 'Title', type: :string, default: '__key__'}
          }) \
         .add_module(HildaDurham::Modules::SchmitLinker) \
-        .add_module(Hilda::Modules::Preservation) \
+        .add_module(Hilda::Modules::DetectContentType) \
+        .add_module(HildaDurham::Modules::OublietteIngest) \
         .add_module(Hilda::Modules::DebugModule,
           param_defs: { test: {label: 'test param', type: :string, default: 'moo'} },
           info_template: 'hilda/modules/debug_info',

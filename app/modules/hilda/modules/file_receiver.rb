@@ -71,11 +71,18 @@ module Hilda::Modules
 
     def file_key(hash,basename)
       basename ||= 'unnamed_file'
-      key = basename
+      suffix = ''
+      ind = basename.rindex('.')
+      if ind && ind>0
+        suffix = basename[ind..-1]
+        basename = basename[0..(ind-1)]
+      end
+
+      key = "#{basename}#{suffix}"
       counter = 1
       while(hash.key?(key)) do
         counter += 1
-        key = "#{basename}_#{counter}"
+        key = "#{basename}_#{counter}#{suffix}"
       end
       key
     end
@@ -123,17 +130,18 @@ module Hilda::Modules
     end
 
     def verify_md5s(files)
+      log! :info, "Verifying MD5s"
       errors = false
       files.each do |key,file|
         module_graph.file_service.get_file(file[:path]) do |stored|
           if file[:md5].present?
             md5 = calculate_md5(stored)
             unless md5 == file[:md5]
-              log! :error, "MD5 mismatch for #{file[:original_filename]}!"
+              log! :error, "MD5 mismatch for #{key} => #{file[:original_filename]}!"
               errors = true
             end
           else
-            log! :warn, "No MD5 received for #{file[:original_filename]}. Adding one now."
+            log! :warn, "No MD5 received for #{key} => #{file[:original_filename]}. Adding one now."
             file[:md5] = calculate_md5(stored)
           end
         end
@@ -142,29 +150,50 @@ module Hilda::Modules
       return errors
     end
 
-    def unzip(file)
+    def unzip_seekable(zip_seekable)
       files = {}
       dir = add_temp_dir
 
-      module_graph.file_service.get_file(file) do |in_file|
-        zip_file = Zip::File.new(nil, true, true)
-        zip_file.read_from_stream(in_file)
+      zip_file = Zip::File.new(nil, true, true)
+      zip_file.read_from_stream(zip_seekable)
 
-        zip_file.each do |entry|
-          next unless entry.file?
-          key = file_key(files, File.basename(entry.name))
-          path = add_temp_file(dir, nil, File.basename(entry.name)) do |out_file|
-            entry.get_input_stream do |in_file|
-              IO.copy_stream(in_file, out_file)
-            end
+      zip_file.each do |entry|
+        next unless entry.file?
+        key = file_key(files, File.basename(entry.name))
+        path = add_temp_file(dir, nil, File.basename(entry.name)) do |out_file|
+          entry.get_input_stream do |in_file|
+            IO.copy_stream(in_file, out_file)
           end
-          md5 = module_graph.file_service.get_file(path) do |file|
-            calculate_md5(file)
-          end
-          files[key] = { path: path, original_filename: File.basename(entry.name), md5: md5 }
         end
+        md5 = module_graph.file_service.get_file(path) do |file|
+          calculate_md5(file)
+        end
+        files[key] = { path: path, original_filename: File.basename(entry.name), md5: md5 }
+        log! :info, "- Extracted file #{files[key][:original_filename]} (md5:#{files[key][:md5]})"
       end
 
+      files
+    end
+
+    def unzip(file)
+      files = nil
+      module_graph.file_service.get_file(file) do |zip_file|
+        # rubyzip requires the file to be seekable but the file service doesn't
+        # necessarily support that. If needed, copy the file first into a local
+        # temp file and then use that.
+        if zip_file.respond_to?(:seek)
+          files = unzip_seekable(zip_file)
+        else
+          temp = Tempfile.new(['hilda_file_receiver','.zip'])
+          begin
+            IO.copy_stream(zip_file,temp)
+            temp.rewind
+            files = unzip_seekable(temp)
+          ensure
+            temp.close(true) # true unlinks the file
+          end
+        end
+      end
       files
     end
 
@@ -190,6 +219,9 @@ module Hilda::Modules
 
       files = param_values[:files]
       log! :info, "Received #{files.length} files"
+      files.each do |key,file|
+        log! :info, "- #{file[:original_filename]} (md5:#{file[:md5]})"
+      end
       if verify_md5s(files)
         self.run_status = :error
         return

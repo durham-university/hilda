@@ -34,6 +34,17 @@ RSpec.describe Hilda::Modules::FileReceiver do
     end
   end
 
+  describe "#file_key" do
+    let(:hash) { {'test.jpg'=>true,'test_2.jpg'=>true,'test.test.jpg'=>true,'nosuffix'=>true} }
+    it "works" do
+      expect(mod.file_key(hash,'test_3.jpg')).to eql 'test_3.jpg'
+      expect(mod.file_key(hash,'test.jpg')).to eql 'test_3.jpg'
+      expect(mod.file_key(hash,'test.test.jpg')).to eql 'test.test_2.jpg'
+      expect(mod.file_key(hash,'nosuffix')).to eql 'nosuffix_2'
+      expect(mod.file_key(hash,'nosuffix_3')).to eql 'nosuffix_3'
+    end
+  end
+
   describe "#make_copies_of_files" do
     let( :files ) { [{file: image_file1, md5: 'abc'}, {file: zip_file, md5: 'def'}] }
     let( :new_files ) { mod.make_copies_of_files(files); mod.param_values[:files] }
@@ -190,8 +201,8 @@ RSpec.describe Hilda::Modules::FileReceiver do
       expect(new_files.length).to eql 3
       expect(new_files['test1.jpg'][:original_filename]).to eql 'test1.jpg'
       expect(new_files['test1.jpg'][:path]).to end_with 'test1.jpg'
-      expect(new_files['test1.jpg_2'][:original_filename]).to eql 'test1.jpg'
-      expect(new_files['test1.jpg_2'][:path]).to end_with 'test1.jpg'
+      expect(new_files['test1_2.jpg'][:original_filename]).to eql 'test1.jpg'
+      expect(new_files['test1_2.jpg'][:path]).to end_with 'test1.jpg'
       expect(new_files['test2.jpg'][:original_filename]).to eql 'test2.jpg'
       expect(new_files['test2.jpg'][:path]).to end_with 'test2.jpg'
     end

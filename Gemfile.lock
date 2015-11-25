@@ -6,6 +6,7 @@ PATH
       dropzonejs-rails
       jbuilder (~> 2.0)
       jquery-rails
+      mimemagic
       rails (~> 4.2.4)
       resque
       resque-pool
@@ -187,6 +188,7 @@ GEM
     mail (2.6.3)
       mime-types (>= 1.16, < 3)
     mime-types (2.6.2)
+    mimemagic (0.3.0)
     mini_portile (0.6.2)
     minitest (5.8.2)
     mono_logger (1.1.0)

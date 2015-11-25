@@ -3,6 +3,8 @@ require 'jquery-rails'
 require 'dropzonejs-rails'
 require 'simple_form'
 require 'active-fedora'
+require 'mimemagic'
+require 'mimemagic/overlay'
 require "hilda/engine"
 
 module Hilda

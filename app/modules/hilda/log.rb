@@ -86,10 +86,12 @@ class Hilda::Log
         else
           @level, @message = args
         end
-      else
+      elsif args.count==3
         @level, @message, @exception = args
+      elsif args.count==4
+        @level, @message, @exception, @time = args
       end
-      @time = DateTime.now
+      @time ||= DateTime.now
     end
 
     def to_s
@@ -97,9 +99,13 @@ class Hilda::Log
       "#{@level.to_s.upcase}: #{@message}"
     end
 
+    def to_full_s
+      "#{@time} - #{@level.to_s.upcase}: #{@message}"
+    end
+
     def exception_as_json
       return nil unless exception
-      { message: exception.to_s, backtrace: exception.backtrace }
+      { message: exception.message, backtrace: exception.backtrace }
     end
 
     def self.parse_exception(json)

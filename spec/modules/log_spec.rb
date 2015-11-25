@@ -114,6 +114,7 @@ RSpec.describe Hilda::Log do
       begin ; raise 'Test error' ; rescue => e ; log.log! e ; end
     }
     let( :log2 ) { Hilda::Log.from_json(log.to_json) }
+    let( :log3 ) { Hilda::Log.from_json(log2.to_json) }
     it "serialises and deserialises" do
       expect(log2.size).to eql log.size
       expect(log2.first).to be_a Hilda::Log::LogMessage
@@ -121,7 +122,12 @@ RSpec.describe Hilda::Log do
       expect(log2.first.time).to be_a DateTime
       expect(log2.last.message).to eql log.last.message
       expect(log2.last.exception).to be_present
+      expect(log2.last.exception.message).to eql 'Test error'
       expect(log2.last.exception.backtrace.length).to be > 2
+    end
+    it "is stable" do
+      expect(log.to_json).to eql(log2.to_json)
+      expect(log2.to_json).to eql(log3.to_json)
     end
   end
 end

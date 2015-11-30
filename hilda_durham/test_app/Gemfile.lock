@@ -1,3 +1,12 @@
+GIT
+  remote: git://github.com/jcoyne/kaminari.git
+  revision: 7f7108e12bdd64eb5a76177633768feb14df5453
+  branch: sufia
+  specs:
+    kaminari (1.0.0.alpha)
+      actionpack (>= 3.0.0)
+      activesupport (>= 3.0.0)
+
 PATH
   remote: /home/qgkb58/hydra/hilda
   specs:
@@ -37,6 +46,7 @@ PATH
       hydra-editor (~> 1.1.0)
       jbuilder (~> 2.0)
       jquery-rails
+      kaminari
       rails (~> 4.2.4)
       resque
       resque-pool
@@ -498,6 +508,7 @@ DEPENDENCIES
   hilda_durham!
   jettywrapper
   jquery-ui-rails
+  kaminari!
   nest
   oubliette!
   oubliette_api!

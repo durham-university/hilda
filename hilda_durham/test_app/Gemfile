@@ -32,6 +32,7 @@ gem 'schmit_api', path: File.expand_path('../../../../schmit/schmit_api', __FILE
 gem 'schmit', path: File.expand_path('../../../../schmit', __FILE__)
 gem 'oubliette_api', path: File.expand_path('../../../../oubliette/oubliette_api', __FILE__)
 gem 'oubliette', path: File.expand_path('../../../../oubliette', __FILE__)
+gem 'kaminari', github: 'jcoyne/kaminari', branch: 'sufia'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

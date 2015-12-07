@@ -11,7 +11,6 @@ namespace :hilda do
           test: {label: 'Test', type: :string}
          }) \
         .add_module(Hilda::Modules::DebugModule, sleep: 20 ) \
-        .add_module(Hilda::Modules::Preservation) \
         .add_module(Hilda::Modules::DebugModule,
           param_defs: { test: {label: 'test param', type: :string, default: 'moo'} },
           info_template: 'hilda/modules/debug_info',

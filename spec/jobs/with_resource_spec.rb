@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'WithFiles' do
+RSpec.describe 'WithResource' do
   before {
     class FooJob
       include Hilda::Jobs::JobBase
@@ -25,6 +25,23 @@ RSpec.describe 'WithFiles' do
   }
   let( :file ) { StringIO.new('moomoo') }
   let( :file_table ) { job.instance_variable_get(:@file_table) }
+
+  describe "marhsalling" do
+    let( :dump ) { Marshal.dump(job) }
+    let( :loaded ) { Marshal.load( dump ) }
+    describe "dumping" do
+      it "should dump the object" do
+        expect(dump).to be_present
+      end
+    end
+
+    describe "loading" do
+      it "loads the object" do
+        expect(loaded).to be_a FooJob
+        expect(loaded.resource_id).to eql 'foo_id'
+      end
+    end
+  end
 
   describe "#validate_job!" do
     context "with no other background job" do

@@ -15,6 +15,15 @@ RSpec.describe 'JobBase' do
     end
   }
 
+  describe "#queue_job" do
+    it "calls the necessary methods" do
+      expect(job).to receive(:validate_job!)
+      expect(job).to receive(:pushing_job)
+      expect(Hilda.queue).to receive(:push).with(job)
+      expect(job.queue_job).to eql true
+    end
+  end
+
   describe "#run" do
     it "calls the necessary methods" do
       expect(job).to receive(:run_job).once

@@ -105,44 +105,4 @@ module Hilda::IngestionProcessesHelper
         #{html_escape mod.run_status}
        </div>|.html_safe
   end
-=begin
-  def render_module_log(mod,last=5,errors_only=false)
-    last = mod.log.size if last.nil? || last<0
-    messages = mod.log
-    if errors_only
-      messages = messages.select do |message| message.level == :error || message.level == :warn end
-    end
-    messages = messages.last(last).each_with_object(''.html_safe) do |message,buffer|
-      buffer << render_module_log_message(mod,message)
-    end
-    if messages.present?
-      safe_join([
-        %Q|<div class="module_log">
-            <div class="module_log_info">Showing last #{last.to_i} #{'error ' if errors_only}messages</div>
-            <table>|.html_safe,
-            messages,
-        %Q| </table>
-           </div>|.html_safe])
-   else
-     ''
-   end
-  end
-
-  def render_module_log_message(mod,message)
-    safe_join([
-      %Q|<tr class="#{html_escape message.level}">
-          <td class="level">#{html_escape message.level}</td>
-          <td class="time"></td>
-          <td class="message">|.html_safe,
-          message.message,
-          render_module_log_exception(message.exception),
-      %Q| </td>
-       </tr>|.html_safe])
-  end
-
-  def render_module_log_exception(exception)
-    return '' unless exception
-    %Q|<div class="exception">#{safe_join exception.backtrace, '<br/>'}</div>|.html_safe
-  end
-=end
 end

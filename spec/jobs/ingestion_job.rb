@@ -7,8 +7,9 @@ RSpec.describe Hilda::Jobs::IngestionJob do
   let( :all_modules ) { [mod_a, mod_b, mod_c] }
   let( :graph_only ) { Hilda::IngestionProcess.new }
   let( :graph ) { all_modules ; graph_only }
+  let( :job_params ) { {} }
 
-  let( :job ) { Hilda::Jobs::IngestionJob.new(resource: graph) }
+  let( :job ) { Hilda::Jobs::IngestionJob.new( {resource: graph}.merge(job_params)) }
 
   describe "#initialize" do
     it "initializes" do
@@ -19,7 +20,33 @@ RSpec.describe Hilda::Jobs::IngestionJob do
   describe "#queue_job" do
     it "can be queued" do
       expect(Hilda.queue).to receive(:push).with(job)
-      job.queue_job      
+      job.queue_job
+    end
+  end
+
+  describe "#run_job" do
+    context "with module_name set" do
+      let(:job_params) { {module_name: 'mod_b'} }
+      it "continues execution with the named module" do
+        expect(graph).to receive(:continue_execution).with(mod_b)
+        expect(graph).not_to receive(:start_graph)
+        job.run_job
+      end
+    end
+    context "with run_mode: :continue" do
+      let(:job_params) { {run_mode: :continue} }
+      it "continues execution with current state" do
+        expect(graph).to receive(:continue_execution).with(no_args)
+        expect(graph).not_to receive(:start_graph)
+        job.run_job
+      end
+    end
+    context "with no options" do
+      it "starts graph" do
+        expect(graph).not_to receive(:continue_execution)
+        expect(graph).to receive(:start_graph)
+        job.run_job
+      end
     end
   end
 end

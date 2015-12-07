@@ -14,8 +14,8 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
   let( :mod_input ) {
     {
       source_files: {
-        file1: { path: file1_path, original_filename: file1_name, md5: file1_md5},
-        file2: { path: file2_path, original_filename: file2_name, md5: file2_md5}
+        file1: { path: file1_path, original_filename: file1_name, md5: file1_md5, content_type: 'image/jpeg'},
+        file2: { path: file2_path, original_filename: file2_name, md5: file2_md5, content_type: 'image/jpeg'}
       },
       file_metadata: { file1__title: 'File 1', file2__title: 'File 2'}
     }
@@ -53,6 +53,12 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
     end
   end
 
+  describe "#original_filename" do
+    it "returns the original_filename" do
+      expect(mod.original_filename(mod.archival_files[:file1])).to eql 'test1.jpg'
+    end
+  end
+
   describe "#ingestion_log" do
     it "serialises graph log messages" do
       expect(graph).to receive(:combined_log).and_return([
@@ -72,6 +78,8 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
       expect(Oubliette::API::PreservedFile).to receive(:ingest).twice do |file,params|
         expect(["md5:#{file1_md5}", "md5:#{file2_md5}"]).to include params[:ingestion_checksum]
         expect(["File 1", "File 2"]).to include params[:title]
+        expect(["test1.jpg", "test2.jpg"]).to include params[:original_filename]
+        expect(params[:content_type]).to eql 'image/jpeg'
         expect(params[:ingestion_log]).not_to be_empty
         Oubliette::API::PreservedFile.from_json({'title'=>params[:title], 'ingestion_checksum'=>params[:ingestion_checksum], 'id'=>"id_#{params[:ingestion_checksum]}"})
       end

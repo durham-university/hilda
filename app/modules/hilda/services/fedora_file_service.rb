@@ -13,6 +13,10 @@ module Hilda
           @fedora_file.size
         end
 
+        def length
+          size
+        end
+
         def binmode
           # Do nothing.
           # Some code insists on calling binmode on readable objects.

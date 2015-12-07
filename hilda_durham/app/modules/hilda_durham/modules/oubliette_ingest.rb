@@ -12,6 +12,10 @@ module HildaDurham
           key.to_s || file[:original_filename] || "unnamed_file"
       end
 
+      def original_filename(file)
+        file[:original_filename] || 'unnamed_file'
+      end
+
       def ingestion_log
         module_graph.combined_log.map(&:to_full_s).join("\n")
       end
@@ -31,7 +35,8 @@ module HildaDurham
                 title: file_title,
                 ingestion_checksum: "md5:#{file[:md5]}",
                 ingestion_log: ingestion_log,
-                content_type: file[:content_type] || 'application/octet-stream' )
+                content_type: file[:content_type] || 'application/octet-stream',
+                original_filename: original_filename(file) )
               stored_files[file_key] = stored_file
               log! :info, "Ingested to Oubliette with id \"#{stored_file.id}\""
             end

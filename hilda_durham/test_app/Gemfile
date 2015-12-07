@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.4'
+gem 'rails', '~> 4.2.4'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
 # See https://github.com/rails/execjs#readme for more supported runtimes
@@ -32,6 +32,8 @@ gem 'schmit_api', path: File.expand_path('../../../../schmit/schmit_api', __FILE
 gem 'schmit', path: File.expand_path('../../../../schmit', __FILE__)
 gem 'oubliette_api', path: File.expand_path('../../../../oubliette/oubliette_api', __FILE__)
 gem 'oubliette', path: File.expand_path('../../../../oubliette', __FILE__)
+gem 'durham_rails', path: File.expand_path('../../../../durham_rails', __FILE__)
+
 gem 'kaminari', github: 'jcoyne/kaminari', branch: 'sufia'
 
 group :development, :test do

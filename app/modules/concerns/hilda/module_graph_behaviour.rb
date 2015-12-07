@@ -8,7 +8,7 @@ module Hilda
     attr_accessor :graph
 
     def initialize(*args)
-      self.log = Hilda::Log.new
+      self.log = DurhamRails::Log.new
       self.start_modules = []
       self.graph_params = {}
       self.graph = {}
@@ -35,7 +35,7 @@ module Hilda
     def from_json(json)
       json = JSON.parse(json) if json.is_a? String
       json = json.with_indifferent_access unless json.is_a? ActiveSupport::HashWithIndifferentAccess
-      self.log = Hilda::Log.from_json json[:log]
+      self.log = DurhamRails::Log.from_json json[:log]
       self.graph_params = json[:graph_params]
       module_index = json[:modules].each_with_object({}) do |mod,o|
         parsed = Hilda::ModuleBase.module_from_json(mod)
@@ -233,7 +233,7 @@ module Hilda
         next if block_given? && !yield(mod)
         prefix = "#{mod.module_name}: "
         mod.log.to_a.each do |message|
-          new_message = Log::LogMessage.new(message.level,prefix+message.message,message.exception,message.time)
+          new_message = DurhamRails::Log::LogMessage.new(message.level,prefix+message.message,message.exception,message.time)
           all_messages << new_message
         end
       end

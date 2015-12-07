@@ -5,6 +5,7 @@ require 'simple_form'
 require 'active-fedora'
 require 'mimemagic'
 require 'mimemagic/overlay'
+require 'durham_rails'
 require "hilda/engine"
 
 module Hilda

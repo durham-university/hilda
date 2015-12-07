@@ -15,7 +15,7 @@ module Hilda
       self.module_name = param_values.fetch(:module_name, default_module_name)
       self.param_values = param_values
       self.run_status = :initialized
-      self.log = Hilda::Log.new
+      self.log = DurhamRails::Log.new
       @load_change_time = 0
       changed!
     end
@@ -90,7 +90,7 @@ module Hilda
         self.send(:"#{k}=",v)
       end
       self.run_status = json[:run_status].to_sym
-      self.log = Hilda::Log.from_json(json[:log])
+      self.log = DurhamRails::Log.from_json(json[:log])
       @load_change_time = self.change_time
       yield json if block_given?
     end
@@ -168,7 +168,7 @@ module Hilda
         if self.ready_to_run?
           self.run_status = :running
           changed!
-          
+
           self.module_output = {}
           self.module_graph.module_starting(self)
           run_module

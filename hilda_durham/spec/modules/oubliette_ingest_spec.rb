@@ -56,8 +56,8 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
   describe "#ingestion_log" do
     it "serialises graph log messages" do
       expect(graph).to receive(:combined_log).and_return([
-          Hilda::Log::LogMessage.new(:info,'test message'),
-          Hilda::Log::LogMessage.new(:info,'another message'),
+          DurhamRails::Log::LogMessage.new(:info,'test message'),
+          DurhamRails::Log::LogMessage.new(:info,'another message'),
         ])
       log = mod.ingestion_log
       expect(log).to be_a String

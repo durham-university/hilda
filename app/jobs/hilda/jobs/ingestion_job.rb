@@ -1,7 +1,8 @@
 module Hilda::Jobs
   class IngestionJob
-    include Hilda::Jobs::JobBase
-    include Hilda::Jobs::WithResource
+    include DurhamRails::Jobs::JobBase
+    include DurhamRails::Jobs::WithResource
+    include Hilda::Jobs::HildaJob
 
     attr_accessor :module_name
     attr_accessor :run_mode

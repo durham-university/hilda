@@ -243,7 +243,7 @@ module Hilda
     end
 
     def file_service
-      @file_service ||= Hilda::Services::FileService.new(self)
+      @file_service ||= DurhamRails::Services::FileService.new(self)
     end
   end
 end

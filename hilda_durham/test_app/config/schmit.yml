@@ -1,5 +1,8 @@
 defaults: &defaults
   layout: 'application'
+  identifier_template: 'sa.reeddeeddk'
+  identifier_statefile: '/tmp/schmit-minter-state'
+  ark_naan: '12345'
 #  job_temp_dir: '/tmp' # uses system temp dir by default
 
 development:

@@ -10,7 +10,7 @@ GIT
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.1)
+    durham_rails (0.0.2)
       active-fedora
       hydra-editor (~> 1.1.0)
       rails (~> 4.2.5)
@@ -76,13 +76,14 @@ PATH
   specs:
     schmit (0.0.1)
       active-fedora
+      active_fedora-noid
       bootstrap-sass (~> 3.3.5)
       bootstrap-sass-extras
       cancancan (~> 1.10)
       devise
       devise_ldap_authenticatable
       diff-lcs
-      durham_rails
+      durham_rails (~> 0.0.2)
       hydra-editor (~> 1.1.0)
       hydra-pcdm (= 0.3.1)
       hydra-works (= 0.4.0)
@@ -142,7 +143,10 @@ GEM
       deprecation (~> 0.1)
       linkeddata (~> 1.1)
       rdf (~> 1.1)
-    activefedora-aggregation (0.7.0)
+    active_fedora-noid (1.0.2)
+      active-fedora (~> 9.0)
+      noid (~> 0.7)
+    activefedora-aggregation (0.8.0)
       active-fedora (~> 9.5)
       activesupport
       rdf (~> 1.1, >= 1.1.17.1)
@@ -310,6 +314,7 @@ GEM
       redic
     net-http-persistent (2.9.4)
     net-ldap (0.11)
+    noid (0.8.0)
     nokogiri (1.6.7)
       mini_portile2 (~> 2.0.0.rc2)
     nom-xml (0.5.4)

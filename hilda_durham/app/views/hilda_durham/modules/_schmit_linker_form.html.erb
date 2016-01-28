@@ -1,6 +1,6 @@
 <div class="schmit_selector">
   <% disabled = (!mod.can_receive_params?) ? { disabled: 'true' } : {} %>
-  <% label_method = Proc.new do |x| "#{x.title} (#{x.public_id})" end %>
+  <% label_method = Proc.new do |x| "#{x.title} (#{x.ead_id})" end %>
   <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_query_path(@ingestion_process, mod.module_name), method: :post, html: { style: 'display: none;', class: 'schmit_query' } do |f| %>
   <% end %>
   <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_path(@ingestion_process, mod.module_name), html: { class: 'form' } do |f| %>

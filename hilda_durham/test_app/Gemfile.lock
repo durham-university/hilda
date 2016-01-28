@@ -10,7 +10,7 @@ GIT
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.2)
+    durham_rails (0.0.3)
       active-fedora
       hydra-editor (~> 1.1.0)
       rails (~> 4.2.5)
@@ -39,7 +39,7 @@ PATH
       hilda
       oubliette_api
       rails
-      schmit_api
+      schmit_api (~> 0.0.2)
 
 PATH
   remote: /home/qgkb58/hydra/oubliette
@@ -83,10 +83,10 @@ PATH
       devise
       devise_ldap_authenticatable
       diff-lcs
-      durham_rails (~> 0.0.2)
+      durham_rails (~> 0.0.3)
       hydra-editor (~> 1.1.0)
       hydra-pcdm (= 0.3.1)
-      hydra-works (= 0.4.0)
+      hydra-works (= 0.6.0)
       jbuilder (~> 2.0)
       jquery-rails
       jquery-ui-rails
@@ -101,7 +101,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/schmit/schmit_api
   specs:
-    schmit_api (0.0.1)
+    schmit_api (0.0.2)
       httparty
       rails
 
@@ -146,7 +146,7 @@ GEM
     active_fedora-noid (1.0.2)
       active-fedora (~> 9.0)
       noid (~> 0.7)
-    activefedora-aggregation (0.8.0)
+    activefedora-aggregation (0.8.1)
       active-fedora (~> 9.5)
       activesupport
       rdf (~> 1.1, >= 1.1.17.1)
@@ -245,7 +245,7 @@ GEM
       active-fedora (~> 9.6)
       activefedora-aggregation (~> 0.6)
       mime-types (>= 1)
-    hydra-works (0.4.0)
+    hydra-works (0.6.0)
       hydra-derivatives (~> 3.0)
       hydra-file_characterization (~> 0.3, >= 0.3.3)
       hydra-pcdm (~> 0.3)

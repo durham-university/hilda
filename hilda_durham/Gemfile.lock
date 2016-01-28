@@ -14,12 +14,12 @@ PATH
       hilda
       oubliette_api
       rails
-      schmit_api
+      schmit_api (~> 0.0.2)
 
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.1)
+    durham_rails (0.0.3)
       active-fedora
       hydra-editor (~> 1.1.0)
       rails (~> 4.2.5)
@@ -51,7 +51,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/schmit/schmit_api
   specs:
-    schmit_api (0.0.1)
+    schmit_api (0.0.2)
       httparty
       rails
 
@@ -183,7 +183,7 @@ GEM
     httparty (0.13.7)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
-    hydra-editor (1.1.0)
+    hydra-editor (1.1.1)
       active-fedora (>= 9.0.0)
       cancancan (~> 1.8)
       rails (~> 4.1)

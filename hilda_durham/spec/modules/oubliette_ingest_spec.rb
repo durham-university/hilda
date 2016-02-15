@@ -85,8 +85,8 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
       end
       # referencing mod_output runs module
       expect(mod_output[:source_files]).not_to be_empty
-      expect(mod_output[:stored_files][:file1]).to be_a Oubliette::API::PreservedFile
-      expect(mod_output[:stored_files][:file2]).to be_a Oubliette::API::PreservedFile
+      expect(mod_output[:stored_files][:file1]).to be_a Hash
+      expect(mod_output[:stored_files][:file2]).to be_a Hash
     end
   end
 end

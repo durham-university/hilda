@@ -7,7 +7,7 @@ development:
   # disable_csrf: true
   # This lets anyone in with full access as long as api_debug request parameter
   # is set. Only for development or debugging.
-  # api_debug: true
+  api_debug: true
 
 test:
   <<: *defaults

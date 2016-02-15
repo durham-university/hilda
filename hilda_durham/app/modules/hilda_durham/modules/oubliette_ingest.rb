@@ -37,7 +37,7 @@ module HildaDurham
                 ingestion_log: ingestion_log,
                 content_type: file[:content_type] || 'application/octet-stream',
                 original_filename: original_filename(file) )
-              stored_files[file_key] = stored_file
+              stored_files[file_key] = stored_file.as_json
               log! :info, "Ingested to Oubliette with id \"#{stored_file.id}\""
             end
           rescue StandardError => e

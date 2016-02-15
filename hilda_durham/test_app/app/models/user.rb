@@ -14,7 +14,7 @@ class User < ActiveRecord::Base
     !new_record?
   end
   
-  def is_api?
+  def is_api_user?
     roles.include? 'api'
   end
 

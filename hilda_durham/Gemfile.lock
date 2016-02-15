@@ -15,11 +15,12 @@ PATH
       oubliette_api
       rails
       schmit_api (~> 0.0.2)
+      trifle_api
 
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.3)
+    durham_rails (0.0.6)
       active-fedora
       hydra-editor (~> 1.1.0)
       rails (~> 4.2.5)
@@ -52,6 +53,13 @@ PATH
   remote: /home/qgkb58/hydra/schmit/schmit_api
   specs:
     schmit_api (0.0.2)
+      httparty
+      rails
+
+PATH
+  remote: /home/qgkb58/hydra/trifle/trifle_api
+  specs:
+    trifle_api (0.0.1)
       httparty
       rails
 
@@ -480,4 +488,5 @@ DEPENDENCIES
   sdoc (~> 0.4.0)
   spring
   sqlite3
+  trifle_api!
   web-console (~> 2.0)

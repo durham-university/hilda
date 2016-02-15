@@ -15,6 +15,7 @@ development:
   image_service_url: 'http://localhost/iipsrv/iipsrv.fcgi?IIIF='
   iiif_host: 'http://localhost:3000'
   mirador_location: 'Durham University'
+  mirador_base_url: 'http://localhost/mirador/'
 
 test:
   <<: *defaults

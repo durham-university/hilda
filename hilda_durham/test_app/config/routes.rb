@@ -7,6 +7,8 @@ Rails.application.routes.draw do
 
   mount Oubliette::Engine => "/oubliette"
 
+  mount Trifle::Engine => "/trifle"
+
   devise_for :users
 
   if defined?(Hilda::ResqueAdmin) && defined?(Resque::Server)

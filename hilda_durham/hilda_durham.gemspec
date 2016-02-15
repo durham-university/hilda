@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency "hilda"
   s.add_dependency "schmit_api", '~> 0.0.2'
   s.add_dependency "oubliette_api"
+  s.add_dependency "trifle_api"
 
   s.add_development_dependency 'rspec-rails'
   s.add_development_dependency 'capybara'

@@ -1,0 +1,23 @@
+defaults: &defaults
+#  job_temp_dir: '/tmp' # uses system temp dir by default
+  layout: 'application'
+  identifier_template: 'ta.reeddeeddk'
+  identifier_statefile: '/tmp/trifle-minter-state'
+  image_convert_command: ['trifle_scripts/convert_ptif.sh']
+  image_size_command: ['trifle_scripts/image_size.sh']
+  image_convert_format: 'ptif'
+
+development:
+  <<: *defaults
+  ark_naan: '12345'
+  iipi_dir: '/home/qgkb58/iipimages'
+  image_server_url: 'http://localhost/iipsrv/iipsrv.fcgi'
+  image_service_url: 'http://localhost/iipsrv/iipsrv.fcgi?IIIF='
+  iiif_host: 'http://localhost:3000'
+  mirador_location: 'Durham University'
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults

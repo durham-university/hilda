@@ -11,6 +11,8 @@
           'SCHMIT'
         elsif defined?(oubliette) && request.fullpath.starts_with?(oubliette.root_path)
           'Oubliette'
+        elsif defined?(trifle) && request.fullpath.starts_with?(trifle.root_path)
+          'Trifle'
         else
           'HILDA'
         end
@@ -66,6 +68,8 @@
             <li class="<%= 'active' if request.fullpath.starts_with? hilda.root_path %>"><%= link_to "HILDA", hilda.root_path %></li>
             <% if defined?(schmit) %> <li class="<%= 'active' if request.fullpath.starts_with? schmit.root_path %>"><%= link_to "SCHMIT", schmit.root_path %></li> <% end %>
             <% if defined?(oubliette) %> <li class="<%= 'active' if request.fullpath.starts_with? oubliette.root_path %>"><%= link_to "Oubliette", oubliette.root_path %></li> <% end %>
+            <% if defined?(trifle) %> <li class="<%= 'active' if request.fullpath.starts_with? trifle.root_path %>"><%= link_to "Trifle", trifle.iiif_manifests_path %></li> <% end %>
+
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <% if defined?(schmit) %>

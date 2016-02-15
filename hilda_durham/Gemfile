@@ -8,11 +8,12 @@ gemspec
 gem 'hilda', path: File.expand_path("../..", __FILE__)
 gem 'schmit_api', path: File.expand_path('../../../schmit/schmit_api', __FILE__)
 gem 'oubliette_api', path: File.expand_path('../../../oubliette/oubliette_api', __FILE__)
+gem 'trifle_api', path: File.expand_path('../../../trifle/trifle_api', __FILE__)
 gem 'durham_rails', path: File.expand_path('../../../durham_rails', __FILE__)
 
 test_app_gemfile_path = File.expand_path("../test_app/Gemfile", __FILE__)
 if File.exists?(test_app_gemfile_path)
   instance_eval (File.read(test_app_gemfile_path).lines.select do |line|
-    !(line.index('hilda') || line.index('schmit') || line.index('oubliette') || line.index('durham_rails') || line.index('source'))
+    !(line.index('hilda') || line.index('schmit') || line.index('oubliette') || line.index('trifle') || line.index('durham_rails') || line.index('source'))
   end).join("\n")
 end

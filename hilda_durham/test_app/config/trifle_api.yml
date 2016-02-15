@@ -1,0 +1,12 @@
+defaults: &defaults
+  #base_url: 'http://localhost:3000/trifle'
+
+development:
+  <<: *defaults
+  local_mode: true
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults

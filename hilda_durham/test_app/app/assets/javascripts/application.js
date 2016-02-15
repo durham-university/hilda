@@ -17,4 +17,5 @@
 //= require hilda/hilda
 //= require hilda_durham/hilda_durham
 //= require schmit/schmit
+//= require trifle/trifle
 //= require_tree .

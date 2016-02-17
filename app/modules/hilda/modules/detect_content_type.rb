@@ -1,6 +1,16 @@
 module Hilda::Modules
   class DetectContentType
     include Hilda::ModuleBase
+    
+    attr_accessor :allow_only
+
+    def initialize(module_graph, param_values={})
+      super(module_graph, param_values)
+    end
+    
+    def allow_only
+      self.param_values.fetch(:allow_only,[])
+    end
 
     def use_magic?
       param_values.fetch(:use_magic,true)
@@ -57,9 +67,22 @@ module Hilda::Modules
       end
     end
 
+    def ensure_allowed_mime_types
+      return true unless allow_only.any?
+      pass = true
+      self.module_output[source_files_key].each do |key,file|
+        unless allow_only.include?(file[:content_type])
+          log! :error, "Invalid content type #{file[:content_type]} for #{file[:original_filename]}"
+          log! :info, "Allowed content types are #{allow_only.join(', ')}"
+          pass = false
+        end
+      end
+      pass
+    end
 
     def run_module
       self.module_output = merge_output(get_content_types(source_files))
+      self.run_status = :error unless ensure_allowed_mime_types 
     end
 
     def autorun?

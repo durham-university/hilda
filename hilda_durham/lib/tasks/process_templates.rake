@@ -10,7 +10,7 @@ namespace :hilda_durham do
           title: {label: 'Title', type: :string, default: '__key__'}
          }) \
         .add_module(HildaDurham::Modules::SchmitLinker) \
-        .add_module(Hilda::Modules::DetectContentType) \
+        .add_module(Hilda::Modules::DetectContentType, allow_only: ['image/tiff']) \
         .add_module(HildaDurham::Modules::OublietteIngest) \
         .add_module(HildaDurham::Modules::TrifleIngest) # \
 #        .add_module(Hilda::Modules::DebugModule,

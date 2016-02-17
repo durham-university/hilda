@@ -150,66 +150,6 @@ module Hilda::Modules
       return errors
     end
 
-    def unzip_seekable(zip_seekable)
-      files = {}
-      dir = add_temp_dir
-
-      zip_file = Zip::File.new(nil, true, true)
-      zip_file.read_from_stream(zip_seekable)
-
-      zip_file.each do |entry|
-        next unless entry.file?
-        key = file_key(files, File.basename(entry.name))
-        path = add_temp_file(dir, nil, File.basename(entry.name)) do |out_file|
-          entry.get_input_stream do |in_file|
-            IO.copy_stream(in_file, out_file)
-          end
-        end
-        md5 = module_graph.file_service.get_file(path) do |file|
-          calculate_md5(file)
-        end
-        files[key] = { path: path, original_filename: File.basename(entry.name), md5: md5 }
-        log! :info, "- Extracted file #{files[key][:original_filename]} (md5:#{files[key][:md5]})"
-      end
-
-      files
-    end
-
-    def unzip(file)
-      files = nil
-      module_graph.file_service.get_file(file) do |zip_file|
-        # rubyzip requires the file to be seekable but the file service doesn't
-        # necessarily support that. If needed, copy the file first into a local
-        # temp file and then use that.
-        if zip_file.respond_to?(:seek)
-          files = unzip_seekable(zip_file)
-        else
-          temp = Tempfile.new(['hilda_file_receiver','.zip'])
-          begin
-            IO.copy_stream(zip_file,temp)
-            temp.rewind
-            files = unzip_seekable(temp)
-          ensure
-            temp.close(true) # true unlinks the file
-          end
-        end
-      end
-      files
-    end
-
-    def unpack_files(files)
-      return (files.values.each_with_object({}) do |file,hash|
-        if File.extname(file[:original_filename]).downcase == '.zip'
-          log! :info, "Unpacking #{file[:original_filename]}"
-          unzip(file[:path]).values.each do |unzipped|
-            hash[file_key(hash,unzipped[:original_filename])] = unzipped
-          end
-        else
-          hash[file_key(hash,file[:original_filename])] = file
-        end
-      end)
-    end
-
     def run_module
       unless all_params_valid?
         log! :error, 'Submitted values are not valid, cannot proceed.'
@@ -226,7 +166,6 @@ module Hilda::Modules
         self.run_status = :error
         return
       end
-      files = unpack_files(files) if module_graph.fetch(:unpack_files, true)
       module_output.merge!({ source_files: files })
     end
 

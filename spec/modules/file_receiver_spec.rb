@@ -151,67 +151,6 @@ RSpec.describe Hilda::Modules::FileReceiver do
     end
   end
 
-  describe "#unzip" do
-    before {
-      allow(graph.file_service).to receive(:get_file).and_call_original
-      allow(graph.file_service).to receive(:get_file).with(zip_file.path) do |key,&block|
-        block.call(zip_file)
-      end
-    }
-    let( :new_files ) { mod.unzip(zip_file.path) }
-    it "unzips file contents" do
-      expect(new_files.length).to eql 2
-      expect(new_files['test1.jpg'][:original_filename]).to eql 'test1.jpg'
-      expect(new_files['test1.jpg'][:path]).to end_with 'test1.jpg'
-      expect(new_files['test1.jpg'][:md5]).to eql image_file1_md5
-      expect(new_files['test2.jpg'][:original_filename]).to eql 'test2.jpg'
-      expect(new_files['test2.jpg'][:path]).to end_with 'test2.jpg'
-      expect(new_files['test2.jpg'][:md5]).to eql image_file2_md5
-      expect(File.size(new_files['test1.jpg'][:path])).to eql image_file1.size
-      expect(File.size(new_files['test2.jpg'][:path])).to eql image_file2.size
-    end
-
-    it "adds temp files to temp file list" do
-      new_files # make by referencing
-      expect(mod.param_values[:temp_files].length).to eql 3
-    end
-
-    it "works with StringIO" do
-      allow(graph.file_service).to receive(:get_file).with('1') do |key,&block|
-        block.call(StringIO.new(zip_file.read))
-      end
-      expect(mod.unzip('1').length).to eql 2
-    end
-  end
-
-  describe "#unpack_files" do
-    before {
-      allow(graph.file_service).to receive(:get_file) do |key,&block|
-        block.call(image_file1) if key==image_file1.path
-        block.call(zip_file) if key==zip_file.path
-      end
-    }
-
-    let( :files ) { {
-      'test1.jpg' => { path: image_file1.path, original_filename: 'test1.jpg' },
-      'test.zip' => { path: zip_file.path, original_filename: 'test.zip' },
-    } }
-    let( :new_files ) { new_files = mod.unpack_files(files) }
-    it "adds unpacked files to file list" do
-      expect(new_files.length).to eql 3
-      expect(new_files['test1.jpg'][:original_filename]).to eql 'test1.jpg'
-      expect(new_files['test1.jpg'][:path]).to end_with 'test1.jpg'
-      expect(new_files['test1_2.jpg'][:original_filename]).to eql 'test1.jpg'
-      expect(new_files['test1_2.jpg'][:path]).to end_with 'test1.jpg'
-      expect(new_files['test2.jpg'][:original_filename]).to eql 'test2.jpg'
-      expect(new_files['test2.jpg'][:path]).to end_with 'test2.jpg'
-    end
-    it "adds temp files to temp file list" do
-      new_files # make by referencing
-      expect(mod.param_values[:temp_files].length).to eql 3
-    end
-  end
-
   describe "#run_module" do
     let(:file_copies) { {
       'test1.jpg' => { path: '/tmp/aaa/test1.jpg', original_filename: 'test1.jpg', md5: image_file1_md5 },
@@ -221,7 +160,6 @@ RSpec.describe Hilda::Modules::FileReceiver do
       mod.param_values[:files] = file_copies
     }
     it "calls essential functions" do
-      expect(mod).to receive(:unpack_files).with(file_copies).and_return(file_copies)
       expect(mod).to receive(:verify_md5s).with(file_copies).and_return(false)
       mod.run_module
       expect(mod.module_output[:source_files]).to eql file_copies

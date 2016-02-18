@@ -3,7 +3,7 @@ $(function(){
     select.empty();
     select.append('<option value=""></option>');
     for(var i=0;i<options.length;i++){
-      var option = $('<option></option>').attr('value',options[i].id).text(options[i].title+" ("+options[i].public_id+")");
+      var option = $('<option></option>').attr('value',options[i].id).text(options[i].title);
       select.append(option);
     }
   };

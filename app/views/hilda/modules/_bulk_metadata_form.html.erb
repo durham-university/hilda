@@ -1,0 +1,19 @@
+<li class="list-group-item">
+  <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_path(@ingestion_process, mod.module_name), html: { class: 'form bulk_metadata_input'} do |f| %>
+    <table>
+      <tr>
+        <td class="bulk_labels">
+          <% mod.groups.each do |group| %>
+            <div class="group_label"><%= group %></div>
+          <% end %>
+        </td>
+        <td class="bulk_input">
+          <%= f.input mod.data_key.to_sym, as: :text, input_html: { rows: mod.groups.length, value: (mod.param_values.try(:[],:bulk_data) || '') } %>      
+        </td>
+      </tr>
+    </table>
+    <% if mod.can_receive_params? %>
+      <%= f.button(:submit, 'Update module', class: "btn btn-primary") unless mod.rendering_option(:no_submit) %>
+    <% end %>
+  <% end %>
+</li>

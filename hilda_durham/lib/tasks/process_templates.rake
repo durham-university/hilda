@@ -6,7 +6,7 @@ namespace :hilda_durham do
     Hilda::IngestionProcessTemplate.new_template('Durham test process','durham_test','Testing process useful only in system development') do |template|
       template \
         .add_start_module(Hilda::Modules::FileReceiver) \
-        .add_module(Hilda::Modules::FileMetadata, metadata_fields: {
+        .add_module(Hilda::Modules::BulkFileMetadata, metadata_fields: {
           title: {label: 'Title', type: :string, default: '__key__'}
          }) \
         .add_module(HildaDurham::Modules::SchmitLinker) \

@@ -1,0 +1,22 @@
+form.bulk_metadata_input {
+  table {
+    width: 100%;
+    
+    td { vertical-align: top; }
+    td.bulk_labels {
+      width: 150px;
+      text-align: right;
+      padding: 7px 12px 6px 12px;
+      .group_label { line-height: 17px }
+    }
+    td.bulk_input {
+      .form-group {
+        label { display: none; }
+        textarea {
+          padding: 6px 12px;
+          line-height: 17px;
+        }
+      }
+    }
+  }
+}

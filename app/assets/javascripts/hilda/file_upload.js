@@ -1,13 +1,16 @@
 $(function(){
   var get_dropzone = function(elem){
-    var uploader = elem.closest('.file_uploader')
+    var uploader = elem.closest('.file_uploader');
     var dropzone = uploader.data('dropzone');
     if(!dropzone) return init_dropzone(uploader);
     return dropzone;
   };
+  var get_uploader = function(dropzone){
+    return $(dropzone.element).closest('.file_uploader');
+  };
 
   var init_dropzone = function(uploader){
-    var formTemplate = uploader.find('.form_template')
+    var formTemplate = uploader.find('.form_template');
 
     var previewNode = uploader.find('.file_uploader_preview_template');
     previewNode.removeClass('file_uploader_preview_template');
@@ -41,6 +44,34 @@ $(function(){
     uploader.data('dropzone',dropzone);
     return dropzone;
   };
+  
+  var fileList = function(dropzone){
+    // this includes both existing files and files about to be uploaded
+    var uploader = get_uploader(dropzone);
+    return $.makeArray(uploader.find('.file-row .name').map(function(){return $(this).text();}));
+  };
+  
+  var sendFileList = function(dropzone, callback){
+    console.log('sending file list')
+    var uploader = get_uploader(dropzone);
+    var formTemplate = uploader.find('.form_template');
+    $.ajax({
+      url: formTemplate.attr('action'),
+      method: 'PUT',
+      data: {
+        "ingestion_process[file_names]": fileList(dropzone),
+        'authenticity_token': formTemplate.find("input[name='authenticity_token']").val()
+      },
+      success: function(){
+        console.log('file list success')
+        callback();
+      },
+      error: function(xhr, textStatus) {
+        console.log('file list error')
+        alert("Error sending file list: "+textStatus);
+      }
+    });
+  };
 
   var calculateMD5s = function(files,callback){
     getFileMD5s(files,function(status,result){
@@ -63,9 +94,13 @@ $(function(){
   $('.module_graph').on('click','.file_uploader .upload_action_buttons .start',function(event) {
     event.preventDefault();
     var dropzone=get_dropzone($(this));
-    var files = dropzone.getFilesWithStatus(Dropzone.ADDED);
-    calculateMD5s(files,function(){
-      dropzone.enqueueFiles(files);
+    sendFileList(dropzone,function(){
+      console.log('calculating md5')
+      var files = dropzone.getFilesWithStatus(Dropzone.ADDED);
+      calculateMD5s(files,function(){
+        console.log('sending files')
+        dropzone.enqueueFiles(files);
+      });      
     });
     return false;
   });

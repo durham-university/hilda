@@ -193,6 +193,9 @@ module Hilda
 
     def input_changed
     end
+    
+    def graph_params_changed
+    end
 
   end
 end

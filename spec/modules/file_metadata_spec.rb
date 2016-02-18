@@ -1,24 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe Hilda::Modules::FileMetadata do
-  let( :graph ) { Hilda::ModuleGraph.new }
-  let( :source ) {
-    graph.add_start_module(Hilda::Modules::DebugModule, module_output: {
-        source_files: {
-          'testfile.pdf' => { path: '/tmp/testfile.pdf', original_filename: 'testfile.pdf' },
-          'othertestfile.pdf' => { path: '/tmp/othertestfile.pdf', original_filename: 'othertestfile.pdf' }
-        }
-      }, module_name: 'source')
+  let( :file_names ) { ['testfile.pdf','othertestfile.pdf'] }
+  let( :graph ) { 
+    Hilda::ModuleGraph.new.tap do |graph| 
+      graph[:source_file_names] = file_names
+    end 
   }
   let( :metadata_fields) { { title: {label: 'title', type: :string }, other_field: {label: 'test', type: :string, default: 'moo'} } }
   let( :metadata_fields_sanitised ) { { title: {label: 'title', type: :string, default: nil, group: nil}, other_field: {label: 'test', type: :string, default: 'moo', group: nil} } }
   let( :mod ) {
-    graph.add_module(Hilda::Modules::FileMetadata, source,
-      metadata_fields: metadata_fields)
-  }
-  before {
-    source.run_module
-    source.run_status = :finished
+    graph.add_start_module(Hilda::Modules::FileMetadata, metadata_fields: metadata_fields)
   }
 
   describe "#initialize" do
@@ -27,14 +19,14 @@ RSpec.describe Hilda::Modules::FileMetadata do
     end
   end
 
-  describe "#input_changed" do
+  describe "#graph_params_changed" do
     it "builds new param defs" do
       expect(mod).to receive(:build_param_defs)
-      mod.input_changed
+      mod.graph_params_changed
     end
 
     it "updates timestamp" do
-      expect { mod.input_changed }.to change(mod, :change_time)
+      expect { mod.graph_params_changed }.to change(mod, :change_time)
     end
   end
 

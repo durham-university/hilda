@@ -1,3 +1,8 @@
+function moduleDataChanged(input){
+  var container = $(input).closest('.module_container');
+  container.addClass('dirty_data');
+}
+
 function init_modules_ajax() {
   var ajax_manager = (function(){
     var requests = [];
@@ -13,11 +18,31 @@ function init_modules_ajax() {
       isOnGraphPage: function(){
         return $('.module_graph').length>0;
       },
-      updateModule: function(new_module_container){
+      updateModule: function(new_module_container){        
         //console.log("updating module");
         var old_module_container = $('#'+new_module_container.attr('id'))
-        old_module_container.replaceWith(new_module_container);
-        new_module_container.trigger("hilda:module_replaced",[new_module_container]);
+        var alert_container = old_module_container.find('ul.list-group>li:first');
+        
+        var change_time = parseInt(new_module_container.find('.module_timestamp').text());
+        if(change_time<=last_change) {
+          var alerts = new_module_container.find('div.alert')
+          if(alerts.length>0) {
+            alerts.detach();
+            alert_container.append(alerts);
+          }
+          return;
+        }
+        
+        if(old_module_container.hasClass('dirty_data')) {
+          if(!old_module_container.hasClass('concurrent_edit')){
+            old_module_container.addClass('concurrent_edit');
+            alert_container.append('<div class="alert alert-warning alert-dismissable"><button name="button" type="button" class="close" data-dismiss="alert">x</button>Warning: concurrent module edit detected.</div>');
+          }
+        }
+        else {
+          old_module_container.replaceWith(new_module_container);
+          new_module_container.trigger("hilda:module_replaced",[new_module_container]);
+        }
       },
       updateLastChange: function(){
         last_change = Math.max.apply(null, $('.module_container>.module_timestamp').map(function(){return parseInt($(this).text());}) );
@@ -30,9 +55,7 @@ function init_modules_ajax() {
         $('.module_graph').attr('class',resp.find('.module_graph').attr('class'));
 
         resp.find('.module_container').each(function(){
-          var module_container = $(this);
-          var change_time = parseInt(module_container.find('.module_timestamp').text());
-          if(change_time>last_change) _this.updateModule(module_container);
+          _this.updateModule($(this));
         });
         this.updateLastChange()
 
@@ -132,6 +155,7 @@ function init_modules_ajax() {
           if(button.hasClass('disabled')) { return false; }
           button.addClass('disabled');
           form.addClass('sending_data');
+          form.closest('.module_container').removeClass('dirty_data');
 
           _this.sendForm(form);
 

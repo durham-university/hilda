@@ -1,27 +1,29 @@
 <% form_disabled = (mod.can_receive_params?) %>
-<% param_key = :files %>
-<% param = mod.param_defs[param_key] %>
+<% files_key = :files %>
+<% names_key = :file_names %>
 <li class="list-group-item file_uploader">
-  <% if mod.param_values.try(:[],param_key).try(:any?) %>
+  <% if mod.param_values.try(:[],files_key).try(:any?) %>
     <div class="form-group existing_files">
       <h4>Uploaded files</h4>
       <div class="table table-striped files">
-        <% mod.param_values[param_key].each do |key,file| %>
+        <% mod.param_values[files_key].each do |file_name,file| %>
+          <% # mod.param_values[names_key].each do |file_name| %>
+          <% # file = mod.param_values[files_key][file_name] %>
           <div class="file-row">
             <div class="input-group">
               <div class="form-control" style="width: 100%;">
                 <% if mod.module_graph.file_service.file_exists?(file[:path]) %>
-                  <span class="name"><%= key %></span> (<span class="size"><%= number_to_human_size(mod.module_graph.file_service.file_size(file[:path])) %></span>)
+                  <span class="name"><%= file_name %></span> (<span class="size"><%= number_to_human_size(mod.module_graph.file_service.file_size(file[:path])) %></span>)
                   - <span class="md5">MD5: <%= file[:md5] %></span>
                 <% else %>
-                <span class="name"><%= key %></span> - <span class="error alert-danger">File doesn't exist on server!</span>
+                  <span class="name"><%= file_name %></span> - <span class="error alert-danger">File doesn't exist on server!</span>
                 <% end %>
               </div>
               <% if mod.can_receive_params? %>
                 <div class="input-group-btn">
                   <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_path(@ingestion_process, mod.module_name), html: { class: 'form' } do |f| %>
                     <%= f.input :no_layout, as: :hidden, input_html: { value: 'true' } %>
-                    <%= f.input :remove_file, as: :hidden, input_html: { value: key } %>
+                    <%= f.input :remove_file, as: :hidden, input_html: { value: file_name } %>
                     <button type="submit" class="btn btn-danger delete">
                       <i class="glyphicon glyphicon-trash"></i>
                     </button>

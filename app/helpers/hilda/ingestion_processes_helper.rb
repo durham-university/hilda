@@ -75,7 +75,7 @@ module Hilda::IngestionProcessesHelper
             o << capture do render('hilda/modules/file_upload', mod: mod, param: param, param_key: key) end
           else
             o << %Q|<div class="form-group">|.html_safe
-            o << f.input(key, label: param[:label], input_html: { class: 'form-control', value: mod.param_values.try(:[],key) || param[:default] }.merge(disabled) )
+            o << f.input(key, label: param[:label], input_html: { class: 'form-control', onchange: 'moduleDataChanged(this)', value: mod.param_values.try(:[],key) || param[:default] }.merge(disabled) )
             o << %Q|</div>|.html_safe
           end
         end

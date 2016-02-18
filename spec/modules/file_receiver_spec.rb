@@ -33,23 +33,52 @@ RSpec.describe Hilda::Modules::FileReceiver do
       expect(mod.file_basename(image_file1_uploaded)).to eql 'test1.jpg'
     end
   end
-
-  describe "#file_key" do
-    let(:hash) { {'test.jpg'=>true,'test_2.jpg'=>true,'test.test.jpg'=>true,'nosuffix'=>true} }
-    it "works" do
-      expect(mod.file_key(hash,'test_3.jpg')).to eql 'test_3.jpg'
-      expect(mod.file_key(hash,'test.jpg')).to eql 'test_3.jpg'
-      expect(mod.file_key(hash,'test.test.jpg')).to eql 'test.test_2.jpg'
-      expect(mod.file_key(hash,'nosuffix')).to eql 'nosuffix_2'
-      expect(mod.file_key(hash,'nosuffix_3')).to eql 'nosuffix_3'
+  
+  describe "#set_received_file_names" do
+    let( :file_names ) { ['test1.jpg','test2.jpg','test.zip'] }
+    it "adds sets file names in params" do
+      mod.set_received_file_names(file_names)
+      expect(mod.param_values[:file_names]).to eql(['test1.jpg','test2.jpg','test.zip'])
+    end
+    it "overwrites existing values" do
+      mod.param_values[:file_names] = ['moo.jpg']
+      mod.set_received_file_names(file_names)
+      expect(mod.param_values[:file_names]).to eql(['test1.jpg','test2.jpg','test.zip'])
+    end
+    it "doesn't let you remove file names if file is already uploaded" do
+      mod.param_values[:file_names] = ['test3.jpg', 'test1.jpg']
+      mod.param_values[:files] = {'test3.jpg' => {}, 'test1.jpg' => {}}
+      expect { mod.set_received_file_names(file_names) }.to raise_error("cannot remove pre-configured file name when that file has already been uploaded \"test3.jpg\"")
+    end
+    it "can add more file names with existing files" do
+      mod.param_values[:file_names] = ['test1.jpg']
+      mod.param_values[:files] = {'test1.jpg' => {}}
+      mod.set_received_file_names(file_names)
+      expect(mod.param_values[:file_names]).to eql(['test1.jpg','test2.jpg','test.zip'])
+      expect(mod.param_values[:files].key?('test1.jpg')).to eql(true)
+    end
+  end
+  
+  describe "#file_names_changed!" do
+    let(:file_names) { ['test1.jpg','test2.jpg'] }
+    before { mod.param_values[:file_names] = file_names }
+    let(:mock_module) { double('module') }
+    it "copies file_names to graph params" do
+      expect(graph).to receive(:graph_params_changed)
+      mod.file_names_changed!
+      expect(graph[:source_file_names]).to eql(file_names)
     end
   end
 
-  describe "#make_copies_of_files" do
+  describe "#add_received_files" do
+    let( :file_names ) { ['test1.jpg','test2.jpg','test.zip'] }
+    before {
+      mod.param_values[:file_names] = file_names
+    }
     let( :files ) { [{file: image_file1, md5: 'abc'}, {file: zip_file, md5: 'def'}] }
-    let( :new_files ) { mod.make_copies_of_files(files); mod.param_values[:files] }
+    let( :new_files ) { mod.add_received_files(files); mod.param_values[:files] }
     let( :files2 ) { [{file: image_file2, md5: 'ghi'}] }
-    let( :new_files2 ) { new_files ; mod.make_copies_of_files(files2); mod.param_values[:files] }
+    let( :new_files2 ) { new_files ; mod.add_received_files(files2); mod.param_values[:files] }
 
     it "copies files" do
       expect(new_files.length).to eql 2
@@ -85,7 +114,7 @@ RSpec.describe Hilda::Modules::FileReceiver do
 
     it "returns only added files" do
       new_files # add some by referencing
-      expect(mod.make_copies_of_files(files2).size).to eql 1
+      expect(mod.add_received_files(files2).size).to eql 1
       expect(mod.param_values[:files].size).to eql 3
     end
 
@@ -94,6 +123,14 @@ RSpec.describe Hilda::Modules::FileReceiver do
       expect(mod.param_values[:received_temp_files].length).to eql 3
       new_files2
       expect(mod.param_values[:received_temp_files].length).to eql 4
+    end
+    
+    context "undeclared files" do
+      let(:file_names) { ['test1.jpg','test2.jpg'] } 
+      it "raises an error if file is not pre-declared" do
+        expect { new_files }.to raise_error("Sent file name was not pre-defined \"test.zip\"")
+        expect(mod.param_values[:files]).to eql({})
+      end
     end
   end
 
@@ -172,13 +209,14 @@ RSpec.describe Hilda::Modules::FileReceiver do
   end
 
   describe "#receive_params" do
+    before { mod.param_values[:file_names] = ['test1.jpg'] }
     let(:params){ {files: [image_file1_uploaded], md5s: [image_file1_md5]} }
     it "makes copies of received files" do
-      expect(mod).to receive(:make_copies_of_files).with([{file: image_file1_uploaded, md5: image_file1_md5}])
+      expect(mod).to receive(:add_received_files).with([{file: image_file1_uploaded, md5: image_file1_md5}])
       mod.receive_params(params)
     end
     it "works with files hash" do
-      expect(mod).to receive(:make_copies_of_files).with([{file: image_file1_uploaded, md5: nil}, {file: image_file2_uploaded, md5: nil}])
+      expect(mod).to receive(:add_received_files).with([{file: image_file1_uploaded, md5: nil}, {file: image_file2_uploaded, md5: nil}])
       mod.receive_params({ files: {
           '0' => image_file1_uploaded,
           '1' => image_file2_uploaded

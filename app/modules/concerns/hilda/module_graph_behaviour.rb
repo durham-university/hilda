@@ -58,6 +58,12 @@ module Hilda
     delegate :log!, to: :log
     delegate :[], :[]=, :fetch, to: :graph_params
 
+    def graph_params_changed
+      graph.keys.each do |mod|
+        mod.graph_params_changed
+      end      
+    end
+
     def module_source(mod)
       graph.each do |m,next_modules|
         return m if next_modules.include?(mod)

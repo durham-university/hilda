@@ -12,13 +12,13 @@ module Hilda::Modules
     end
 
     def build_param_defs
-      self.param_defs = self.class.sanitise_field_defs( module_input[:source_files].each_with_object({}) do |(file_key,file),defs|
+      self.param_defs = self.class.sanitise_field_defs( module_graph[:source_file_names].each_with_object({}) do |file_name,defs|
         metadata_fields.each_with_object(defs) do |(key,field),defs|
-          defs["#{file_key}__#{key}".underscore.to_sym] = {
-            group: file_key,
+          defs["#{file_name}__#{key}".underscore.to_sym] = {
+            group: file_name,
             label: field[:label],
             type: field[:type],
-            default: ( field[:default] == '__key__' ? file_key : field[:default] )
+            default: ( field[:default] == '__key__' ? file_name : field[:default] )
           }
         end
       end )
@@ -36,11 +36,12 @@ module Hilda::Modules
         json[:metadata_fields] = metadata_fields
       end
     end
-
-    def input_changed
+    
+    def graph_params_changed
       super
+      old_defs = self.param_defs
       build_param_defs
-      changed!
+      changed! unless old_defs == self.param_defs
     end
 
     def autorun?

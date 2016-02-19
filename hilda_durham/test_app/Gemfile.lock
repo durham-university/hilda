@@ -564,7 +564,6 @@ DEPENDENCIES
   hilda!
   hilda_durham!
   jettywrapper
-  jquery-ui-rails
   kaminari!
   nest
   oubliette!

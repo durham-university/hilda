@@ -1,9 +1,23 @@
 <%= include_modules_support %>
 <div class="module_graph graph_<%= @ingestion_process.run_status %>">
-  <%= traverse_graph @ingestion_process do |mod| %>
-    <div class="module_container" id="module_container_<%= mod.module_name.underscore %>">
-      <div style="display:none" class="module_timestamp" id="module_timestamp_<%= mod.module_name.underscore %>"><%= mod.change_time || 0 %></div>
-      <%= render_module mod %>
-    </div>
-  <% end %>
+  <% groups = graph_groups(@ingestion_process) %>
+  <ul class="nav nav-tabs">
+    <% groups.each_with_index do |(group,modules),i| %>
+      <li class="<%= 'active' if i==0 %> group_<%=
+        @ingestion_process.run_status(modules)
+      %>"><a data-toggle="tab" href="#module_group_<%= group.underscore %>"><%= group %></a></li>
+    <% end %>
+  </ul>
+  <div class="tab-content module_group_tabs">
+    <% groups.each_with_index do |(group,modules),i| %>
+      <div id="module_group_<%= group.underscore %>" class="tab-pane fade <%= 'in active' if i==0 %>">
+        <% modules.each do |mod| %>
+          <div class="module_container" id="module_container_<%= mod.module_name.underscore %>">
+            <div style="display:none" class="module_timestamp" id="module_timestamp_<%= mod.module_name.underscore %>"><%= mod.change_time || 0 %></div>
+            <%= render_module mod %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 </div>

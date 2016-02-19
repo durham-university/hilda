@@ -35,6 +35,42 @@ $graph-paused: #b85cb8;
   }
 }
 
+.nav-tabs {
+  li, li.active {
+    &>a {
+      font-weight:bold
+    }
+    &.group_initialized {
+      &>a, &>a:hover, &>a:focus { color: darken($module-initialized, 10%); }
+    }
+    &.group_submitted {
+      &>a, &>a:hover, &>a:focus { color: darken($module-submitted, 10%); }
+    }
+    &.group_running {
+      &>a, &>a:hover, &>a:focus { color: darken($module-running, 10%); }
+    }
+    &.group_queued {
+      &>a, &>a:hover, &>a:focus { color: darken($module-queued, 10%); }
+    }
+    &.group_error {
+      &>a, &>a:hover, &>a:focus { color: darken($module-error, 10%); }
+    }
+    &.group_cleaned {
+      &>a, &>a:hover, &>a:focus { color: darken($module-cleaned, 10%); }
+    }
+    &.group_finished {
+      &>a, &>a:hover, &>a:focus { color: darken($module-finished, 10%); }
+    }
+    &.group_paused {
+      &>a, &>a:hover, &>a:focus { color: darken($graph-paused, 10%); }
+    }
+  }
+}
+
+.module_group_tabs {
+  padding-top: 15px;
+}
+
 .module_graph {
   &.graph_running, &.graph_queued {
     .btn-primary { @extend .btn-primary.disabled }

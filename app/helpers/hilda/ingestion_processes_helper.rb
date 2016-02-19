@@ -9,6 +9,18 @@ module Hilda::IngestionProcessesHelper
     end
     buffer
   end
+  
+  def graph_groups(graph)
+    sorted_mods = []
+    mods = graph.start_modules.reverse
+    while mods.any? do
+      mod = mods.pop
+      sorted_mods << mod
+      mods.concat(graph.graph[mod].reverse)
+    end
+    
+    sorted_mods.group_by do |m| m.param_values[:module_group] end
+  end
 
   def include_modules_support
     render('hilda/modules/modules_support')

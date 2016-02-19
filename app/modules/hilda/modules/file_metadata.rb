@@ -41,6 +41,7 @@ module Hilda::Modules
       super
       old_defs = self.param_defs
       build_param_defs
+      check_submitted_status!
       changed! unless old_defs == self.param_defs
     end
 

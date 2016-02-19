@@ -44,6 +44,13 @@ function init_modules_ajax() {
           new_module_container.trigger("hilda:module_replaced",[new_module_container]);
         }
       },
+      updateGroupStatus: function(tab){
+        var href = tab.find('a').attr('href');
+        var old_tab = $("a[href='"+href+"']").closest('li');
+        var classes = old_tab.attr('class').split(' ').filter(function(c){return !c.startsWith('group_');});
+        classes = classes.concat( tab.attr('class').split(' ').filter(function(c){return c.startsWith('group_');}) );
+        old_tab.attr('class',classes.join(' '));
+      },
       handleResponse: function(resp){
         //console.log("got response");
         resp = $('<div>'+resp+'</div>');
@@ -53,6 +60,10 @@ function init_modules_ajax() {
 
         resp.find('.module_container').each(function(){
           _this.updateModule($(this));
+        });
+        
+        resp.find('.nav-tabs>li').each(function(){
+          _this.updateGroupStatus($(this));
         });
 
         waiting_for_response--;

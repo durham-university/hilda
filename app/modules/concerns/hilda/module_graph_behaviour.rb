@@ -120,13 +120,15 @@ module Hilda
       graph.keys.map(&:change_time).max || 0
     end
 
-    def run_status
-      return :running     if graph.keys.any? do |mod| mod.run_status == :running end
-      return :queued      if graph.keys.any? do |mod| mod.run_status == :queued end
-      return :finished    if graph.keys.all? do |mod| mod.run_status == :finished end
-      return :initialized if graph.keys.all? do |mod| mod.run_status == :initialized || mod.run_status == :submitted end
-      return :error       if graph.keys.any? do |mod| mod.run_status == :error end
-      return :cleaned     if graph.keys.all? do |mod| mod.run_status == :cleaned end
+    def run_status(modules=nil)
+      modules ||= graph.keys
+      return :running     if modules.any? do |mod| mod.run_status == :running end
+      return :queued      if modules.any? do |mod| mod.run_status == :queued end
+      return :finished    if modules.all? do |mod| mod.run_status == :finished end
+      return :submitted   if modules.all? do |mod| mod.run_status == :submitted end
+      return :initialized if modules.all? do |mod| mod.run_status == :initialized || mod.run_status == :submitted end
+      return :error       if modules.any? do |mod| mod.run_status == :error end
+      return :cleaned     if modules.all? do |mod| mod.run_status == :cleaned end
       return :paused
     end
 

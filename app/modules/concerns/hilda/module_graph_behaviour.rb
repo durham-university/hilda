@@ -64,6 +64,12 @@ module Hilda
       end      
     end
 
+    def module_sources(mod)
+      graph.each_with_object([]) do |(m,next_modules),ret|
+        ret << m if next_modules.include?(mod)
+      end
+    end
+
     def module_source(mod)
       graph.each do |m,next_modules|
         return m if next_modules.include?(mod)
@@ -92,12 +98,16 @@ module Hilda
       mod
     end
 
-    def add_module(module_class,after_module=nil,params={})
+    def add_module(module_or_class,after_module=nil,params={})
       after_mod = after_module
       after_mod = find_module(after_mod) if after_mod.is_a?(String) || after_mod.is_a?(Class)
       raise "Module '#{after_module}' not found" unless after_mod
-      mod = module_class.new(self, params)
-      graph[mod] = []
+      if module_or_class.is_a?(Class)
+        mod = module_or_class.new(self, params)
+      else
+        mod = module_or_class
+      end
+      graph[mod] ||= []
       graph[after_mod] << mod
       mod
     end
@@ -200,7 +210,7 @@ module Hilda
       graph[mod].each do |next_mod|
         begin
           next_mod.input_changed()
-          next_mod.execute_module() if execute_next && next_mod.autorun?
+          next_mod.execute_module() if execute_next && next_mod.autorun? && next_mod.ready_to_run?
         rescue StandardError => e
           next_mod.log_module_error(e)
         end

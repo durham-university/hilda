@@ -106,6 +106,11 @@ RSpec.describe Hilda::ModuleGraph do
     it "passes params" do
       expect(mod_b.param_values[:autorun]).to eql false
     end
+    it "works with module instances" do
+      new_mod = Hilda::Modules::DebugModule.new(graph)
+      graph.add_module(new_mod,mod_b)
+      expect(graph.graph[mod_b]).to eql [mod_c,new_mod]
+    end
   end
 
   describe "#reset_graph" do
@@ -229,6 +234,14 @@ RSpec.describe Hilda::ModuleGraph do
       expect(mod_d).to receive(:execute_module)
       expect(mod_b).to receive(:input_changed)
       expect(mod_d).to receive(:input_changed)
+      mod_a.run_status=:finished
+      graph.module_finished(mod_a)
+    end
+    it "makes sure module is ready_to_run?" do
+      expect(mod_b).not_to receive(:execute_module)
+      expect(mod_d).not_to receive(:execute_module)
+      expect(mod_d).to receive(:ready_to_run?).and_return(false)
+      mod_a.run_status=:finished
       graph.module_finished(mod_a)
     end
   end

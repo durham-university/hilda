@@ -9,7 +9,6 @@ function init_modules_ajax() {
     var waiting_for_response = 0;
     var timeout_id = 0;
     var poll_action = $("#modules_poll_form").attr('action');
-    var last_change = -1;
     return {
       isGraphRunning: function(){
         if(!this.isOnGraphPage()) return false;
@@ -24,7 +23,8 @@ function init_modules_ajax() {
         var alert_container = old_module_container.find('ul.list-group>li:first');
         
         var change_time = parseInt(new_module_container.find('.module_timestamp').text());
-        if(change_time<=last_change) {
+        var old_change_time = parseInt(old_module_container.find('.module_timestamp').text());
+        if(change_time<=old_change_time) {
           var alerts = new_module_container.find('div.alert')
           if(alerts.length>0) {
             alerts.detach();
@@ -44,9 +44,6 @@ function init_modules_ajax() {
           new_module_container.trigger("hilda:module_replaced",[new_module_container]);
         }
       },
-      updateLastChange: function(){
-        last_change = Math.max.apply(null, $('.module_container>.module_timestamp').map(function(){return parseInt($(this).text());}) );
-      },
       handleResponse: function(resp){
         //console.log("got response");
         resp = $('<div>'+resp+'</div>');
@@ -57,7 +54,6 @@ function init_modules_ajax() {
         resp.find('.module_container').each(function(){
           _this.updateModule($(this));
         });
-        this.updateLastChange()
 
         waiting_for_response--;
 
@@ -133,7 +129,6 @@ function init_modules_ajax() {
       start: function(){
         var _this = this;
         $(document).on('page:change', function(){ _this.pageChanged(); });
-        this.updateLastChange();
         this.pageChanged();
       },
       pageChanged: function(){

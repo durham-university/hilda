@@ -8,7 +8,8 @@
           <% end %>
         </td>
         <td class="bulk_input">
-          <%= f.input mod.data_key.to_sym, as: :text, input_html: { rows: mod.groups.length, value: (mod.param_values.try(:[],:bulk_data) || '') } %>      
+          <% disabled = mod.can_receive_params? ? {} : { disabled: true } %>
+          <%= f.input mod.data_key.to_sym, as: :text, input_html: { rows: mod.groups.length, value: (mod.param_values.try(:[],:bulk_data) || '') }.merge(disabled) %> 
         </td>
       </tr>
     </table>

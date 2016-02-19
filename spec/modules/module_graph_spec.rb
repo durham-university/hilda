@@ -44,7 +44,8 @@ RSpec.describe Hilda::ModuleGraph do
   end
 
   describe "#run_status" do
-    it "returns :initialized when all initialized" do
+    it "returns :initialized when all initialized or submitted" do
+      mod_b.run_status=:submitted
       expect(graph.run_status).to eql :initialized
     end
     it "returns :error when any has error" do

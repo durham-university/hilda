@@ -98,6 +98,27 @@ RSpec.describe Hilda::Modules::WithParams do
       expect(mod.submitted_params).to eql({title: 'title_test', te_st: 'moo'})
     end
   end
+  
+  describe "#check_submitted_status!" do
+    it "changes to :submitted if all params valid" do
+      expect(mod).to receive(:all_params_valid?).and_return(true)
+      mod.run_status = :initialized
+      mod.check_submitted_status!
+      expect(mod.run_status).to eql(:submitted)
+    end
+    it "changes to :initialized if params not valid" do
+      expect(mod).to receive(:all_params_valid?).and_return(false)
+      mod.run_status = :submitted
+      mod.check_submitted_status!
+      expect(mod.run_status).to eql(:initialized)
+    end
+    it "doesn't change status when not submitted or initialized" do
+      expect(mod).to receive(:all_params_valid?).and_return(false)
+      mod.run_status = :error
+      mod.check_submitted_status!
+      expect(mod.run_status).to eql(:error)
+    end
+  end
 
   describe "sanitise_field_defs" do
     it "sanitises param defs" do

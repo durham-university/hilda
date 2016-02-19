@@ -126,7 +126,7 @@ module Hilda
     end
 
     def reset_module
-      self.run_status = :initialized
+      self.run_status = :initialized unless self.run_status==:submitted
       self.module_output = nil
       clear_log
       changed!
@@ -144,11 +144,11 @@ module Hilda
     end
 
     def autorun?
-      false
+      self.run_status==:submitted
     end
 
     def ready_to_run?
-      return false unless self.run_status==:initialized || self.run_status==:error
+      return false unless self.run_status==:initialized || self.run_status==:submitted || self.run_status==:error
       source = module_graph.module_source(self)
       return false unless source.nil? || source.run_status==:finished
       return true

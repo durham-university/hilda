@@ -187,6 +187,31 @@ RSpec.describe Hilda::Modules::FileReceiver do
       expect(mod.log.errors?).to eql false
     end
   end
+  
+  describe "#all_files_received?" do
+    it "returns false if no file list received" do
+      expect(mod.param_values[:file_names]).not_to be_present
+      expect(mod.all_files_received?).to eql(false)
+    end
+    it "returns false if some file hasn't been received" do
+      mod.param_values[:file_names]=['file1','file2','file3']
+      mod.param_values[:files]={'file1' => {foo: 'bar'}, 'file2' => {foo: 'bar'}}
+      expect(mod.all_files_received?).to eql(false)
+    end
+    it "returns true if all files have been received" do
+      mod.param_values[:file_names]=['file1','file2','file3']
+      mod.param_values[:files]={'file1' => {foo: 'bar'}, 'file2' => {foo: 'bar'}, 'file3' => {foo: 'bar'}}
+      expect(mod.all_files_received?).to eql(true)
+    end
+  end
+  
+  describe "#all_params_submitted?" do
+    it "calls all_files_received?" do
+      mod.param_values[:files]={'file1' => {foo: 'bar'}}
+      expect(mod).to receive(:all_files_received?).and_return(true)
+      mod.all_params_submitted?
+    end
+  end
 
   describe "#run_module" do
     let(:file_copies) { {
@@ -197,11 +222,13 @@ RSpec.describe Hilda::Modules::FileReceiver do
       mod.param_values[:files] = file_copies
     }
     it "calls essential functions" do
+      expect(mod).to receive(:all_params_valid?).and_return(true)
       expect(mod).to receive(:verify_md5s).with(file_copies).and_return(false)
       mod.run_module
       expect(mod.module_output[:source_files]).to eql file_copies
     end
     it "sets error status when md5 verification fails" do
+      expect(mod).to receive(:all_params_valid?).and_return(true)
       expect(mod).to receive(:verify_md5s).with(file_copies).and_return(true)
       mod.run_module
       expect(mod.run_status).to eql :error

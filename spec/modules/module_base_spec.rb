@@ -114,6 +114,16 @@ RSpec.describe Hilda::ModuleGraph do
       mod.rollback
     end
   end
+  
+  describe "#autorun?" do
+    it "returns true if run_status is :submitted" do
+      mod.run_status = :submitted
+      expect(mod.autorun?).to eql(true)
+    end
+    it "returns false unles run_status is :submitted" do
+      expect(mod.autorun?).to eql(false)
+    end
+  end  
 
   describe "#execute_module" do
     it "calls essential functions and sets status" do
@@ -150,5 +160,5 @@ RSpec.describe Hilda::ModuleGraph do
       expect(mod2.run_status).to eql mod.run_status
       expect(mod2.module_output[:test_out]).to eql mod.module_output[:test_out]
     end
-  end
+  end  
 end

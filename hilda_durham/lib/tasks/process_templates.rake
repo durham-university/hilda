@@ -7,7 +7,7 @@ namespace :hilda_durham do
       template \
         .add_start_module(Hilda::Modules::FileReceiver) \
         .add_module(Hilda::Modules::BulkFileMetadata, metadata_fields: {
-          title: {label: 'Title', type: :string, default: '__key__'}
+          title: {label: 'Title', type: :string }
          }) \
         .add_module(HildaDurham::Modules::SchmitLinker) \
         .add_module(Hilda::Modules::DetectContentType, allow_only: ['image/tiff']) \

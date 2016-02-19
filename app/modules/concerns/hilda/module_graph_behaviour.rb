@@ -124,7 +124,7 @@ module Hilda
       return :running     if graph.keys.any? do |mod| mod.run_status == :running end
       return :queued      if graph.keys.any? do |mod| mod.run_status == :queued end
       return :finished    if graph.keys.all? do |mod| mod.run_status == :finished end
-      return :initialized if graph.keys.all? do |mod| mod.run_status == :initialized end
+      return :initialized if graph.keys.all? do |mod| mod.run_status == :initialized || mod.run_status == :submitted end
       return :error       if graph.keys.any? do |mod| mod.run_status == :error end
       return :cleaned     if graph.keys.all? do |mod| mod.run_status == :cleaned end
       return :paused
@@ -137,7 +137,7 @@ module Hilda
     def reset_module_cascading(from,done=[])
       from = Array(from)
       from.each do |mod|
-        if mod.run_status==:finished
+        if mod.run_status==:finished || mod.run_status==:error
           reset_module_cascading(graph[mod],done)
           mod.reset_module
           done << mod

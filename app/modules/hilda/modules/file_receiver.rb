@@ -26,13 +26,28 @@ module Hilda::Modules
       if params.key?(:file_names)
         set_received_file_names( params_array(params[:file_names]) )
         file_names_changed!
+        check_submitted_status!
         changed!
       end
       if params.key?(:files)
         files = params_array(params[:files])
         md5s = params_array(params[:md5s])
         add_received_files( files.zip(md5s).map do |x| {file: x[0], md5: x[1]} end )
+        check_submitted_status!
         changed!
+      end
+      return true
+    end
+
+    def all_params_submitted?
+      super && all_files_received?
+    end
+    
+    def all_files_received?
+      return false unless self.param_values[:file_names].present?
+      return false unless self.param_values[:files].present?
+      self.param_values[:file_names].select do |file_name|
+        return false unless self.param_values[:files][file_name].present?
       end
       return true
     end
@@ -157,8 +172,6 @@ module Hilda::Modules
     end
 
     def run_module
-      module_output.merge!({ source_file_names: param_values[:received_file_names] })
-      
       unless all_params_valid?
         log! :error, 'Submitted values are not valid, cannot proceed.'
         self.run_status = :error

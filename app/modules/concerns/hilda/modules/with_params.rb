@@ -16,6 +16,8 @@ module Hilda::Modules
       param_defs.each do |key,param|
         self.param_values[key] = params[key.to_s] if params.key?(key.to_s)
       end
+      
+      check_submitted_status!
 
       changed!
       return true
@@ -47,6 +49,14 @@ module Hilda::Modules
       end
       return true
     end
+    
+    def check_submitted_status!
+      if all_params_valid?
+        self.run_status = :submitted if run_status==:initialized
+      else
+        self.run_status = :initialized if run_status==:submitted
+      end
+    end    
 
     def from_json(json)
       super(json) do |json|

@@ -44,10 +44,6 @@ module Hilda::Modules
       changed! unless old_defs == self.param_defs
     end
 
-    def autorun?
-      false
-    end
-
     def params_output_key
       :file_metadata
     end

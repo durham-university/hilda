@@ -1,6 +1,6 @@
 module Hilda
   class IngestionProcessesController < Hilda::ApplicationController
-    before_action :set_ingestion_process, only: [:show, :edit, :update, :destroy, :start_module, :reset_module, :query_module]
+    before_action :set_ingestion_process, only: [:show, :edit, :update, :destroy, :start_graph, :reset_graph, :start_module, :reset_module, :query_module]
     before_action :set_ingestion_module, only: [:update, :start_module, :reset_module, :query_module]
     before_action :set_ingestion_process_template, only: [:create]
 
@@ -61,6 +61,42 @@ module Hilda
         format.json { head :no_content }
       end
     end
+    
+    def reset_graph
+      begin
+        @ingestion_process.reset_graph
+        if @ingestion_process.save!
+          flash[:notice] = "Graph was successfully reset"
+        else
+          flash[:alert] = "Error saving ingestion process"
+        end
+      rescue StandardError => e
+        flash[:alert] = "Error resetting module: #{e.to_s}"
+      end
+      disable_layout = params.key?(:no_layout) ? { layout: false } : {}
+      render :edit, disable_layout
+    end
+    
+    def start_graph
+      if [:initialized, :submitted, :paused, :error].include?(@ingestion_process.run_status)
+        modules = @ingestion_process.ready_modules
+        if modules.any?
+          modules.each do |mod| 
+            add_module_notice("Module was queued to be run", :success, mod)
+            mod.run_status=:queued
+            mod.changed!
+          end
+          Hilda::Jobs::IngestionJob.new(resource: @ingestion_process).queue_job
+          # queue_job saves the object          
+        else
+          flash[:alert] = "No modules are ready to run"
+        end
+      else
+        flash[:alert] = "Cannot start graph in current state of #{@ingestion_process.run_status}"
+      end
+      disable_layout = use_layout? ? {} : { layout: false }
+      render :edit, {}.merge(disable_layout)
+    end
 
     def start_module
       if @ingestion_module.ready_to_run?
@@ -74,7 +110,7 @@ module Hilda
       end
 
       disable_layout = use_layout? ? {} : { layout: false }
-      render :edit, {notice: 'Module was successfully queued to be run.'}.merge(disable_layout)
+      render :edit, {}.merge(disable_layout)
     end
 
     def reset_module

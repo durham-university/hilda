@@ -1,7 +1,11 @@
 <div class="module panel panel-default status_<%= mod.run_status %>" id="module_<%= mod.module_name.underscore %>">
-  <div class="panel-heading"><h2 class="panel-title"><%= module_title mod %></h2></div>
+  <div class="panel-heading">
+    <h2 class="panel-title"><%= module_title mod %></h2>
+    <%= render_module_run_status mod %>
+  </div>
   <ul class="list-group">
-    <%= render_module_status mod %>
+    <%= render 'hilda/modules/notices', notices: (@module_notices[mod] || []) %>
+    <%= render_module_controls mod %>
     <%= render_module_log mod %>
     <%= render_module_form mod %>
     <%= render_module_info mod %>

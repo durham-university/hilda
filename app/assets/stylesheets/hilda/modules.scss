@@ -72,11 +72,25 @@ $graph-paused: #b85cb8;
 }
 
 .module_graph {
+  .graph_controls {
+    margin: 15px 0;
+    &>* { margin-right: 15px; }
+  }
+  
   &.graph_running, &.graph_queued {
     .btn-primary { @extend .btn-primary.disabled }
     .btn-default { @extend .btn-default.disabled }
     .btn { @extend .btn.disabled }
     .form-control { @extend .form-control[disabled] }
+  }
+  
+  .run_controls {
+    display: none;
+  }
+  &.show_advanced {
+    .run_controls {
+      display: block;
+    }
   }
 
   .module {
@@ -102,14 +116,12 @@ $graph-paused: #b85cb8;
       background-color: lighten($module-finished, 30%);
     }
 
-    .run_controls {
-      display: inline-block;
-    }
-
     .module_status {
       margin-left: 20px;
       display: inline-block;
     }
+    
+    .panel-title { display: inline; }
 
     .module_log {
       table {
@@ -130,8 +142,7 @@ $graph-paused: #b85cb8;
     }
 
     .alert {
-      margin-top: 15px;
-      margin-bottom: 0;
+      margin: 15px;
     }
 
   }

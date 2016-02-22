@@ -182,13 +182,17 @@ module Hilda
       end
     end
 
-    def continue_execution(modules=nil)
-      if modules.nil?
-        ready_modules = []
+    def ready_modules
+      [].tap do |ret|
         traverse_modules do |mod|
-          ready_modules << mod if mod.ready_to_run?
+          ret << mod if mod.ready_to_run?
           next mod.run_status==:finished
         end
+      end
+    end
+
+    def continue_execution(modules=nil)
+      if modules.nil?
         modules = ready_modules
         log! :warn, "No modules ready to run" if modules.empty?
       end

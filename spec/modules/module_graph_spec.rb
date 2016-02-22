@@ -206,6 +206,13 @@ RSpec.describe Hilda::ModuleGraph do
       expect(graph.finished?).to eql true
     end
   end
+  
+  describe "#ready_modules" do
+    it "returns modules ready to be run" do
+      [mod_a, mod_b, mod_d].each do |mod| mod.run_status=:finished end
+      expect(graph.ready_modules.map(&:module_name)).to match_array(['mod_c','mod_e','mod_g'])
+    end
+  end
 
   describe "#continue_execution" do
     it "continues execution" do

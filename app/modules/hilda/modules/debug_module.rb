@@ -13,6 +13,9 @@ module Hilda::Modules
       return true unless param_defs.try(:any?)
       return super
     end
+    
+    def check_submitted_status!
+    end
 
     def run_module
       sleep(param_values.fetch(:sleep, 0))

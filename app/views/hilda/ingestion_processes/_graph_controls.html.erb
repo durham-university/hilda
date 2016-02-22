@@ -1,0 +1,16 @@
+<div class="graph_controls">
+  <% disable_start_graph = ( [:error,:initialized,:submitted,:paused].include?(@ingestion_process.run_status) ) ? '' : 'disabled' %>
+  <% disable_reset_graph = ( [:error,:initialized,:submitted,:paused,:finished].include?(@ingestion_process.run_status) ) ? '' : 'disabled' %>
+  <button type="button" class="btn btn-default reset_graph_button <%= disable_reset_graph %>"
+          data-url="<%= hilda.ingestion_process_reset_path(@ingestion_process) %>">
+    <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span> Reset
+  </button>  
+  <button type="button" class="btn btn-default reset_graph_button <%= disable_start_graph %>"
+          data-url="<%= hilda.ingestion_process_start_path(@ingestion_process) %>">
+    <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Start
+  </button>    
+  <form action="#" method="GET" style="display: inline;">
+    <input id="graph_advanced_controls" type="checkbox" onchange="$(this).is(':checked') ? ($('.module_graph').addClass('show_advanced')) : ($('.module_graph').removeClass('show_advanced'))"></input>
+    <label for="graph_advanced_controls">Advanced controls</label>
+  </form>
+</div>

@@ -35,6 +35,23 @@ RSpec.describe Hilda::IngestionProcessesController, type: :routing do
     it "routes to #destroy" do
       expect(:delete => "/processes/1").to route_to("hilda/ingestion_processes#destroy", :id => "1")
     end
+    
+    it "routes to #reset_module" do
+      expect(:post => "/processes/1/module/foo/reset").to route_to("hilda/ingestion_processes#reset_module", id: '1', module: 'foo')
+    end
+    it "routes to #start_moudle" do
+      expect(:post => "/processes/1/module/foo/start").to route_to("hilda/ingestion_processes#start_module", id: '1', module: 'foo')
+    end
+    it "routes to #query_module" do
+      expect(:post => "/processes/1/module/foo/query").to route_to("hilda/ingestion_processes#query_module", id: '1', module: 'foo')
+    end
+    
+    it "routes to #reset_graph" do
+      expect(:post => "/processes/1/reset").to route_to("hilda/ingestion_processes#reset_graph", id: '1')
+    end
+    it "routes to #start_graph" do
+      expect(:post => "/processes/1/start").to route_to("hilda/ingestion_processes#start_graph", id: '1')
+    end
 
   end
 end

@@ -43,8 +43,8 @@ RSpec.describe Hilda::Jobs::IngestionJob do
     end
     context "with no options" do
       it "starts graph" do
-        expect(graph).not_to receive(:continue_execution)
-        expect(graph).to receive(:start_graph)
+        expect(graph).to receive(:continue_execution)
+        expect(graph).not_to receive(:start_graph)
         job.run_job
       end
     end

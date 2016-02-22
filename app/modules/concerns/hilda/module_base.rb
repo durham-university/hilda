@@ -126,9 +126,11 @@ module Hilda
     end
 
     def reset_module
-      self.run_status = :initialized unless self.run_status==:submitted
+      was = self.run_status
+      self.run_status = :initialized
       self.module_output = nil
       clear_log
+      check_submitted_status! if was!=:initialized && self.respond_to?(:check_submitted_status!)
       changed!
       return true
     end
@@ -148,7 +150,7 @@ module Hilda
     end
 
     def ready_to_run?
-      return false unless self.run_status==:initialized || self.run_status==:submitted || self.run_status==:error
+      return false unless [:initialized, :queued, :submitted, :error].include?(self.run_status)
       source = module_graph.module_source(self)
       return false unless source.nil? || source.run_status==:finished
       return true

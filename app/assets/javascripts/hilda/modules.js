@@ -9,6 +9,13 @@ function init_modules_ajax() {
     var waiting_for_response = 0;
     var timeout_id = 0;
     var poll_action = $("#modules_poll_form").attr('action');
+    
+    var refresh_classes = function(old_elem, new_elem, filter) {
+      var classes = old_elem.attr('class').split(' ').filter(function(c){return !filter(c);});
+      classes = classes.concat( new_elem.attr('class').split(' ').filter(filter) );
+      old_elem.attr('class',classes.join(' '));      
+    };
+    
     return {
       isGraphRunning: function(){
         if(!this.isOnGraphPage()) return false;
@@ -47,9 +54,14 @@ function init_modules_ajax() {
       updateGroupStatus: function(tab){
         var href = tab.find('a').attr('href');
         var old_tab = $("a[href='"+href+"']").closest('li');
-        var classes = old_tab.attr('class').split(' ').filter(function(c){return !c.startsWith('group_');});
-        classes = classes.concat( tab.attr('class').split(' ').filter(function(c){return c.startsWith('group_');}) );
-        old_tab.attr('class',classes.join(' '));
+        refresh_classes(old_tab, tab, function(c){return c.startsWith('group_');});
+      },
+      updateGraphButtons: function(graph){
+        $('.module_graph .graph_controls button').each(function(){
+          var old_button = $(this);
+          var new_button = graph.find("button[data-url='"+old_button.attr('data-url')+"']");
+          refresh_classes(old_button, new_button, function(c){return c=='disabled';});
+        });
       },
       handleResponse: function(resp){
         //console.log("got response");
@@ -65,6 +77,7 @@ function init_modules_ajax() {
         resp.find('.nav-tabs>li').each(function(){
           _this.updateGroupStatus($(this));
         });
+        this.updateGraphButtons(resp.find('.module_graph'));
 
         waiting_for_response--;
 
@@ -188,6 +201,23 @@ function init_modules_ajax() {
           button.addClass('disabled');
           _this.sendControlAction(button,'start');
         });
+        
+        $(".module_graph").on('click',".graph_controls button.reset_graph_button",function(event){
+          if(_this.isGraphRunning()) return false;
+          var button = $(this);
+          if(button.hasClass('disabled')) { return false; }
+          button.addClass('disabled');
+          _this.sendControlAction(button,'reset');
+        });
+
+        $(".module_graph").on('click',".graph_controls button.start_graph_button",function(event){
+          if(_this.isGraphRunning()) return false;
+          var button = $(this);
+          if(button.hasClass('disabled')) { return false; }
+          button.addClass('disabled');
+          _this.sendControlAction(button,'start');
+        });
+        
       }
     };
   })();

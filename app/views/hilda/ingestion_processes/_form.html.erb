@@ -1,5 +1,6 @@
 <%= include_modules_support %>
 <div class="module_graph graph_<%= @ingestion_process.run_status %>">
+  <%= render 'graph_controls' %>
   <% groups = graph_groups(@ingestion_process) %>
   <ul class="nav nav-tabs">
     <% groups.each_with_index do |(group,modules),i| %>

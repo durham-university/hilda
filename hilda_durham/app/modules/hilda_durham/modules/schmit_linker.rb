@@ -101,10 +101,6 @@ module HildaDurham
         end
       end
 
-      def autorun?
-        ready_to_run?
-      end
-
       def run_module
         unless all_params_valid?
           log! :error, 'Schmit link not yet submitted, cannot proceed.'

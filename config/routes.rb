@@ -6,4 +6,6 @@ Hilda::Engine.routes.draw do
   post 'processes/:id/module/:module/reset' => 'ingestion_processes#reset_module', as: 'ingestion_process_module_reset'
   post 'processes/:id/module/:module/start' => 'ingestion_processes#start_module', as: 'ingestion_process_module_start'
   post 'processes/:id/module/:module/query' => 'ingestion_processes#query_module', as: 'ingestion_process_module_query'
+  post 'processes/:id/reset' => 'ingestion_processes#reset_graph', as: 'ingestion_process_reset'
+  post 'processes/:id/start' => 'ingestion_processes#start_graph', as: 'ingestion_process_start'
 end

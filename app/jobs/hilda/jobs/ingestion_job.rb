@@ -11,7 +11,7 @@ module Hilda::Jobs
       super(params)
       self.module_name = params[:module_name]
       self.module_name = module_name.module_name if module_name.is_a? Hilda::ModuleBase
-      self.run_mode = params.fetch(:run_mode, :restart)
+      self.run_mode = params.fetch(:run_mode, self.module_name.present? ? :restart : :continue)
     end
 
     alias graph resource

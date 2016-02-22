@@ -158,6 +158,81 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
       expect(response).to redirect_to(ingestion_processes_url)
     end
   end
+  
+  describe "POST #start_graph" do
+    #
+    # mod_a -> mod_b -> mod_c
+    #       -> mod_d -> mod_e -> mod_f
+    # mod_g
+    #
+    # B and C not autorun
+    #    
+    let( :ingestion_process ) { FactoryGirl.create(:ingestion_process,:execution) }
+    let( :mod_a ) { ingestion_process.find_module('mod_a') }
+    let( :mod_b ) { ingestion_process.find_module('mod_b') }
+    let( :mod_c ) { ingestion_process.find_module('mod_c') }
+    let( :mod_d ) { ingestion_process.find_module('mod_d') }
+    let( :mod_e ) { ingestion_process.find_module('mod_e') }
+    let( :mod_f ) { ingestion_process.find_module('mod_f') }
+    let( :mod_g ) { ingestion_process.find_module('mod_g') }
+    it "pushes a run job when something can be run" do
+      expect(Hilda.queue).to receive(:push) do |job|
+        expect(job.resource_id).to eql ingestion_process.id
+        expect(job.module_name).to be_nil
+        expect(job.run_mode).to eql :continue
+        job.resource.save # Save would normally be done in push and is needed for the test to pass
+      end
+      post :start_graph, {id: ingestion_process.to_param}
+      ingestion_process.reload
+      expect(mod_a.run_status).to eql(:queued)
+      expect(mod_g.run_status).to eql(:queued)      
+      expect(mod_b.run_status).to eql(:initialized)
+    end
+    it "doesn't add a job if graph already queued" do
+      expect(Hilda.queue).not_to receive(:push)
+      mod_a.run_status = :queued
+      ingestion_process.save
+      post :start_graph, {id: ingestion_process.to_param}
+    end
+    it "doesn't add a job if graph finished" do
+      expect(Hilda.queue).not_to receive(:push)
+      [mod_a, mod_b, mod_c, mod_d, mod_e, mod_f, mod_g].each do |mod|
+        mod.run_status = :finished
+      end
+      ingestion_process.save
+      post :start_graph, {id: ingestion_process.to_param}
+    end
+    it "can continue an ingestion process" do
+      expect(Hilda.queue).to receive(:push) do |job|
+        expect(job.resource_id).to eql ingestion_process.id
+        expect(job.module_name).to be_nil
+        expect(job.run_mode).to eql :continue
+        job.resource.save # Save would normally be done in push and is needed for the test to pass
+      end
+      mod_a.run_status = :finished
+      mod_b.run_status = :finished
+      ingestion_process.save
+      post :start_graph, {id: ingestion_process.to_param}
+      ingestion_process.reload
+      # mod_a and mod_b have been referenced already and aren't refreshed by reload
+      expect(ingestion_process.find_module('mod_a').run_status).to eql(:finished)
+      expect(ingestion_process.find_module('mod_b').run_status).to eql(:finished)
+      expect(mod_c.run_status).to eql(:queued)      
+      expect(mod_d.run_status).to eql(:queued)      
+      expect(mod_g.run_status).to eql(:queued)      
+    end
+  end
+  
+  describe "POST #reset_graph" do
+    it "resets the graph" do
+      expect(controller).to receive(:set_ingestion_process) do
+        controller.instance_variable_set(:@ingestion_process, ingestion_process)
+      end
+      expect(ingestion_process).to receive(:reset_graph)
+      expect(ingestion_process).to receive(:save!).and_return(true)
+      post :reset_graph, {id: ingestion_process.to_param}
+    end
+  end
 
   describe "POST #start_module" do
     it "pushes a run job if module is ready to run" do
@@ -166,6 +241,7 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
       expect(Hilda.queue).to receive(:push) do |job|
         expect(job.resource_id).to eql ingestion_process.id
         expect(job.module_name).to eql mod.module_name
+        expect(job.run_mode).to eql :restart
         job.resource.save # Save would normally be done in push and is needed for the test to pass
       end
       post :start_module, {id: ingestion_process.to_param, module: mod.module_name }

@@ -20,6 +20,12 @@ module Hilda::HydraModuleGraph
   def deserialise_module_graph
     from_json( self.module_graph_serialisation.content )
   end
+  
+  def reload(*args)
+    super(*args).tap do |obj|
+      deserialise_module_graph
+    end
+  end
 
   def to_s
     title || id

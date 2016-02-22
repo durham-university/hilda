@@ -51,8 +51,8 @@ module Hilda::IngestionProcessesHelper
     safe_join components
   end
 
-  def render_module_status(mod)
-    template = mod.param_values.fetch(:status_template,'hilda/modules/default_status')
+  def render_module_controls(mod)
+    template = mod.param_values.fetch(:controls_template,'hilda/modules/default_controls')
     capture do render(template, mod: mod) end
   end
 

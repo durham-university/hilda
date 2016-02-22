@@ -103,16 +103,16 @@ module Hilda::Modules
     module ClassMethods
 
       def sanitise_field_defs(fields)
-        fields.each_with_object({}) do |(original_key,field),o|
-          key = original_key.to_s.gsub(/[^a-zA-Z0-9_]/,'_').to_sym
+        fields.each_with_object({}) do |(key,field),o|
+          key = key.to_sym
           field_data = {}
           if field.is_a?(String) || field.is_a?(Symbol)
-            field_data[:label] = original_key
+            field_data[:label] = key.to_s
             field_data[:type] = field.to_sym
             field_data[:default] = nil
             field_data[:group] = nil
           elsif field.is_a? Hash
-            field_data[:label] = (field[:label] || field['label'] || original_key).to_s
+            field_data[:label] = (field[:label] || field['label'] || key).to_s
             field_data[:type] = (field[:type] || field['type'] || :string).to_sym
             field_data[:default] = (field[:default] || field['default'])
             field_data[:group] = (field[:group] || field['group'])

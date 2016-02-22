@@ -34,25 +34,25 @@ RSpec.describe Hilda::Modules::FileMetadata do
     it "builds correct definitions" do
       mod.build_param_defs
       expect(mod.param_defs).to eql({
-        testfile_pdf__title: {
+        :'testfile.pdf__title' => {
           group: 'testfile.pdf',
           label: 'title',
           type: :string,
           default: nil
         },
-        testfile_pdf__other_field: {
+        :'testfile.pdf__other_field' => {
           group: 'testfile.pdf',
           label: 'test',
           type: :string,
           default: 'moo'
         },
-        othertestfile_pdf__title: {
+        :'othertestfile.pdf__title' => {
           group: 'othertestfile.pdf',
           label: 'title',
           type: :string,
           default: nil
         },
-        othertestfile_pdf__other_field: {
+        :'othertestfile.pdf__other_field' => {
           group: 'othertestfile.pdf',
           label: 'test',
           type: :string,
@@ -77,12 +77,12 @@ RSpec.describe Hilda::Modules::FileMetadata do
   describe "#run_module" do
     before {
       allow(mod).to receive(:param_values).and_return({
-          :'_tmp_testfile_pdf__title' => 'moo',
-          :'_tmp_othertestfile_pdf__title' => 'oink'
+          :'/tmp/testfile.pdf__title' => 'moo',
+          :'/tmp/othertestfile.pdf__title' => 'oink'
         })
       allow(mod).to receive(:param_defs).and_return({
-          :'_tmp_testfile_pdf__title' => {},
-          :'_tmp_othertestfile_pdf__title' => {}
+          :'/tmp/testfile.pdf__title' => {},
+          :'/tmp/othertestfile.pdf__title' => {}
         })
       mod.module_output = {}
     }
@@ -98,8 +98,8 @@ RSpec.describe Hilda::Modules::FileMetadata do
       mod.run_module
       expect(mod.run_status).not_to eql :error
       expect(mod.module_output[:file_metadata]).to eql({
-          '_tmp_testfile_pdf__title': 'moo',
-          '_tmp_othertestfile_pdf__title': 'oink'
+          '/tmp/testfile.pdf__title': 'moo',
+          '/tmp/othertestfile.pdf__title': 'oink'
         })
     end
   end

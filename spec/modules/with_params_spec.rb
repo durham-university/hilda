@@ -13,7 +13,7 @@ RSpec.describe Hilda::Modules::WithParams do
   } }
   let( :param_defs_sanitised ) { {
     title: {label: 'title', type: :string, default: nil, group: nil },
-    te_st: {label: 'test', type: :string, default: 'moo', group: nil }
+    :'te/st' => {label: 'test', type: :string, default: 'moo', group: nil }
   } }
   let( :mod ) {
     graph.add_start_module(ModClass).tap do |mod|
@@ -27,21 +27,21 @@ RSpec.describe Hilda::Modules::WithParams do
 
   describe "#receive_params" do
     it "sets only defined params" do
-      mod.receive_params({'title' => 'new title', 'te_st' => 'new test', 'other' => 'something else'})
-      expect( mod.param_values ).to eql({title: 'new title', te_st: 'new test'})
+      mod.receive_params({'title' => 'new title', 'te/st' => 'new test', 'other' => 'something else'})
+      expect( mod.param_values ).to eql({title: 'new title', :'te/st' => 'new test'})
     end
     it "calls changed!" do
       expect(mod).to receive(:changed!)
-      mod.receive_params({'title' => 'new title', 'te_st' => 'new test', 'other' => 'something else'})
+      mod.receive_params({'title' => 'new title', 'te/st' => 'new test', 'other' => 'something else'})
     end
     it "returns true" do
-      ret = mod.receive_params({'title' => 'new title', 'te_st' => 'new test', 'other' => 'something else'})
+      ret = mod.receive_params({'title' => 'new title', 'te/st' => 'new test', 'other' => 'something else'})
       expect( ret ).to eql true
     end
     it "doesn't take in params if module cannot receive params" do
       expect(mod).to receive(:can_receive_params?).and_return(false)
       expect{
-        mod.receive_params({'title' => 'new title', 'te_st' => 'new test', 'other' => 'something else'})
+        mod.receive_params({'title' => 'new title', 'te/st' => 'new test', 'other' => 'something else'})
       }.to raise_error("Module cannot receive params in current state")
     end
   end
@@ -95,7 +95,7 @@ RSpec.describe Hilda::Modules::WithParams do
   describe "#submitted_params" do
     it "returns only defined params" do
       mod.param_values.merge!({title: 'title_test', other: 'other_test' })
-      expect(mod.submitted_params).to eql({title: 'title_test', te_st: 'moo'})
+      expect(mod.submitted_params).to eql({title: 'title_test', :'te/st' => 'moo'})
     end
   end
   

@@ -3,6 +3,7 @@
   <% groups = graph_groups(@ingestion_process) %>
   <ul class="nav nav-tabs">
     <% groups.each_with_index do |(group,modules),i| %>
+      <% group ||= 'Other' %>
       <li class="<%= 'active' if i==0 %> group_<%=
         @ingestion_process.run_status(modules)
       %>"><a data-toggle="tab" href="#module_group_<%= group.underscore %>"><%= group %></a></li>
@@ -10,6 +11,7 @@
   </ul>
   <div class="tab-content module_group_tabs">
     <% groups.each_with_index do |(group,modules),i| %>
+      <% group ||= 'Other' %>
       <div id="module_group_<%= group.underscore %>" class="tab-pane fade <%= 'in active' if i==0 %>">
         <% modules.each do |mod| %>
           <div class="module_container" id="module_container_<%= mod.module_name.underscore %>">

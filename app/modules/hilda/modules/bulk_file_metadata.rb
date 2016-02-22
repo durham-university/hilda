@@ -17,20 +17,29 @@ module Hilda::Modules
     def receive_params(params)
       unless params[data_key].nil?
         self.param_values[:bulk_data] = params[data_key]
-        super(parse_bulk_params(params))
+        super(parse_bulk_params)
       end
+    end
+    
+    def all_params_valid?
+      return false unless super
+      return false unless groups.length == bulk_data_lines.length
+      return true
     end
     
     def groups
       (param_defs || {}).map do |k,x| x[:group] end .uniq
     end
+    
+    def bulk_data_lines
+      (self.param_values[:bulk_data] || '').split(/\r?\n/)
+    end
 
-    def parse_bulk_params(params)
-      
+    def parse_bulk_params
       defs_by_group = (param_defs || {}).map do |k,v| v.merge(key: k) end \
                                        .group_by do |x| x[:group] end
       
-      lines = (params[data_key] || '').split(/\r?\n/)
+      lines = bulk_data_lines
       
       {}.tap do |new_params|
         defs_by_group.each_with_index do |(group,params),i|

@@ -26,15 +26,31 @@ RSpec.describe Hilda::Modules::BulkFileMetadata do
   
   describe "#receive_params" do
     it "calls #parse_bulk_params and sets bulk_data param" do
-      expect(mod).to receive(:parse_bulk_params).with({'bulk_data' => 'moo'}).and_return({'moo' => 'baa'})
+      expect(mod).to receive(:parse_bulk_params) do 
+        expect(mod.param_values[:bulk_data]).to eql('moo')
+      end .and_return({'moo' => 'baa'})
       mod.receive_params({'bulk_data' => 'moo'})
-      expect(mod.param_values[:bulk_data]).to eql('moo')
     end
-    
+  end
+  
+  describe "#all_params_valid?" do
+    it "returns true when bulk line count matches group count" do
+      mod.receive_params({'bulk_data' => "aa\nbb\ncc"})
+      expect(mod.all_params_valid?).to eql(true)
+    end
+    it "returns false when bulk data has too many lines" do
+      mod.receive_params({'bulk_data' => "aa\nbb\ncc\ndd"})
+      expect(mod.all_params_valid?).to eql(false)
+    end
+    it "returns false when bulk data has too few lines" do
+      mod.receive_params({'bulk_data' => "aa\nbb"})
+      expect(mod.all_params_valid?).to eql(false)
+    end
   end
   
   describe "#parse_bulk_params" do
-    let(:parsed) { mod.parse_bulk_params({'bulk_data' => input}) }
+    before { mod.param_values[:bulk_data] = input }
+    let(:parsed) { mod.parse_bulk_params }
     context "without splitting lines" do
       before { expect(mod.data_delimiter).to eql(nil) }
       # Note windows line breaks in input

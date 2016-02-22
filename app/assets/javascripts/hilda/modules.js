@@ -63,6 +63,9 @@ function init_modules_ajax() {
           refresh_classes(old_button, new_button, function(c){return c=='disabled';});
         });
       },
+      updateApplicationFlashes: function(resp){
+        $('.module_graph').parent().prepend( resp.find('.application_flashes .alert').detach() );
+      },
       handleResponse: function(resp){
         //console.log("got response");
         resp = $('<div>'+resp+'</div>');
@@ -78,6 +81,8 @@ function init_modules_ajax() {
           _this.updateGroupStatus($(this));
         });
         this.updateGraphButtons(resp.find('.module_graph'));
+        
+        this.updateApplicationFlashes(resp);
 
         waiting_for_response--;
 

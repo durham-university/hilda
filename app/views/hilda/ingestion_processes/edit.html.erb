@@ -1,3 +1,11 @@
+<% if self.params.try(:[],'no_layout') %>
+  <div class="application_flashes">
+    <%= # Render flashes here for ajax no_layout requests so that they get returned
+        bootstrap_flash %>
+    <% flash.clear %>
+  </div>
+<% end %>
+
 <% content_for :sidebar do %>
   <%= render 'back_control' %>
   <%= render 'destroy_control', resource: @ingestion_process %>

@@ -1,7 +1,7 @@
 module Hilda
   class IngestionProcessesController < Hilda::ApplicationController
-    before_action :set_ingestion_process, only: [:show, :edit, :update, :destroy, :start_graph, :reset_graph, :start_module, :reset_module, :query_module]
-    before_action :set_ingestion_module, only: [:update, :start_module, :reset_module, :query_module]
+    before_action :set_ingestion_process, only: [:show, :edit, :update, :destroy, :start_graph, :reset_graph, :rollback_graph, :start_module, :reset_module, :query_module, :rollback_module]
+    before_action :set_ingestion_module, only: [:update, :start_module, :reset_module, :query_module, :rollback_module]
     before_action :set_ingestion_process_template, only: [:create]
 
     def initialize(*args)
@@ -58,6 +58,20 @@ module Hilda
       @ingestion_process.destroy
       respond_to do |format|
         format.html { redirect_to ingestion_processes_url, notice: 'Ingestion process was successfully destroyed.' }
+        format.json { head :no_content }
+      end
+    end
+    
+    def rollback_graph
+      @ingestion_process.rollback_graph
+      if @ingestion_process.save!
+        flash[:notice] = "Graph was successfully rolled back"
+      else
+        flash[:alert] = "Error rolling back graph"
+      end
+      disable_layout = use_layout? ? {} : { layout: false }
+      respond_to do |format|
+        format.html { redirect_to edit_ingestion_process_path(@ingestion_process) }
         format.json { head :no_content }
       end
     end
@@ -127,6 +141,25 @@ module Hilda
         end
       rescue StandardError => e
         add_module_notice("Error resetting module: #{e.to_s}")
+      end
+      disable_layout = params.key?(:no_layout) ? { layout: false } : {}
+      render :edit, disable_layout
+    end
+    
+    def rollback_module
+      begin
+        rolledback_modules = @ingestion_process.rollback_module_cascading(@ingestion_module)
+        if rolledback_modules.any?
+          if @ingestion_process.save!
+            rolledback_modules.each do |mod|
+              add_module_notice('Module was successfully rolled back', :success, mod)
+            end
+          else
+            add_module_notice('Error saving ingestion process')
+          end
+        end
+      rescue StandardError => e
+        add_module_notice("Error rolling back module: #{e.to_s}")
       end
       disable_layout = params.key?(:no_layout) ? { layout: false } : {}
       render :edit, disable_layout

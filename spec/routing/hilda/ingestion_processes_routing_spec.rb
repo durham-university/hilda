@@ -36,6 +36,9 @@ RSpec.describe Hilda::IngestionProcessesController, type: :routing do
       expect(:delete => "/processes/1").to route_to("hilda/ingestion_processes#destroy", :id => "1")
     end
     
+    it "routes to #rollback_module" do
+      expect(:post => "/processes/1/module/foo/rollback").to route_to("hilda/ingestion_processes#rollback_module", id: '1', module: 'foo')
+    end
     it "routes to #reset_module" do
       expect(:post => "/processes/1/module/foo/reset").to route_to("hilda/ingestion_processes#reset_module", id: '1', module: 'foo')
     end
@@ -51,6 +54,9 @@ RSpec.describe Hilda::IngestionProcessesController, type: :routing do
     end
     it "routes to #start_graph" do
       expect(:post => "/processes/1/start").to route_to("hilda/ingestion_processes#start_graph", id: '1')
+    end
+    it "routes to #rollback_graph" do
+      expect(:post => "/processes/1/rollback").to route_to("hilda/ingestion_processes#rollback_graph", id: '1')
     end
 
   end

@@ -89,4 +89,39 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
       expect(mod_output[:stored_files][:file2]).to be_a Hash
     end
   end
+  
+  describe "#rollback" do
+    before {
+      mod.run_status = :finished
+      mod.log!(:info,"Dummy message")
+    }
+    context "when files have been ingested" do
+      before {
+        mod.module_output = { stored_files: { 
+          'file1' => {"id" => "b1aa11bb22x","ingestion_date" => "2015-11-23T13:10:44.494+00:00","status" => "not checked","check_date" => "2015-11-23T13:11:00.000+00:00","title" => "Test file 1","note" => "","ingestion_checksum" => "md5:dcca695ddf72313d5f9f80935c58cf9ddcca695ddf72313d5f9f80935c58cf9d"}, 
+          'file2' => {"id" => "b1cc33dd44y","ingestion_date" => "2015-11-23T13:10:44.494+00:00","status" => "not checked","check_date" => "2015-11-23T13:11:00.000+00:00","title" => "Test file 1","note" => "","ingestion_checksum" => "md5:dcca695ddf72313d5f9f80935c58cf9ddcca695ddf72313d5f9f80935c58cf9d"}
+        } }
+      }
+      it "destroys ingested files and calls super" do
+        deleted = []
+        allow_any_instance_of(Oubliette::API::PreservedFile).to receive(:destroy) do |file|
+          deleted << file.id
+          true
+        end
+        mod.rollback
+        expect(deleted).to match_array(['b1aa11bb22x','b1cc33dd44y'])
+        expect(mod.run_status).to eql(:initialized)
+        expect(mod.log).to be_empty
+      end
+    end
+    context "when nothing was ingested" do
+      it "only calls super" do
+        deleted = []
+        expect_any_instance_of(Oubliette::API::PreservedFile).not_to receive(:destroy)
+        mod.rollback
+        expect(mod.run_status).to eql(:initialized)
+        expect(mod.log).to be_empty
+      end
+    end
+  end
 end

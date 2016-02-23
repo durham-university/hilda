@@ -127,6 +127,8 @@ module Hilda::Modules
           file_names: [],
           received_temp_files: []
         })
+      self.module_graph[:source_file_names] = nil
+      self.module_graph.graph_params_changed
     end
 
     def remove_received_temp_files
@@ -137,7 +139,7 @@ module Hilda::Modules
     end
 
     def cleanup(*args)
-      remove_received_temp_files
+      remove_all_received_files
       return super(*args)
     end
 

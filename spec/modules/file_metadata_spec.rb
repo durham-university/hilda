@@ -31,6 +31,11 @@ RSpec.describe Hilda::Modules::FileMetadata do
   end
 
   describe "#build_param_defs" do
+    it "works with nil input" do
+      graph[:source_file_names] = nil
+      expect { mod.build_param_defs }.not_to raise_error
+      expect(mod.param_defs).to eql({})
+    end
     it "builds correct definitions" do
       mod.build_param_defs
       expect(mod.param_defs).to eql({

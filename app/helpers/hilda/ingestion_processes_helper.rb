@@ -31,26 +31,6 @@ module Hilda::IngestionProcessesHelper
     capture do render(template, mod: mod) end
   end
 
-  def render_module_run_controls(mod)
-    components = []
-
-    components << %Q|
-        <button type="button" class="btn btn-default reset_module_button" aria-label="Reset module"
-                data-url="#{hilda.ingestion_process_module_reset_path(mod.module_graph,mod.module_name)}">
-          <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
-        </button>
-      |.html_safe
-
-    components << %Q|
-        <button type="button" class="#{'disabled' unless mod.ready_to_run?} btn btn-default start_module_button" aria-label="Start module"
-                data-url="#{hilda.ingestion_process_module_start_path(mod.module_graph,mod.module_name)}">
-          <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
-        </button>
-      |.html_safe
-
-    safe_join components
-  end
-
   def render_module_controls(mod)
     template = mod.param_values.fetch(:controls_template,'hilda/modules/default_controls')
     capture do render(template, mod: mod) end

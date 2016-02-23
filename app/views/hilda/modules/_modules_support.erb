@@ -2,3 +2,27 @@
   <%= simple_form_for @ingestion_process, url: hilda.edit_ingestion_process_path(@ingestion_process), remote: true, html: { id: 'modules_poll_form'} do |f| %>
   <% end %>
 </div>
+
+<div id="generic_confirm_modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="ajax-modal-close close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h1 class="modal-title"></h1>
+      </div>
+      <div class="popup-tool-form">
+      <%= form_for @ingestion_process, url: '#', html: {
+          method: 'get',
+          onsubmit: "if($(this).find('#confirm_deletion').prop('checked') === true) { $(this).data('actionCallback')(); } return false;"
+        } do |f| %>
+        <p class="modal-message"></p>
+        <p><%= check_box_tag(:confirm_deletion) %> <%= label_tag(:confirm_deletion, "") %></p>
+        <p>
+          <input type="submit" class="btn btn-primary" value=""/>
+          <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        </p>
+      <% end %>
+      </div>
+    </div>
+  </div>
+</div>  

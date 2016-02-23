@@ -233,6 +233,17 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
       post :reset_graph, {id: ingestion_process.to_param}
     end
   end
+  
+  describe "POST #rollback_graph" do
+    it "rollsback the graph" do
+      expect(controller).to receive(:set_ingestion_process) do
+        controller.instance_variable_set(:@ingestion_process, ingestion_process)
+      end
+      expect(ingestion_process).to receive(:rollback_graph)
+      expect(ingestion_process).to receive(:save!).and_return(true)
+      post :rollback_graph, {id: ingestion_process.to_param}
+    end
+  end
 
   describe "POST #start_module" do
     it "pushes a run job if module is ready to run" do
@@ -275,6 +286,36 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
       expect(other_mod_loaded.run_status).to eql :initialized
     end
   end
+  
+  describe "POST #rollback_module" do
+    before { 
+      allow(controller).to receive(:set_ingestion_process) do
+        controller.instance_variable_set(:@ingestion_process, ingestion_process)
+      end 
+    }
+    it "rolls back the module and cascades" do
+      mod.run_status = :finished
+      other_mod.run_status = :finished
+      ingestion_process.save
+      # rollback_module_cascading is called recursively so allow all calls and expect one in particular
+      allow(ingestion_process).to receive(:rollback_module_cascading).and_call_original
+      expect(ingestion_process).to receive(:rollback_module_cascading).with(mod).and_call_original
+      post :rollback_module, {id: ingestion_process.to_param, module: mod.module_name }
+      expect(mod_loaded.run_status).to eql :initialized
+      expect(other_mod_loaded.run_status).to eql :initialized
+    end
+    it "doesn't reset modules unnecessarily" do
+      mod.run_status = :finished
+      other_mod.run_status = :finished
+      ingestion_process.save
+      allow(ingestion_process).to receive(:rollback_module_cascading).and_call_original
+      expect(ingestion_process).to receive(:rollback_module_cascading).with(other_mod).and_call_original
+      post :rollback_module, {id: ingestion_process.to_param, module: other_mod.module_name }
+      expect(mod_loaded.run_status).to eql :finished
+      expect(other_mod_loaded.run_status).to eql :initialized
+    end
+  end
+  
 
   describe "#use_layout?" do
     before { controller.instance_variable_set(:@_params,params) }

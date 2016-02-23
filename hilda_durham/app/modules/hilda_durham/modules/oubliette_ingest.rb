@@ -48,6 +48,22 @@ module HildaDurham
 
         self.module_output = module_input.deep_dup.merge(stored_files: stored_files)
       end
-    end
+    
+      def rollback
+        sent_files = self.module_output.try(:[],:stored_files)
+        if sent_files
+          sent_files.each do |file_key,file_json|
+            f = Oubliette::API::PreservedFile.from_json(file_json)
+            self.module_graph.log!("Removing file from Oubliette #{f.id}")
+            begin
+              f.destroy
+            rescue StandardError => e
+            end
+          end
+        end
+        return super
+      end
+      
+    end    
   end
 end

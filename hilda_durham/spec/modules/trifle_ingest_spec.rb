@@ -38,4 +38,36 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
     end
   end
   
+  describe "#rollback" do
+    before {
+      mod.run_status = :finished
+      mod.log!(:info,"Dummy message")
+    }
+    context "when files have been ingested" do
+      before {
+        mod.module_output = { trifle_manifest:  
+          {"id" => "tajd472w44j","title" => "Test title 1","image_container_location" => "testimages","identifier" => ["ark:/12345/tajd472w44j"]}
+        }
+      }
+      it "destroys ingested files and calls super" do
+        expect_any_instance_of(Trifle::API::IIIFManifest).to receive(:destroy) do |manifest|
+          expect(manifest.id).to eql('tajd472w44j')
+          true
+        end
+        mod.rollback
+        expect(mod.run_status).to eql(:initialized)
+        expect(mod.log).to be_empty
+      end
+    end
+    context "when nothing was ingested" do
+      it "only calls super" do
+        deleted = []
+        expect_any_instance_of(Trifle::API::IIIFManifest).not_to receive(:destroy)
+        mod.rollback
+        expect(mod.run_status).to eql(:initialized)
+        expect(mod.log).to be_empty
+      end
+    end
+  end  
+  
 end

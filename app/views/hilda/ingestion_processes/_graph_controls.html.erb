@@ -1,6 +1,7 @@
 <div class="graph_controls">
   <% disable_start_graph = ( [:error,:initialized,:submitted,:paused].include?(@ingestion_process.run_status) ) ? '' : 'disabled' %>
   <% disable_reset_graph = ( [:error,:initialized,:submitted,:paused,:finished].include?(@ingestion_process.run_status) ) ? '' : 'disabled' %>
+  <% disable_rollback_graph = ( [:error,:finished,:paused].include?(@ingestion_process.run_status) ) ? '' : 'disabled' %>
   <button type="button" class="btn btn-default reset_graph_button <%= disable_reset_graph %>"
           data-url="<%= hilda.ingestion_process_reset_path(@ingestion_process) %>">
     <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span> Reset
@@ -13,4 +14,32 @@
     <input id="graph_advanced_controls" type="checkbox" onchange="$(this).is(':checked') ? ($('.module_graph').addClass('show_advanced')) : ($('.module_graph').removeClass('show_advanced'))"></input>
     <label for="graph_advanced_controls">Advanced controls</label>
   </form>
+  <button type="button" class="btn btn-default rollback_graph_button <%= disable_rollback_graph %>"
+          onclick="if(!$(this).hasClass('disabled')) $('#rollback_confirm_modal').modal();">
+    <span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span> Rollback
+  </button>  
+  
+  <div id="rollback_confirm_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="ajax-modal-close close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h1 class="modal-title">Rollback <%= @ingestion_process.title %></h1>
+        </div>
+        <div class="popup-tool-form">
+        <%= form_for @ingestion_process, url: hilda.ingestion_process_rollback_path(@ingestion_process), html: {
+            method: 'post',
+            onsubmit: "return ($(this).find('#confirm_deletion').prop('checked') === true)"
+          } do |f| %>
+          <p>Rolling back this ingestion process will also delete files in other services that were ingested there by this ingestion process.</p>
+          <p><%= check_box_tag(:confirm_deletion) %> <%= label_tag(:confirm_deletion, "Yes, I really want to rollback this ingestion process.") %></p>
+          <p>
+            <input type="submit" class="btn btn-primary" value="Rollback"/>
+            <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+          </p>
+        <% end %>
+        </div>
+      </div>
+    </div>
+  </div>  
 </div>

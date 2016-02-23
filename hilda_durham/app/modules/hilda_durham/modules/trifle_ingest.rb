@@ -35,6 +35,19 @@ module HildaDurham
         self.module_output = module_input.deep_dup.merge(trifle_manifest: response[:resource].as_json)
       end
             
+      def rollback
+        manifest_json = self.module_output.try(:[],:trifle_manifest)
+        if manifest_json
+          m = Trifle::API::IIIFManifest.from_json(manifest_json)
+          self.module_graph.log!("Removing manifest from Trifle #{m.id}")
+          begin
+            m.destroy
+          rescue StandardError => e
+          end
+        end
+        return super
+      end
+                  
     end
   end
 end

@@ -264,8 +264,8 @@ RSpec.describe Hilda::Modules::FileReceiver do
   end
 
   describe "#cleanup" do
-    it "removes received temporary files" do
-      expect(mod).to receive(:remove_received_temp_files)
+    it "removes received files" do
+      expect(mod).to receive(:remove_all_received_files)
       mod.cleanup
     end
   end

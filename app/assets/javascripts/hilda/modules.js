@@ -11,8 +11,8 @@ function init_modules_ajax() {
     var poll_action = $("#modules_poll_form").attr('action');
     
     var refresh_classes = function(old_elem, new_elem, filter) {
-      var classes = old_elem.attr('class').split(' ').filter(function(c){return !filter(c);});
-      classes = classes.concat( new_elem.attr('class').split(' ').filter(filter) );
+      var classes = (old_elem.attr('class') || '').split(' ').filter(function(c){return !filter(c);});
+      classes = classes.concat( (new_elem.attr('class') || '').split(' ').filter(filter) );
       old_elem.attr('class',classes.join(' '));      
     };
     
@@ -71,7 +71,7 @@ function init_modules_ajax() {
         resp = $('<div>'+resp+'</div>');
         var _this = this;
 
-        $('.module_graph').attr('class',resp.find('.module_graph').attr('class'));
+        refresh_classes($('.module_graph'), resp.find('.module_graph'), function(c){return c.startsWith('graph_');});
 
         resp.find('.module_container').each(function(){
           _this.updateModule($(this));
@@ -108,14 +108,29 @@ function init_modules_ajax() {
         requests.push(req);
         if(!waiting_for_response) this.sendNow();
       },
-      sendControlAction: function(button,action){
+      sendControlAction: function(button_or_url,action){
         var req = {
-          url: button.attr('data-url'),
+          url: typeof(button_or_url)=='string'? button_or_url : button_or_url.attr('data-url'),
           type: 'POST',
           data: { no_layout: 'true' }
         }
+        if(typeof(button_or_url)!='string') button_or_url.addClass('disabled');
         requests.push(req);
         if(!waiting_for_response) this.sendNow();
+      },
+      confirmControlAction: function(title,message,checkbox,buttonLabel,url,action){
+        var dialog = $('#generic_confirm_modal');
+        dialog.find('.modal-title').text(title)
+        if(message) dialog.find('.modal-message').show().text(message);
+        else dialog.find('.modal-message').hide();
+        dialog.find('label[for="confirm_deletion"]').text(checkbox);
+        dialog.find('input[type="submit"]').val(buttonLabel);
+        var _this = this;
+        dialog.find('form').data('actionCallback',function(){
+          dialog.modal('hide');
+          _this.sendControlAction(url,action);
+        });
+        dialog.modal();
       },
       sendNow: function(){
         //console.log("sending form");
@@ -190,6 +205,16 @@ function init_modules_ajax() {
 
         $(".module_graph").on('click',".module_container .module input[type='submit']", submitForm );
         $(".module_graph").on('click',".module_container .module button[type='submit']", submitForm );
+
+        $(".module_graph").on('click',".module_container .module button.rollback_module_button",function(event){
+          if(_this.isGraphRunning()) return false;
+          var button = $(this);
+          if(button.hasClass('disabled')) { return false; }
+          _this.confirmControlAction(
+              "Rollback modules back to ",
+              "Rolling back these modules will also delete files in other services that were ingested there by any of these modules",
+              "Yes, I really want to rollback these modules","Rollback",button,'reset');
+        });
 
         $(".module_graph").on('click',".module_container .module button.reset_module_button",function(event){
           if(_this.isGraphRunning()) return false;

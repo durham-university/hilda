@@ -12,7 +12,7 @@ module Hilda::Modules
     end
 
     def build_param_defs
-      self.param_defs = self.class.sanitise_field_defs( module_graph[:source_file_names].each_with_object({}) do |file_name,defs|
+      self.param_defs = self.class.sanitise_field_defs( (module_graph[:source_file_names] || []).each_with_object({}) do |file_name,defs|
         metadata_fields.each_with_object(defs) do |(key,field),defs|
           defs["#{file_name}__#{key}".to_sym] = {
             group: file_name,

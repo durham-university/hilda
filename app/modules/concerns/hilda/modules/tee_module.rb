@@ -47,5 +47,10 @@ module Hilda::Modules
       end
     end    
     
+    def rollback
+      # TODO: This will probably need some special handling
+      raise "Not implemented"
+    end
+    
   end
 end

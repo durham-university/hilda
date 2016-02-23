@@ -91,7 +91,12 @@ $graph-paused: #b85cb8;
     .run_controls {
       display: block;
     }
+    .rollback_graph_button {
+      display: inline-block;
+    }
   }
+  
+  .rollback_graph_button { display: none; }
 
   .module {
     &.status_initialized .panel-heading {

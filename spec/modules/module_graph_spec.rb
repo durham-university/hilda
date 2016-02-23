@@ -160,7 +160,7 @@ RSpec.describe Hilda::ModuleGraph do
   end
 
   describe "#rollback_graph" do
-    it "roll back finished mods in revers order" do
+    it "roll back finished mods in reverse order" do
       [mod_a, mod_b, mod_c, mod_d, mod_g].each do |mod|
         mod.run_status = :finished
         expect(mod).to receive(:rollback) {
@@ -170,7 +170,7 @@ RSpec.describe Hilda::ModuleGraph do
           mod.run_status = :initialized
         }
       end
-      expect(mod_e).to receive(:rollback)
+      expect(mod_e).not_to receive(:rollback)
       expect(mod_f).not_to receive(:rollback)
       graph.rollback_graph
     end

@@ -147,13 +147,22 @@ module Hilda
       end
       done
     end
-
-    def rollback_graph(from=nil)
-      from ||= start_modules
+    
+    def rollback_module_cascading(from,done=[])
+      from = Array(from)
       from.each do |mod|
-        rollback_graph(graph[mod]) if mod.run_status==:finished
-        mod.rollback
+        if mod.run_status==:finished || mod.run_status==:error
+          rollback_module_cascading(graph[mod],done)
+          mod.rollback
+          done << mod
+        end
       end
+      done
+    end    
+
+    def rollback_graph
+      log! "Rolling back graph"
+      rollback_module_cascading(start_modules)
     end
 
     def start_graph
@@ -249,7 +258,7 @@ module Hilda
       end
     end
 
-    def combined_log()
+    def combined_log
       all_messages = []
       graph.keys.each do |mod|
         next if block_given? && !yield(mod)

@@ -12,7 +12,7 @@ module Hilda
 
     def initialize(module_graph, param_values={})
       self.module_graph = module_graph
-      self.module_name = param_values.fetch(:module_name, default_module_name)
+      self.module_name = param_values.fetch(:module_name, default_module_name).gsub(/\s/,'_')
       self.param_values = param_values
       self.run_status = :initialized
       self.log = DurhamRails::Log.new

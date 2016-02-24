@@ -14,7 +14,7 @@ RSpec.describe Hilda::ModuleGraph do
 
   describe "#initialize" do
     it "sets initial values" do
-      expect(mod.module_name).to eql 'module name'
+      expect(mod.module_name).to eql 'module_name'
       expect(mod.run_status).to eql :initialized
       expect(mod.log).not_to be_nil
       expect(mod.module_graph).to be_a Hilda::ModuleGraph

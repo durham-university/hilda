@@ -15,11 +15,23 @@ module HildaDurham
       def run_module
         deposit_items = ingest_files.map do |file_key,file_json|
           file = Oubliette::API::PreservedFile.from_json(file_json)
-          { source_path: file.download_url, title: file.title }
+          { source_path: file.download_url, 'title' => file.title }
         end
         
+        process_metadata = module_input[:process_metadata] || {}
+        
+        manifest_metadata = {
+          'title' => process_metadata[:title],
+          'date_published' => process_metadata[:date],
+          'author' => [process_metadata[:author]],
+          'description' => process_metadata[:description],
+          'json_file' => process_metadata[:json_file],
+          'licence' => process_metadata[:licence],
+          'attribution' => process_metadata[:attribution]
+        }
+        
         begin
-          response = Trifle::API::IIIFManifest.deposit_new(deposit_items)
+          response = Trifle::API::IIIFManifest.deposit_new(deposit_items, manifest_metadata)
         rescue StandardError => e
           log! :error, "Error depositing images to Trifle", e
           self.run_status = :error

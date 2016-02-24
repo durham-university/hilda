@@ -123,6 +123,7 @@ function init_modules_ajax() {
         dialog.find('.modal-title').text(title)
         if(message) dialog.find('.modal-message').show().text(message);
         else dialog.find('.modal-message').hide();
+        dialog.find('input[type="checkbox"][name="confirm_deletion"]').prop('checked',false);
         dialog.find('label[for="confirm_deletion"]').text(checkbox);
         dialog.find('input[type="submit"]').val(buttonLabel);
         var _this = this;

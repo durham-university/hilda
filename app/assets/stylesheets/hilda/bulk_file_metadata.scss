@@ -4,10 +4,12 @@ form.bulk_metadata_input {
     
     td { vertical-align: top; }
     td.bulk_labels {
-      width: 150px;
+      width: 200px;
       text-align: right;
       padding: 7px 12px 6px 12px;
       .group_label { line-height: 17px }
+      white-space: nowrap;
+      overflow: hidden;
     }
     td.bulk_input {
       .form-group {
@@ -15,6 +17,9 @@ form.bulk_metadata_input {
         textarea {
           padding: 6px 12px;
           line-height: 17px;
+          &.text.form-control {
+            height: auto;
+          }
         }
       }
     }

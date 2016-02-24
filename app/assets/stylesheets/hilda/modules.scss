@@ -127,6 +127,10 @@ $graph-paused: #b85cb8;
     }
     
     .panel-title { display: inline; }
+    
+    .form-group textarea.text.form-control {
+      height: 100px;
+    }
 
     .module_log {
       table {

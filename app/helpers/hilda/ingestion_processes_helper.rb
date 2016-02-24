@@ -47,9 +47,6 @@ module Hilda::IngestionProcessesHelper
   end
 
   def render_module_params(mod,f,&block)
-    disabled = (!mod.can_receive_params?) ? { disabled: 'true' } : {}
-
-
     by_group = (mod.param_defs || {}).map do |k,v| v.merge(key: k) end \
                                      .group_by do |x| x[:group] end
 
@@ -66,8 +63,18 @@ module Hilda::IngestionProcessesHelper
           when :file
             o << capture do render('hilda/modules/file_upload', mod: mod, param: param, param_key: key) end
           else
+            options = {
+              as: param[:type], 
+              label: param[:label], 
+              input_html: { class: 'form-control', onchange: 'moduleDataChanged(this)', value: mod.param_values.try(:[],key) || param[:default] }
+            }
+            options[:disabled] = 'true' unless mod.can_receive_params?
+            if [:select, :radio_buttons, :check_boxes].include?(param[:type])
+              options[:collection] = param[:collection]
+              options[:selected] = options[:input_html].delete(:value)
+            end
             o << %Q|<div class="form-group">|.html_safe
-            o << f.input(key, label: param[:label], input_html: { class: 'form-control', onchange: 'moduleDataChanged(this)', value: mod.param_values.try(:[],key) || param[:default] }.merge(disabled) )
+            o << f.input(key, options)
             o << %Q|</div>|.html_safe
           end
         end

@@ -9,11 +9,15 @@ RSpec.describe Hilda::Modules::WithParams do
   }
   let( :param_defs ) { {
     title: {label: 'title', type: :string },
-    :'te/st' => {label: 'test', type: :string, default: 'moo' }
+    :'te/st' => {label: 'test', type: :string, default: 'moo' },
+    options: {label: 'options', type: :select, collection: ['aaa','bbb']},
+    optional_param: {label: 'optional', type: :string, optional: true}
   } }
   let( :param_defs_sanitised ) { {
-    title: {label: 'title', type: :string, default: nil, group: nil },
-    :'te/st' => {label: 'test', type: :string, default: 'moo', group: nil }
+    title: {label: 'title', type: :string, default: nil, group: nil, optional: false, collection: nil },
+    :'te/st' => {label: 'test', type: :string, default: 'moo', group: nil, optional: false, collection: nil },
+    options: {label: 'options', type: :select, default: nil, group: nil, optional: false, collection: ['aaa','bbb']},
+    optional_param: {label: 'optional', type: :string, default: nil, group: nil, optional: true, collection: nil}
   } }
   let( :mod ) {
     graph.add_start_module(ModClass).tap do |mod|
@@ -57,11 +61,22 @@ RSpec.describe Hilda::Modules::WithParams do
       expect(mod).to receive(:validate_param).at_least(:once).and_call_original
       mod.param_values[:title] = 'new title'
       mod.param_values[:te_st] = 'new test'
+      mod.param_values[:options] = 'aaa'
+      mod.param_values[:optional_param] = 'aaa'
+      expect(mod.all_params_valid?).to eql true
+    end
+    it "returns true if only optional params are missing" do
+      expect(mod).to receive(:validate_param).at_least(:once).and_call_original
+      mod.param_values[:title] = 'new title'
+      mod.param_values[:te_st] = 'new test'
+      mod.param_values[:options] = 'aaa'
       expect(mod.all_params_valid?).to eql true
     end
     it "returns true when a param only has a default value" do
       expect(mod).to receive(:validate_param).at_least(:once).and_call_original
       mod.param_values[:title] = 'new title'
+      mod.param_values[:optional_param] = 'aaa'
+      mod.param_values[:options] = 'aaa'
       expect(mod.all_params_valid?).to eql true
       mod.param_values[:te_st] = ''
       expect(mod.all_params_valid?).to eql true
@@ -72,11 +87,14 @@ RSpec.describe Hilda::Modules::WithParams do
 
   describe "#validate_param" do
     it "returns true if present" do
-      expect(mod.validate_param('aa','value')).to eql true
+      expect(mod.validate_param(:title,'value')).to eql true
     end
-    it "returns false if now present" do
-      expect(mod.validate_param('aa','')).to eql false
-      expect(mod.validate_param('aa',nil)).to eql false
+    it "returns false if not present" do
+      expect(mod.validate_param(:title,'')).to eql false
+      expect(mod.validate_param(:title,nil)).to eql false
+    end
+    it "returns true if optional and not present" do
+      expect(mod.validate_param(:optional_param,nil)).to eql true
     end
   end
 
@@ -123,6 +141,21 @@ RSpec.describe Hilda::Modules::WithParams do
   describe "sanitise_field_defs" do
     it "sanitises param defs" do
       expect(mod.param_defs).to eql param_defs_sanitised
+    end
+  end
+  
+  describe "#run_module" do
+    it "merges submitted params" do
+      expect(mod).to receive(:all_params_valid?).and_return(true)
+      expect(mod).to receive(:module_input).and_return({foo: 'aaa', submitted_params: { bar: 'bbb' }})
+      expect(mod).to receive(:submitted_params).and_return({moo: 'ccc', oink: 'ddd'})
+      mod.run_module
+      expect(mod.module_output).to eql({foo: 'aaa', submitted_params: {bar: 'bbb', moo: 'ccc', oink: 'ddd'}})
+    end
+    it "stops if params aren't valid" do
+      expect(mod).to receive(:all_params_valid?).and_return(false)
+      mod.run_module
+      expect(mod.run_status).to eql(:error)
     end
   end
 

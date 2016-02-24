@@ -36,7 +36,7 @@ module Hilda::Modules
     def all_params_submitted?
       return false unless param_defs.try(:any?)
       param_defs.each do |key,param|
-        return false unless param_values_with_defaults.key? key
+        return false unless param_values_with_defaults.key?(key) || param_defs[key][:optional]
       end
       return true
     end
@@ -72,7 +72,7 @@ module Hilda::Modules
     end
 
     def validate_param(key,value)
-      return value.present?
+      return value.present? || param_defs[key][:optional]
     end
 
     def submitted_params
@@ -84,8 +84,8 @@ module Hilda::Modules
     end
 
     def params_output_key
-      :submitted_params
-    end
+      self.param_values.fetch(:output_key, :submitted_params)
+    end    
 
     def run_module
       unless all_params_valid?
@@ -94,7 +94,7 @@ module Hilda::Modules
         return
       end
 
-      self.module_output = module_input.deep_dup.merge({
+      self.module_output = module_input.deep_dup.deep_merge({
         params_output_key => submitted_params
       })
     end
@@ -111,11 +111,15 @@ module Hilda::Modules
             field_data[:type] = field.to_sym
             field_data[:default] = nil
             field_data[:group] = nil
+            field_data[:optional] = false
+            field_data[:collection] = nil
           elsif field.is_a? Hash
             field_data[:label] = (field[:label] || field['label'] || key).to_s
             field_data[:type] = (field[:type] || field['type'] || :string).to_sym
             field_data[:default] = (field[:default] || field['default'])
             field_data[:group] = (field[:group] || field['group'])
+            field_data[:optional] = (field[:optional] || field['optional'] || false)
+            field_data[:collection] = (field[:collection] || field['collection'])
           end
           o[key] = field_data
         end

@@ -1,5 +1,7 @@
 defaults: &defaults
   layout: 'application'
+  identifier_template: 'ba.reeddeeddk'
+  identifier_statefile: '/tmp/oubliette-minter-state'
 
 development:
   <<: *defaults

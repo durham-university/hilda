@@ -10,7 +10,7 @@ GIT
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.6)
+    durham_rails (0.0.7)
       active-fedora
       hydra-editor (~> 1.1.0)
       rails (~> 4.2.5)
@@ -47,12 +47,13 @@ PATH
   specs:
     oubliette (0.0.1)
       active-fedora
+      active_fedora-noid
       bootstrap-sass (~> 3.3.5)
       bootstrap-sass-extras
       cancancan (~> 1.10)
       devise
       devise_ldap_authenticatable
-      durham_rails
+      durham_rails (~> 0.0.7)
       hydra-editor (~> 1.1.0)
       jbuilder (~> 2.0)
       jquery-rails
@@ -84,7 +85,7 @@ PATH
       devise
       devise_ldap_authenticatable
       diff-lcs
-      durham_rails (~> 0.0.5)
+      durham_rails (~> 0.0.7)
       hydra-editor (~> 1.1.0)
       hydra-pcdm (= 0.3.1)
       hydra-works (= 0.6.0)
@@ -117,7 +118,7 @@ PATH
       cancancan (~> 1.10)
       devise
       devise_ldap_authenticatable
-      durham_rails (~> 0.0.6)
+      durham_rails (~> 0.0.7)
       hydra-editor (~> 1.1.0)
       hydra-pcdm (= 0.3.1)
       hydra-works (= 0.6.0)
@@ -343,7 +344,7 @@ GEM
       mime-types (>= 1.16, < 3)
     mime-types (2.99)
     mimemagic (0.3.0)
-    mini_magick (4.3.6)
+    mini_magick (4.4.0)
     mini_portile2 (2.0.0)
     minitest (5.8.4)
     mono_logger (1.1.0)

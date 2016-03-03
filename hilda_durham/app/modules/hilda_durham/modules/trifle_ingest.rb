@@ -25,7 +25,6 @@ module HildaDurham
           'date_published' => process_metadata[:date],
           'author' => [process_metadata[:author]],
           'description' => process_metadata[:description],
-          'json_file' => process_metadata[:json_file],
           'licence' => process_metadata[:licence],
           'attribution' => process_metadata[:attribution]
         }

@@ -12,11 +12,10 @@ namespace :hilda_durham do
             date: {label: 'Date of publication', type: :string},
             author: {label: 'Author', type: :string},
             description: {label: 'Description', type: :text},
-            json_file: {label: 'JSON filename', type: :string},
             licence: {label: 'Licence', type: :select, collection: [
                 'All rights reserved',
                 'http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode'
-              ]},
+              ], default: 'http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode'},
             attribution: {label: 'Attribution', type: :string, default: 'Provided by Durham Priory Library Project - a collaboration between Durham University and Durham Cathedral'}
           }) \
         .add_module(Hilda::Modules::BulkFileMetadata, module_name: 'Set_canvas_titles', module_group: 'Metadata',

@@ -2,14 +2,19 @@ defaults: &defaults
   layout: 'application'
   identifier_template: 'sa.reeddeeddk'
   identifier_statefile: '/tmp/schmit-minter-state'
-  ark_naan: '12345'
+  notification_email_from: 'schmit@durham.ac.uk'
+  notification_email_to: []
 #  job_temp_dir: '/tmp' # uses system temp dir by default
 
 development:
   <<: *defaults
+  ark_naan: '12345'
+  notification_email_to: []
+  wip_feed_id: :first
 
 test:
   <<: *defaults
+  wip_feed_id: :first
 
 production:
   <<: *defaults

@@ -73,7 +73,7 @@ module HildaDurham
         return {
           status: 'OK',
           result: res.map do |obj|
-                    obj.as_json.slice(:id,:title).merge({ead_id: obj.ead_id})
+                    obj.as_json.slice('id','title').merge({'ead_id' => obj.ead_id})
                   end .sort do |a,b|
                     a[:title] <=> b[:title]
                   end

@@ -34,7 +34,6 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
     'description' => 'test description',
     'author' => ['test author'],
     'attribution' => 'test attribution',
-    'json_file' => nil,
     'licence' => nil
   } }
   let( :deposit_response ) { { status: 'ok', message: nil, resource: double('man_res', id: 'man_id_1', as_json: { "id" => "man_id_1", "title" => "manifest title", "image_container_location" => "image_container", "identifier" => ['ark:/12345/dummydummy']} ) } }

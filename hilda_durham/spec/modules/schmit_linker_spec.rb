@@ -27,11 +27,11 @@ RSpec.describe HildaDurham::Modules::SchmitLinker do
   end
 
   describe "#query_module" do
-    let(:repository) { Schmit::API::Repository.from_json({title: 'test repo', identifier: ['eadid:test_repo'], id: 'test_repo_id', fonds: [fonds.as_json,fonds2.as_json]}.with_indifferent_access) }
-    let(:fonds) { Schmit::API::Fonds.from_json({title: 'test fonds', identifier: ['eadid:test_fon'], id: 'test_fon_id', parent_id: 'test_repo_id', catalogues: [catalogue.as_json]}.with_indifferent_access) }
-    let(:fonds2) { Schmit::API::Fonds.from_json({title: 'test fonds 2', identifier: ['eadid:test_fon2'], id: 'test_fon2_id', parent_id: 'test_repo_id', catalogues: [catalogue2.as_json]}.with_indifferent_access) }
-    let(:catalogue) { Schmit::API::Catalogue.from_json({title: 'test catalogue', identifier: ['eadid:test_cat'], id: 'test_cat_id', parent_id: 'test_fon_id'}.with_indifferent_access) }
-    let(:catalogue2) { Schmit::API::Catalogue.from_json({title: 'test catalogue 2', identifier: ['eadid:test_cat2'], id: 'test_cat2_id', parent_id: 'test_fon2_id'}.with_indifferent_access) }
+    let(:repository) { Schmit::API::Repository.from_json({'title' => 'test repo', 'identifier' => ['eadid:test_repo'], 'id' => 'test_repo_id', 'fonds' => [fonds.as_json,fonds2.as_json]}) }
+    let(:fonds) { Schmit::API::Fonds.from_json({'title' => 'test fonds', 'identifier' => ['eadid:test_fon'], 'id' => 'test_fon_id', 'parent_id' => 'test_repo_id', 'catalogues' => [catalogue.as_json]}) }
+    let(:fonds2) { Schmit::API::Fonds.from_json({'title' => 'test fonds 2', 'identifier' => ['eadid:test_fon2'], 'id' => 'test_fon2_id', 'parent_id' => 'test_repo_id', 'catalogues' => [catalogue2.as_json]}) }
+    let(:catalogue) { Schmit::API::Catalogue.from_json({'title' => 'test catalogue', 'identifier' => ['eadid:test_cat'], 'id' => 'test_cat_id', 'parent_id' => 'test_fon_id'}) }
+    let(:catalogue2) { Schmit::API::Catalogue.from_json({'title' => 'test catalogue 2', 'identifier' => ['eadid:test_cat2'], 'id' => 'test_cat2_id', 'parent_id' => 'test_fon2_id'}) }
 
     before {
       allow(Schmit::API::Repository).to receive(:all).and_return([repository])
@@ -46,21 +46,21 @@ RSpec.describe HildaDurham::Modules::SchmitLinker do
       res = mod.query_module({schmit_type: :repository})
       expect(res[:status]).to eql 'OK'
       expect(res[:result].length).to eql 1
-      expect(res[:result][0]).to eql({title: 'test repo', ead_id: 'test_repo', id: 'test_repo_id'})
+      expect(res[:result][0]).to eql({'title' => 'test repo', 'ead_id' => 'test_repo', 'id' => 'test_repo_id'})
     end
 
     it "returns a list of fonds" do
       res = mod.query_module({schmit_type: :fonds, schmit_repository: repository.id})
       expect(res[:status]).to eql 'OK'
       expect(res[:result].length).to eql 2
-      expect(res[:result][0]).to eql({title: 'test fonds', ead_id: 'test_fon', id: 'test_fon_id'})
+      expect(res[:result][0]).to eql({'title' => 'test fonds', 'ead_id' => 'test_fon', 'id' => 'test_fon_id'})
     end
 
     it "returns a list of catalogues" do
       res = mod.query_module({schmit_type: :catalogue, schmit_repository: repository.id, schmit_fonds: fonds.id})
       expect(res[:status]).to eql 'OK'
       expect(res[:result].length).to eql 1
-      expect(res[:result][0]).to eql({title: 'test catalogue', ead_id: 'test_cat', id: 'test_cat_id'})
+      expect(res[:result][0]).to eql({'title' => 'test catalogue', 'ead_id' => 'test_cat', 'id' => 'test_cat_id'})
     end
 
     it "returns all catalogues when not using fonds" do
@@ -68,8 +68,8 @@ RSpec.describe HildaDurham::Modules::SchmitLinker do
       res = mod.query_module({schmit_type: :catalogue, schmit_repository: repository.id})
       expect(res[:status]).to eql 'OK'
       expect(res[:result].length).to eql 2
-      expect(res[:result][0][:title]).to eql('test catalogue')
-      expect(res[:result][1][:title]).to eql('test catalogue 2')
+      expect(res[:result][0]['title']).to eql('test catalogue')
+      expect(res[:result][1]['title']).to eql('test catalogue 2')
     end
 
     it "returns an empty list of catalogues if no fonds selected" do
@@ -87,12 +87,12 @@ RSpec.describe HildaDurham::Modules::SchmitLinker do
   end
 
   describe "#validate_reference" do
-    let(:repository) { Schmit::API::Repository.from_json({title: 'test repo', identifier: ['eadid:test_repo'], id: 'test_repo_id', fonds: [fonds.as_json]}.with_indifferent_access) }
-    let(:other_repository) { Schmit::API::Repository.from_json({title: 'other test repo', identifier: ['eadid:test_repo2'], id: 'test_repo_id2', fonds: [other_fonds.as_json]}.with_indifferent_access) }
-    let(:fonds) { Schmit::API::Fonds.from_json({title: 'test fonds', identifier: ['eadid:test_fon'], id: 'test_fon_id', parent_id: 'test_repo_id', catalogues: [catalogue.as_json]}.with_indifferent_access) }
-    let(:other_fonds) { Schmit::API::Fonds.from_json({title: 'other test fonds', identifier: ['eadid:test_fon2'], id: 'test_fon_id2', parent_id: 'test_repo_id2', catalogues: [other_catalogue.as_json]}.with_indifferent_access) }
-    let(:catalogue) { Schmit::API::Catalogue.from_json({title: 'test catalogue', identifier: ['eadid:test_cat'], id: 'test_cat_id', parent_id: 'test_fon_id'}.with_indifferent_access) }
-    let(:other_catalogue) { Schmit::API::Catalogue.from_json({title: 'other test catalogue', identifier: ['eadid:test_cat2'], id: 'test_cat_id2', parent_id: 'test_fon_id2'}.with_indifferent_access) }
+    let(:repository) { Schmit::API::Repository.from_json({'title' => 'test repo', 'identifier' => ['eadid:test_repo'], 'id' => 'test_repo_id', 'fonds' => [fonds.as_json]}) }
+    let(:other_repository) { Schmit::API::Repository.from_json({'title' => 'other test repo', 'identifier' => ['eadid:test_repo2'], 'id' => 'test_repo_id2', 'fonds' => [other_fonds.as_json]}) }
+    let(:fonds) { Schmit::API::Fonds.from_json({'title' => 'test fonds', 'identifier' => ['eadid:test_fon'], 'id' => 'test_fon_id', 'parent_id' => 'test_repo_id', 'catalogues' => [catalogue.as_json]}) }
+    let(:other_fonds) { Schmit::API::Fonds.from_json({'title' => 'other test fonds', 'identifier' => ['eadid:test_fon2'], 'id' => 'test_fon_id2', 'parent_id' => 'test_repo_id2', 'catalogues' => [other_catalogue.as_json]}) }
+    let(:catalogue) { Schmit::API::Catalogue.from_json({'title' => 'test catalogue', 'identifier' => ['eadid:test_cat'], 'id' => 'test_cat_id', 'parent_id' => 'test_fon_id'}) }
+    let(:other_catalogue) { Schmit::API::Catalogue.from_json({'title' => 'other test catalogue', 'identifier' => ['eadid:test_cat2'], 'id' => 'test_cat_id2', 'parent_id' => 'test_fon_id2'}) }
 
     before {
       allow(Schmit::API::Repository).to receive(:all).and_return([repository,other_repository])
@@ -172,7 +172,7 @@ RSpec.describe HildaDurham::Modules::SchmitLinker do
   end
 
   describe "#label_for" do
-    let(:repository) { Schmit::API::Repository.from_json({title: 'test repo', identifier: ['eadid:test_repo'], id: 'test_repo_id', fonds: []}.with_indifferent_access) }
+    let(:repository) { Schmit::API::Repository.from_json({'title' => 'test repo', 'identifier' => ['eadid:test_repo'], 'id' => 'test_repo_id', 'fonds' => []}) }
     before {
       allow(Schmit::API::Repository).to receive(:find).with(repository.id).and_return(repository)
     }
@@ -186,9 +186,9 @@ RSpec.describe HildaDurham::Modules::SchmitLinker do
   end
 
   describe "current objects" do
-    let(:repository) { Schmit::API::Repository.from_json({title: 'test repo', identifier: ['eadid:test_repo'], id: 'test_repo_id', fonds: []}.with_indifferent_access) }
-    let(:fonds) { Schmit::API::Fonds.from_json({title: 'test fonds', identifier: ['eadid:test_fon'], id: 'test_fon_id', catalogues: []}.with_indifferent_access) }
-    let(:catalogue) { Schmit::API::Catalogue.from_json({title: 'test catalogue', identifier: ['eadid:test_cat'], id: 'test_cat_id'}.with_indifferent_access) }
+    let(:repository) { Schmit::API::Repository.from_json({'title' => 'test repo', 'identifier' => ['eadid:test_repo'], 'id' => 'test_repo_id', 'fonds' => []}) }
+    let(:fonds) { Schmit::API::Fonds.from_json({'title' => 'test fonds', 'identifier' => ['eadid:test_fon'], 'id' => 'test_fon_id', 'catalogues' => []}) }
+    let(:catalogue) { Schmit::API::Catalogue.from_json({'title' => 'test catalogue', 'identifier' => ['eadid:test_cat'], 'id' => 'test_cat_id'}) }
 
     before {
       allow(Schmit::API::Repository).to receive(:find).with(repository.id).and_return(repository)

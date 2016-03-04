@@ -16,6 +16,7 @@ development:
   iiif_host: 'http://localhost:3000'
   mirador_location: 'Durham University'
   mirador_base_url: 'http://localhost/mirador/'
+  api_debug: true
 
 test:
   <<: *defaults

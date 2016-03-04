@@ -20,7 +20,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.6)
+    durham_rails (0.0.7)
       active-fedora
       hydra-editor (~> 1.1.0)
       rails (~> 4.2.5)
@@ -59,7 +59,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/trifle/trifle_api
   specs:
-    trifle_api (0.0.1)
+    trifle_api (0.0.2)
       httparty
       rails
 

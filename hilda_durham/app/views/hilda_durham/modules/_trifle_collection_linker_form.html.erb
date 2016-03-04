@@ -1,0 +1,33 @@
+<div class="trifle_collection_selector">
+  <% disabled = (!mod.can_receive_params?) ? { disabled: 'true' } : {} %>
+  <% label_method = Proc.new do |x| "#{x.title}" end %>
+  <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_query_path(@ingestion_process, mod.module_name), method: :post, html: { style: 'display: none;', class: 'trifle_collection_query' } do |f| %>
+  <% end %>
+  <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_path(@ingestion_process, mod.module_name), html: { class: 'form' } do |f| %>
+    <%= f.input :no_layout, as: :hidden, input_html: { value: 'true' } %>
+    <li class="list-group-item">
+      <div class="form-group">
+        <% root_collection_options = Trifle::API::IIIFCollection.all.sort do |a,b| a.title <=> b.title end %>
+        <%= f.input :trifle_root_collection, label: 'Root collection', as: :select, collection: root_collection_options,
+                    label_method: :title, value_method: :id, selected: mod.value_for(:trifle_root_collection),
+                    include_blank: true, input_html: { class: 'form-control select_root_collection' }.merge(disabled) %>
+      </div>
+      <div class="form-group">
+        <%
+          sub_collection_options = []
+          root_collection_id = mod.value_for(:trifle_root_collection)
+          if root_collection_id.present?
+            root_collection = Trifle::API::IIIFCollection.find(root_collection_id)
+            sub_collection_options = Trifle::API::IIIFCollection.all_in_collection(root_collection).sort do |a,b| a.title <=> b.title end
+          end
+        %>
+        <%= f.input :trifle_sub_collection, label: 'Sub collection', as: :select, collection: sub_collection_options,
+                    label_method: label_method, value_method: :id, selected: mod.value_for(:trifle_sub_collection),
+                    include_blank: true, input_html: { class: 'form-control select_sub_collection' }.merge(disabled) %>
+      </div>
+      <% if mod.can_receive_params? %>
+        <%= f.button(:submit, 'Update module', class: "btn btn-primary") unless mod.rendering_option(:no_submit) %>
+      <% end %>
+    </li>
+  <% end %>
+</div>

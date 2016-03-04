@@ -23,6 +23,7 @@ namespace :hilda_durham do
             title: {label: 'Title', type: :string }
           }) \
         .add_module(HildaDurham::Modules::SchmitLinker, module_name: 'Select_collection', module_group: 'Metadata') \
+        .add_module(HildaDurham::Modules::TrifleCollectionLinker, module_name: 'Select_IIIF_collection', module_group: 'Metadata') \
         .add_module(Hilda::Modules::DetectContentType, module_name: 'Verify_content_type', module_group: 'Verify', allow_only: ['image/tiff']) \
         .add_module(HildaDurham::Modules::OublietteIngest, module_name: 'Ingest_to_Oubliette', module_group: 'Ingest') \
         .add_module(HildaDurham::Modules::TrifleIngest, module_name: 'Ingest_to_Trifle', module_group: 'Ingest') # \

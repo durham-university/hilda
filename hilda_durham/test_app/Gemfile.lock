@@ -110,7 +110,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/trifle
   specs:
-    trifle (0.0.1)
+    trifle (0.0.2)
       active-fedora
       active_fedora-noid
       bootstrap-sass (~> 3.3.5)
@@ -137,7 +137,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/trifle/trifle_api
   specs:
-    trifle_api (0.0.1)
+    trifle_api (0.0.2)
       httparty
       rails
 

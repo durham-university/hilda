@@ -16,7 +16,8 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
         description: 'test description',
         author: 'test author',
         attribution: 'test attribution'
-      }
+      },
+      trifle_collection: 'test_collection_id'
     }
   }
   let( :mod ) {
@@ -42,14 +43,22 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
     mod.log! :info, 'Dummy message'
     mod.run_status = :running
     mod.module_output = {}
-    expect(Trifle::API::IIIFManifest).to receive(:deposit_new).with(expected_deposit_items, expected_manifest_metadata).and_return(deposit_response)
     mod.run_module
     mod.module_output
   }
   
   describe "#run_module" do
+    let(:collection_mock) { double('collection_mock') }
     it "deposits and responds" do
+      expect(Trifle::API::IIIFCollection).to receive(:find).with('test_collection_id').and_return(collection_mock)
+      expect(Trifle::API::IIIFManifest).to receive(:deposit_new).with(collection_mock, expected_deposit_items, expected_manifest_metadata).and_return(deposit_response)
       expect(mod_output[:trifle_manifest]['id']).to eql('man_id_1')
+    end
+    
+    it "requires a collection_id to proceed" do
+      mod_input.delete(:trifle_collection)
+      expect(mod_output).to be_empty
+      expect(mod.run_status).to eql(:error)
     end
   end
   

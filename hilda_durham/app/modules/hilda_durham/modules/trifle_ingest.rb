@@ -13,6 +13,12 @@ module HildaDurham
       end
 
       def run_module
+        unless module_input[:trifle_collection].present?
+          log! :error, "trifle_collection is not set in module input"
+          self.run_status = :error
+          return
+        end
+
         deposit_items = ingest_files.map do |file_key,file_json|
           file = Oubliette::API::PreservedFile.from_json(file_json)
           { source_path: file.download_url, 'title' => file.title }
@@ -30,10 +36,12 @@ module HildaDurham
         }
         
         begin
-          response = Trifle::API::IIIFManifest.deposit_new(deposit_items, manifest_metadata)
+          parent = Trifle::API::IIIFCollection.find(module_input[:trifle_collection])
+          response = Trifle::API::IIIFManifest.deposit_new(parent, deposit_items, manifest_metadata)
         rescue StandardError => e
           log! :error, "Error depositing images to Trifle", e
           self.run_status = :error
+          return
         end
         
         if response[:status]=='ok'
@@ -41,6 +49,7 @@ module HildaDurham
         else
           log! :error, "Error depositing images to Trifle. #{response[:message]}"
           self.run_status = :error
+          return
         end
 
         self.module_output = module_input.deep_dup.merge(trifle_manifest: response[:resource].as_json)

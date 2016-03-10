@@ -11,6 +11,15 @@ development:
   ark_naan: '12345'
   notification_email_to: []
   wip_feed_id: :first
+  primo_config:
+    host: 'localhost'
+    user: <%= ENV['USER'] %>
+    root: <%= File.join(Dir.home,'mock_primo') %>/
+  xtf_config:
+    host: 'localhost'
+    user: <%= ENV['USER'] %>
+    root: <%= File.join(Dir.home,'mock_xtf') %>/
+    
 
 test:
   <<: *defaults

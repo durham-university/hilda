@@ -9,11 +9,11 @@ module HildaDurham
         self.param_values.merge!({form_template: 'hilda_durham/modules/trifle_collection_linker_form'})
         self.param_defs = {}
         self.param_defs[:trifle_root_collection] = {
-            name: 'root collection',
+            label: 'Root collection', # labels aren't really used since the form template is overridden
             type: :string
           }
         self.param_defs[:trifle_sub_collection] = {
-            name: 'sub collection',
+            label: 'Sub collection',
             type: :string,
             optional: true
           }

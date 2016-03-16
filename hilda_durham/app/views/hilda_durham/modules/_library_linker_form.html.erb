@@ -1,0 +1,6 @@
+<%= render 'hilda/modules/default_form', mod: mod %>
+<div class="library_record_preview list-group-item">
+  <h4>Selected record</h4>
+  <% selected_record_label = mod.selected_record_label %>
+  <span class="<%= 'not_found' if selected_record_label.nil? %>"><%= selected_record_label || 'Record not found' %></span>
+</div>

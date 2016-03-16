@@ -15,9 +15,42 @@ module Hilda
       self.module_name = param_values.fetch(:module_name, default_module_name).gsub(/\s/,'_')
       self.param_values = param_values
       self.run_status = :initialized
+      self.run_status = :disabled if optional? && self.param_values.fetch(:default_disabled, false)
       self.log = DurhamRails::Log.new
       @load_change_time = 0
       changed!
+    end
+    
+    def optional?
+      self.param_values.fetch(:optional_module,false)
+    end
+    
+    def disabled?
+      self.run_status == :disabled
+    end
+    
+    def set_disabled(val)
+      if val
+        raise 'Cannot disable a non-optional module' unless optional?
+        return if self.run_status == :disabled
+        self.run_status = :disabled
+        changed!
+      else
+        return unless self.run_status == :disabled
+        # Just need to set some other state than :disabled or :initialized for
+        # reset_module to do the right thing. It'll then set run_status to something
+        # more appropriate.
+        self.run_status = :error 
+        self.reset_module
+        # reset_module calls changed!
+      end
+    end
+    
+    def disable!
+      set_disabled(true)
+    end
+    def enable!
+      set_disabled(false)
     end
 
     def rendering_option(key,default=nil)
@@ -127,15 +160,16 @@ module Hilda
 
     def reset_module
       was = self.run_status
-      self.run_status = :initialized
+      self.run_status = :initialized unless disabled?
       self.module_output = nil
       clear_log
-      check_submitted_status! if was!=:initialized && self.respond_to?(:check_submitted_status!)
+      check_submitted_status! if !disabled? && was!=:initialized && self.respond_to?(:check_submitted_status!)
       changed!
       return true
     end
 
     def cleanup
+      return true if disabled?
       self.run_status = :cleaned
       changed!
       return true

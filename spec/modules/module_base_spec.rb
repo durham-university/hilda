@@ -13,12 +13,70 @@ RSpec.describe Hilda::ModuleGraph do
   after{ Object.send(:remove_const, :TestModule) }
 
   describe "#initialize" do
+    let( :disabled_mod ) { graph.add_start_module(TestModule, module_name: 'module name', optional_module: true, default_disabled: true ) }
     it "sets initial values" do
       expect(mod.module_name).to eql 'module_name'
       expect(mod.run_status).to eql :initialized
       expect(mod.log).not_to be_nil
       expect(mod.module_graph).to be_a Hilda::ModuleGraph
       expect(mod.param_values[:test_out]).to eql 'test'
+    end
+    
+    it "sets disabled if :default_disabled is true" do
+      expect(disabled_mod.run_status).to eql :disabled
+    end
+  end
+  
+  describe "#set_disabled" do
+    it "raises error if not optional module" do
+      expect {
+        mod.set_disabled(true)
+      } .to raise_error('Cannot disable a non-optional module')
+      expect(mod.run_status).not_to eql(:disabled)
+    end
+    it "set disabled module if it is optional" do
+      mod.param_values[:optional_module]=true
+      expect(mod).to receive(:changed!)
+      mod.set_disabled(true)
+      expect(mod.run_status).to eql(:disabled)
+    end
+    it "enables module" do
+      mod.run_status=:disabled
+      expect(mod).to receive(:reset_module).and_call_original
+      expect(mod).to receive(:changed!).at_least(:once)
+      mod.set_disabled(false)
+      expect(mod.run_status).to eql(:initialized)
+    end
+  end
+  
+  describe "#disable!" do
+    it "calls set_disabled" do
+      expect(mod).to receive(:set_disabled).with(true)
+      mod.disable!
+    end
+  end
+  
+  describe "#enable!" do
+    it "calls set_disabled" do
+      expect(mod).to receive(:set_disabled).with(false)
+      mod.enable!
+    end
+  end
+  
+  describe "#disabled?" do
+    it "checks run_status==:disabled" do
+      mod.run_status = :disabled
+      expect(mod.disabled?).to eql(true)
+      mod.run_status = :initialized
+      expect(mod.disabled?).to eql(false)
+    end
+  end
+  
+  describe "#optional?" do
+    it "checks :optional_module in params" do
+      expect(mod.optional?).to eql(false)
+      mod.param_values[:optional_module]=true
+      expect(mod.optional?).to eql(true)
     end
   end
 
@@ -91,19 +149,33 @@ RSpec.describe Hilda::ModuleGraph do
   end
 
   describe "#reset_module" do
-    it "resets run status and output" do
+    it "resets run status and output and calls changed!" do
       mod.run_status = :finished
       mod.module_output = {test_out:'test'}
+      expect(mod).to receive(:changed!).at_least(:once)
       mod.reset_module
       expect(mod.run_status).to eql :initialized
+      expect(mod.module_output).not_to be_present
+    end
+    it "keeps disabled modules disabled" do
+      mod.run_status = :disabled
+      mod.module_output = {test_out:'test'}
+      mod.reset_module
+      expect(mod.run_status).to eql :disabled
       expect(mod.module_output).not_to be_present
     end
   end
 
   describe "#cleanup" do
-    it "sets status" do
+    it "sets status and calls changed!" do
+      expect(mod).to receive(:changed!)
       mod.cleanup
       expect(mod.run_status).to eql :cleaned
+    end
+    it "keeps disabled modules disabled" do
+      mod.run_status = :disabled
+      mod.cleanup
+      expect(mod.run_status).to eql :disabled
     end
   end
 
@@ -124,6 +196,31 @@ RSpec.describe Hilda::ModuleGraph do
       expect(mod.autorun?).to eql(false)
     end
   end  
+  
+  describe "#ready_to_run?" do
+    it "returns false if isn't in a suitable state" do
+      expect(graph).not_to receive(:module_source)
+      [:finished, :cleaned, :disabled].each do |status|
+        mod.run_status = status
+        expect(mod.ready_to_run?).to eql(false)
+      end
+    end
+    
+    it "returns false if source hasn't been run" do
+      expect(graph).to receive(:module_source).and_return(double('mock module', run_status: :submitted, module_output: nil))
+      expect(mod.ready_to_run?).to eql(false)
+    end
+    
+    it "returns true if source has been run" do
+      expect(graph).to receive(:module_source).and_return(double('mock module', run_status: :finished, module_output: { foo: 'moo' }))
+      expect(mod.ready_to_run?).to eql(true)
+    end
+    
+    it "returns true if nil source" do
+      expect(graph).to receive(:module_source).and_return(nil)
+      expect(mod.ready_to_run?).to eql(true)
+    end
+  end
 
   describe "#execute_module" do
     it "calls essential functions and sets status" do

@@ -1,16 +1,14 @@
-<div class="run_controls">
-  <li class="list-group-item">
-    <button type="button" class="btn btn-default reset_module_button"
-            data-url="<%= hilda.ingestion_process_module_reset_path(mod.module_graph,mod.module_name) %>">
-      <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span> Reset
-    </button>
-    <button type="button" class="#{'disabled' unless mod.ready_to_run?} btn btn-default start_module_button"
-            data-url="<%= hilda.ingestion_process_module_start_path(mod.module_graph,mod.module_name) %>">
-      <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Start
-    </button>
-    <button type="button" class="#{'disabled' unless [:error,:finished,:paused].include?(mod.run_status)} btn btn-default rollback_module_button"
-            data-url="<%= hilda.ingestion_process_module_rollback_path(mod.module_graph,mod.module_name) %>">
-      <span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span> Rollback
-    </button>
-  </li>
-</div>
+<li class="list-group-item run_controls">
+  <button type="button" class="btn btn-default reset_module_button"
+          data-url="<%= hilda.ingestion_process_module_reset_path(mod.module_graph,mod.module_name) %>">
+    <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span> Reset
+  </button>
+  <button type="button" class="#{'disabled' unless mod.ready_to_run?} btn btn-default start_module_button"
+          data-url="<%= hilda.ingestion_process_module_start_path(mod.module_graph,mod.module_name) %>">
+    <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Start
+  </button>
+  <button type="button" class="#{'disabled' unless [:error,:finished,:paused].include?(mod.run_status)} btn btn-default rollback_module_button"
+          data-url="<%= hilda.ingestion_process_module_rollback_path(mod.module_graph,mod.module_name) %>">
+    <span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span> Rollback
+  </button>
+</li>

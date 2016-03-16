@@ -1,0 +1,7 @@
+<div class="module_disable_control">
+  <% if mod.disabled? %>
+    <button type="button" class="btn btn-link enable_module_button" data-url="<%= hilda.ingestion_process_module_enable_path(@ingestion_process, mod.module_name) %>"><span class="glyphicon glyphicon-unchecked"></span></button>
+  <% else %>
+    <button type="button" class="btn btn-link disable_module_button" data-url="<%= hilda.ingestion_process_module_disable_path(@ingestion_process, mod.module_name) %>"><span class="glyphicon glyphicon-check"></span></button>
+  <% end %>
+</div>

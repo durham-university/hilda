@@ -20,8 +20,9 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.7)
+    durham_rails (0.0.8)
       active-fedora
+      httparty
       hydra-editor (~> 1.1.0)
       rails (~> 4.2.5)
 

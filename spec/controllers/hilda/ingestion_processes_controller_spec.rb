@@ -244,6 +244,25 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
       post :rollback_graph, {id: ingestion_process.to_param}
     end
   end
+  
+  describe "POST #enable_module" do
+    it "enables the module" do
+      mod.param_values.merge!({optional_module: true})
+      mod.run_status = :disabled
+      ingestion_process.save
+      post :enable_module, {id: ingestion_process.to_param, module: mod.module_name }
+      expect(mod_loaded.run_status).to eql :initialized
+    end
+  end
+  
+  describe "POST #disable_module" do
+    it "disabled the module" do
+      mod.param_values.merge!({optional_module: true})
+      ingestion_process.save
+      post :disable_module, {id: ingestion_process.to_param, module: mod.module_name }
+      expect(mod_loaded.run_status).to eql :disabled
+    end
+  end
 
   describe "POST #start_module" do
     it "pushes a run job if module is ready to run" do

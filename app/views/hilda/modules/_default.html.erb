@@ -1,5 +1,8 @@
 <div class="module panel panel-default status_<%= mod.run_status %>" id="module_<%= mod.module_name.underscore %>">
   <div class="panel-heading">
+    <% if mod.optional? %>
+      <%= render 'hilda/modules/disable_control', mod: mod %>
+    <% end %>
     <h2 class="panel-title"><%= module_title mod %></h2>
     <%= render_module_run_status mod %>
   </div>

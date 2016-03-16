@@ -120,10 +120,31 @@ $graph-paused: #b85cb8;
     &.status_finished .panel-heading {
       background-color: lighten($module-finished, 30%);
     }
+    &.status_disabled .panel-heading {
+      background-color: white;
+      color: #888;
+    }
+    
+    &.status_disabled>ul.list-group {
+      display: none;
+    }
 
     .module_status {
       margin-left: 20px;
       display: inline-block;
+    }
+    
+    .panel-heading {
+      .module_disable_control {
+        display: inline;
+        button { 
+          padding: 0;
+          span.glyphicon { 
+            font-size: 150%; 
+            color: #666;
+          }
+        }
+      }
     }
     
     .panel-title { display: inline; }

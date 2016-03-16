@@ -1,7 +1,7 @@
 module Hilda
   class IngestionProcessesController < Hilda::ApplicationController
-    before_action :set_ingestion_process, only: [:show, :edit, :update, :destroy, :start_graph, :reset_graph, :rollback_graph, :start_module, :reset_module, :query_module, :rollback_module]
-    before_action :set_ingestion_module, only: [:update, :start_module, :reset_module, :query_module, :rollback_module]
+    before_action :set_ingestion_process, only: [:show, :edit, :update, :destroy, :start_graph, :reset_graph, :rollback_graph, :start_module, :reset_module, :enable_module, :disable_module, :query_module, :rollback_module]
+    before_action :set_ingestion_module, only: [:update, :start_module, :reset_module, :query_module, :rollback_module, :enable_module, :disable_module]
     before_action :set_ingestion_process_template, only: [:create]
 
     def initialize(*args)
@@ -107,6 +107,28 @@ module Hilda
         end
       else
         flash[:alert] = "Cannot start graph in current state of #{@ingestion_process.run_status}"
+      end
+      disable_layout = use_layout? ? {} : { layout: false }
+      render :edit, {}.merge(disable_layout)
+    end
+    
+    def disable_module
+      @ingestion_module.disable!
+      if @ingestion_process.save!
+        add_module_notice("Module disabled", :success)
+      else
+        add_module_notice("Unable to disable module", :success)        
+      end
+      disable_layout = use_layout? ? {} : { layout: false }
+      render :edit, {}.merge(disable_layout)
+    end
+    
+    def enable_module
+      @ingestion_module.enable!
+      if @ingestion_process.save!
+        add_module_notice("Module enabled", :success)
+      else
+        add_module_notice("Unable to enable module", :success)        
       end
       disable_layout = use_layout? ? {} : { layout: false }
       render :edit, {}.merge(disable_layout)

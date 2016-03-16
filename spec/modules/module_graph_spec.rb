@@ -29,6 +29,27 @@ RSpec.describe Hilda::ModuleGraph do
       expect(graph.module_source(mod_c)).to eql mod_b
       expect(graph.module_source(mod_e)).to eql mod_d
     end
+    it "skips over disabled modules" do
+      mod_b.run_status = :disabled
+      expect(graph.module_source(mod_c)).to eql(mod_a)
+      mod_a.run_status = :disabled
+      expect(graph.module_source(mod_c)).to be_nil
+    end
+  end
+  
+  describe "#skip_disable_source" do
+    it "returns the module itself if not disabled" do
+      expect(graph.skip_disabled_source(mod_c)).to eql(mod_c)
+    end
+    it "skips over disabled modules" do
+      mod_c.run_status = :disabled
+      mod_b.run_status = :disabled
+      expect(graph.skip_disabled_source(mod_c)).to eql(mod_a)
+    end
+    it "returns nil if all disabled" do
+      mod_a.run_status = :disabled
+      expect(graph.skip_disabled_source(mod_a)).to be_nil
+    end
   end
 
   describe "#find_module" do
@@ -71,6 +92,11 @@ RSpec.describe Hilda::ModuleGraph do
     it "returns :paused if some have finished" do
       mod_a.run_status=:finished
       expect(graph.run_status).to eql :paused
+    end
+    it "skips disabled modules" do
+      [mod_a, mod_b, mod_d, mod_e, mod_f, mod_g].each do |mod| mod.run_status=:finished end
+      mod_c.run_status = :disabled
+      expect(graph.run_status).to eql :finished
     end
   end
 
@@ -212,6 +238,11 @@ RSpec.describe Hilda::ModuleGraph do
       [mod_a, mod_b, mod_d].each do |mod| mod.run_status=:finished end
       expect(graph.ready_modules.map(&:module_name)).to match_array(['mod_c','mod_e','mod_g'])
     end
+    it "skips over disabled modules" do
+      [mod_a, mod_b, mod_d].each do |mod| mod.run_status=:finished end
+      mod_e.run_status = :disabled
+      expect(graph.ready_modules.map(&:module_name)).to match_array(['mod_c','mod_f','mod_g'])
+    end
   end
 
   describe "#continue_execution" do
@@ -242,6 +273,8 @@ RSpec.describe Hilda::ModuleGraph do
       expect(mod_d).to receive(:execute_module)
       expect(mod_b).to receive(:input_changed)
       expect(mod_d).to receive(:input_changed)
+      expect(mod_c).not_to receive(:input_changed)
+      expect(mod_c).not_to receive(:execute_module)
       mod_a.run_status=:finished
       graph.module_finished(mod_a)
     end
@@ -249,6 +282,15 @@ RSpec.describe Hilda::ModuleGraph do
       expect(mod_b).not_to receive(:execute_module)
       expect(mod_d).not_to receive(:execute_module)
       expect(mod_d).to receive(:ready_to_run?).and_return(false)
+      mod_a.run_status=:finished
+      graph.module_finished(mod_a)
+    end
+    it "skips over disabled modules" do
+      mod_b.run_status = :disabled
+      expect(mod_c).to receive(:input_changed)
+      expect(mod_c).to receive(:execute_module)
+      expect(mod_d).to receive(:input_changed)
+      expect(mod_d).to receive(:execute_module)
       mod_a.run_status=:finished
       graph.module_finished(mod_a)
     end

@@ -64,17 +64,31 @@ module Hilda
       end      
     end
 
+    # Note that module_sources may include disabled modules whereas
+    # module_source will skip over those and return their source instead.
     def module_sources(mod)
       graph.each_with_object([]) do |(m,next_modules),ret|
         ret << m if next_modules.include?(mod)
       end
     end
+    
+    def skip_disabled_source(mod)
+      while mod && mod.disabled?
+        mod = module_source(mod)
+      end
+      mod
+    end
 
     def module_source(mod)
+      source = nil
       graph.each do |m,next_modules|
-        return m if next_modules.include?(mod)
+        if next_modules.include?(mod)
+          source = m
+          break
+        end
       end
-      return nil
+      source = skip_disabled_source(source)
+      return source
     end
 
     def find_module(module_name_or_class)
@@ -122,6 +136,7 @@ module Hilda
 
     def run_status(modules=nil)
       modules ||= graph.keys
+      modules = modules.select do |m| !m.disabled? end
       return :running     if modules.any? do |mod| mod.run_status == :running end
       return :queued      if modules.any? do |mod| mod.run_status == :queued end
       return :finished    if modules.all? do |mod| mod.run_status == :finished end
@@ -151,9 +166,9 @@ module Hilda
     def rollback_module_cascading(from,done=[])
       from = Array(from)
       from.each do |mod|
-        if mod.run_status==:finished || mod.run_status==:error
+        if mod.disabled? || mod.run_status==:finished || mod.run_status==:error
           rollback_module_cascading(graph[mod],done)
-          mod.rollback
+          mod.rollback unless mod.disabled?
           done << mod
         end
       end
@@ -194,8 +209,8 @@ module Hilda
     def ready_modules
       [].tap do |ret|
         traverse_modules do |mod|
-          ret << mod if mod.ready_to_run?
-          next mod.run_status==:finished
+          ret << mod if !mod.disabled? && mod.ready_to_run?
+          next mod.run_status==:finished || mod.disabled?
         end
       end
     end
@@ -223,6 +238,11 @@ module Hilda
 
     def module_finished(mod,execute_next=true)
       graph[mod].each do |next_mod|
+        if next_mod.disabled?
+          module_finished(next_mod,execute_next)
+          next
+        end
+        
         begin
           next_mod.input_changed()
           next_mod.execute_module() if execute_next && next_mod.autorun? && next_mod.ready_to_run?

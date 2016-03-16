@@ -4,6 +4,7 @@ module Hilda::Modules
     
     def initialize(module_graph, param_values={})
       super(module_graph, param_values)
+      raise 'Tee module should not be disabled' if param_values[:optional_module?]
       @connectors = {}
     end
     

@@ -84,6 +84,17 @@ RSpec.describe Hilda::Modules::WithParams do
       expect(mod.all_params_valid?).to eql true
     end
   end
+  
+  describe "#ready_to_run?" do
+    it "returns true when params are valid" do
+      expect(mod).to receive(:all_params_valid?).and_return(true)
+      expect(mod.ready_to_run?).to eql(true)
+    end
+    it "returns false when params are not valid" do
+      expect(mod).to receive(:all_params_valid?).and_return(false)
+      expect(mod.ready_to_run?).to eql(false)
+    end
+  end
 
   describe "#validate_param" do
     it "returns true if present" do

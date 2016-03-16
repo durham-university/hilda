@@ -233,6 +233,22 @@ function init_modules_ajax() {
           _this.sendControlAction(button,'start');
         });
         
+        $(".module_graph").on('click',".module_container .module button.enable_module_button",function(event){
+          if(_this.isGraphRunning()) return false;
+          var button = $(this);
+          if(button.hasClass('disabled')) { return false; }
+          button.addClass('disabled');
+          _this.sendControlAction(button,'enable');
+        });
+
+        $(".module_graph").on('click',".module_container .module button.disable_module_button",function(event){
+          if(_this.isGraphRunning()) return false;
+          var button = $(this);
+          if(button.hasClass('disabled')) { return false; }
+          button.addClass('disabled');
+          _this.sendControlAction(button,'disable');
+        });        
+        
         $(".module_graph").on('click',".graph_controls button.reset_graph_button",function(event){
           if(_this.isGraphRunning()) return false;
           var button = $(this);

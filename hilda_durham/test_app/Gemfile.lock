@@ -10,7 +10,7 @@ GIT
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.8)
+    durham_rails (0.0.9)
       active-fedora
       httparty
       hydra-editor (~> 1.1.0)
@@ -40,7 +40,7 @@ PATH
       hilda
       oubliette_api
       rails
-      schmit_api (~> 0.0.2)
+      schmit_api (~> 0.1.0)
       trifle_api
 
 PATH
@@ -77,7 +77,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/schmit
   specs:
-    schmit (0.0.1)
+    schmit (0.1.0)
       active-fedora
       active_fedora-noid
       bootstrap-sass (~> 3.3.5)
@@ -106,7 +106,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/schmit/schmit_api
   specs:
-    schmit_api (0.0.2)
+    schmit_api (0.1.0)
       httparty
       rails
 
@@ -121,7 +121,7 @@ PATH
       cancancan (~> 1.10)
       devise
       devise_ldap_authenticatable
-      durham_rails (~> 0.0.7)
+      durham_rails (~> 0.0.9)
       hydra-editor (~> 1.1.0)
       hydra-pcdm (= 0.3.1)
       hydra-works (= 0.6.0)
@@ -147,35 +147,37 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    actionmailer (4.2.5.1)
-      actionpack (= 4.2.5.1)
-      actionview (= 4.2.5.1)
-      activejob (= 4.2.5.1)
+    actionmailer (4.2.5.2)
+      actionpack (= 4.2.5.2)
+      actionview (= 4.2.5.2)
+      activejob (= 4.2.5.2)
       mail (~> 2.5, >= 2.5.4)
       rails-dom-testing (~> 1.0, >= 1.0.5)
-    actionpack (4.2.5.1)
-      actionview (= 4.2.5.1)
-      activesupport (= 4.2.5.1)
+    actionpack (4.2.5.2)
+      actionview (= 4.2.5.2)
+      activesupport (= 4.2.5.2)
       rack (~> 1.6)
       rack-test (~> 0.6.2)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    actionview (4.2.5.1)
-      activesupport (= 4.2.5.1)
+    actionview (4.2.5.2)
+      activesupport (= 4.2.5.2)
       builder (~> 3.1)
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    active-fedora (9.9.0)
+    active-fedora (9.10.4)
       active-triples (~> 0.7.1)
-      activesupport (>= 4.1.0)
+      activemodel (>= 4.2, < 6)
+      activesupport (>= 4.2.4, < 6)
       deprecation
-      ldp (~> 0.4.0)
+      ldp (~> 0.5.0)
       linkeddata
       nom-xml (>= 0.5.1)
       om (~> 3.1)
       rdf-rdfxml (~> 1.1)
-      rsolr (~> 1.0.10)
+      rsolr (~> 1.0, >= 1.0.10)
+      solrizer (~> 3.4)
     active-triples (0.7.5)
       activemodel (>= 3.0.0)
       activesupport (>= 3.0.0)
@@ -185,22 +187,22 @@ GEM
     active_fedora-noid (1.0.3)
       active-fedora (~> 9.7)
       noid (~> 0.7)
-    activefedora-aggregation (0.8.1)
-      active-fedora (~> 9.5)
+    activefedora-aggregation (0.10.0)
+      active-fedora (~> 9.10.1)
       activesupport
       rdf (~> 1.1, >= 1.1.17.1)
       rdf-vocab (~> 0.8.1)
-    activejob (4.2.5.1)
-      activesupport (= 4.2.5.1)
+    activejob (4.2.5.2)
+      activesupport (= 4.2.5.2)
       globalid (>= 0.3.0)
-    activemodel (4.2.5.1)
-      activesupport (= 4.2.5.1)
+    activemodel (4.2.5.2)
+      activesupport (= 4.2.5.2)
       builder (~> 3.1)
-    activerecord (4.2.5.1)
-      activemodel (= 4.2.5.1)
-      activesupport (= 4.2.5.1)
+    activerecord (4.2.5.2)
+      activemodel (= 4.2.5.2)
+      activesupport (= 4.2.5.2)
       arel (~> 6.0)
-    activesupport (4.2.5.1)
+    activesupport (4.2.5.2)
       i18n (~> 0.7)
       json (~> 1.7, >= 1.7.7)
       minitest (~> 5.1)
@@ -208,30 +210,29 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.4.0)
     arel (6.0.3)
-    autoprefixer-rails (6.0.3)
+    autoprefixer-rails (6.3.5)
       execjs
-      json
     bcp47 (0.3.3)
       i18n
-    bcrypt (3.1.10)
+    bcrypt (3.1.11)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
-    bootstrap-sass (3.3.5.1)
-      autoprefixer-rails (>= 5.0.0.1)
-      sass (>= 3.3.0)
-    bootstrap-sass-extras (0.0.6)
+    bootstrap-sass (3.3.6)
+      autoprefixer-rails (>= 5.2.1)
+      sass (>= 3.3.4)
+    bootstrap-sass-extras (0.0.7)
       rails (>= 3.1.0)
     builder (3.2.2)
     byebug (6.0.2)
     cancancan (1.13.1)
     childprocess (0.5.7)
       ffi (~> 1.0, >= 1.0.11)
-    concurrent-ruby (1.0.0)
+    concurrent-ruby (1.0.1)
     daemons (1.2.3)
     debug_inspector (0.0.2)
     deprecation (0.2.2)
       activesupport
-    devise (3.5.2)
+    devise (3.5.6)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
       railties (>= 3.2.6, < 5)
@@ -268,13 +269,13 @@ GEM
     httparty (0.13.7)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
-    hydra-derivatives (3.0.0)
+    hydra-derivatives (3.0.1)
       active-fedora (~> 9.0)
       activesupport (~> 4.0)
       deprecation
-      mime-types (< 3)
+      mime-types (> 2.0, < 4.0)
       mini_magick (>= 3.2, < 5)
-    hydra-editor (1.1.0)
+    hydra-editor (1.1.1)
       active-fedora (>= 9.0.0)
       cancancan (~> 1.8)
       rails (~> 4.1)
@@ -303,20 +304,22 @@ GEM
       i18n
       logger
       rubyzip
-    jquery-rails (4.0.5)
-      rails-dom-testing (~> 1.0)
+    jquery-rails (4.1.1)
+      rails-dom-testing (>= 1, < 3)
       railties (>= 4.2.0)
       thor (>= 0.14, < 2.0)
     jquery-ui-rails (5.0.5)
       railties (>= 3.2.16)
     json (1.8.3)
-    json-ld (1.99.0)
+    json-ld (1.99.2)
       multi_json (~> 1.11)
       rdf (~> 1.99)
-    ldp (0.4.1)
+    ldp (0.5.0)
+      deprecation
       faraday
       http_logger
       linkeddata (>= 1.1)
+      rdf-vocab
       slop
     link_header (0.0.8)
     linkeddata (1.99.0)
@@ -343,11 +346,13 @@ GEM
     logger (1.2.8)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
-    mail (2.6.3)
-      mime-types (>= 1.16, < 3)
-    mime-types (2.99)
+    mail (2.6.4)
+      mime-types (>= 1.16, < 4)
+    mime-types (3.0)
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2016.0221)
     mimemagic (0.3.0)
-    mini_magick (4.4.0)
+    mini_magick (4.5.1)
     mini_portile2 (2.0.0)
     minitest (5.8.4)
     mono_logger (1.1.0)
@@ -360,7 +365,7 @@ GEM
     net-ldap (0.11)
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
-    net-ssh (3.0.2)
+    net-ssh (3.1.1)
     noid (0.8.0)
     nokogiri (1.6.7.2)
       mini_portile2 (~> 2.0.0.rc2)
@@ -379,16 +384,16 @@ GEM
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
-    rails (4.2.5.1)
-      actionmailer (= 4.2.5.1)
-      actionpack (= 4.2.5.1)
-      actionview (= 4.2.5.1)
-      activejob (= 4.2.5.1)
-      activemodel (= 4.2.5.1)
-      activerecord (= 4.2.5.1)
-      activesupport (= 4.2.5.1)
+    rails (4.2.5.2)
+      actionmailer (= 4.2.5.2)
+      actionpack (= 4.2.5.2)
+      actionview (= 4.2.5.2)
+      activejob (= 4.2.5.2)
+      activemodel (= 4.2.5.2)
+      activerecord (= 4.2.5.2)
+      activesupport (= 4.2.5.2)
       bundler (>= 1.3.0, < 2.0)
-      railties (= 4.2.5.1)
+      railties (= 4.2.5.2)
       sprockets-rails
     rails-deprecated_sanitizer (1.0.3)
       activesupport (>= 4.2.0.alpha)
@@ -398,12 +403,12 @@ GEM
       rails-deprecated_sanitizer (>= 1.0.1)
     rails-html-sanitizer (1.0.3)
       loofah (~> 2.0)
-    railties (4.2.5.1)
-      actionpack (= 4.2.5.1)
-      activesupport (= 4.2.5.1)
+    railties (4.2.5.2)
+      actionpack (= 4.2.5.2)
+      activesupport (= 4.2.5.2)
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
-    rake (10.5.0)
+    rake (11.1.2)
     rdf (1.99.1)
       link_header (~> 0.0, >= 0.0.8)
     rdf-aggregate-repo (1.99.0)
@@ -458,15 +463,15 @@ GEM
     rdoc (4.2.0)
     redic (1.5.0)
       hiredis
-    redis (3.2.1)
+    redis (3.2.2)
     redis-namespace (1.5.2)
       redis (~> 3.0, >= 3.0.4)
     redis-session-store (0.8.0)
       actionpack (>= 3, < 5)
       redis
-    responders (2.1.0)
-      railties (>= 4.2.0, < 5)
-    resque (1.25.2)
+    responders (2.1.2)
+      railties (>= 4.2.0, < 5.1)
+    resque (1.26.0)
       mono_logger (~> 1.0)
       multi_json (~> 1.0)
       redis-namespace (~> 1.3)
@@ -495,7 +500,7 @@ GEM
       rspec-support (~> 3.3.0)
     rspec-support (3.3.0)
     rubyzip (1.1.7)
-    sass (3.4.19)
+    sass (3.4.22)
     sass-rails (5.0.4)
       railties (>= 4.0.0, < 5.0)
       sass (~> 3.1)
@@ -508,18 +513,18 @@ GEM
     simple_form (3.1.1)
       actionpack (~> 4.0)
       activemodel (~> 4.0)
-    sinatra (1.4.6)
-      rack (~> 1.4)
+    sinatra (1.4.7)
+      rack (~> 1.5)
       rack-protection (~> 1.4)
       tilt (>= 1.3, < 3)
-    slop (4.2.1)
-    solrizer (3.3.0)
+    slop (4.3.0)
+    solrizer (3.4.0)
       activesupport
       daemons
       nokogiri
       stomp
       xml-simple
-    sparql (1.99.0)
+    sparql (1.99.1)
       builder (~> 3.2)
       ebnf (~> 1.0)
       rdf (~> 1.99)
@@ -534,12 +539,12 @@ GEM
     sprockets (3.5.2)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
-    sprockets-rails (3.0.1)
+    sprockets-rails (3.0.4)
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     sqlite3 (1.3.11)
-    stomp (1.3.4)
+    stomp (1.3.5)
     sxp (0.1.5)
     thor (0.19.1)
     thread_safe (0.3.5)
@@ -548,7 +553,7 @@ GEM
       thread_safe (~> 0.1)
     vegas (0.1.11)
       rack (>= 1.0.0)
-    warden (1.2.3)
+    warden (1.2.6)
       rack (>= 1.0)
     web-console (2.2.1)
       activemodel (>= 4.0)

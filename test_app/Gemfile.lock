@@ -18,8 +18,9 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.1)
+    durham_rails (0.0.9)
       active-fedora
+      httparty
       hydra-editor (~> 1.1.0)
       rails (~> 4.2.5)
 
@@ -131,7 +132,10 @@ GEM
     hiredis (0.6.0)
     htmlentities (4.3.4)
     http_logger (0.5.1)
-    hydra-editor (1.1.0)
+    httparty (0.13.7)
+      json (~> 1.8)
+      multi_xml (>= 0.5.2)
+    hydra-editor (1.1.1)
       active-fedora (>= 9.0.0)
       cancancan (~> 1.8)
       rails (~> 4.1)
@@ -194,6 +198,7 @@ GEM
     minitest (5.8.3)
     mono_logger (1.1.0)
     multi_json (1.11.2)
+    multi_xml (0.5.5)
     multipart-post (2.0.0)
     nest (2.0.0)
       redic

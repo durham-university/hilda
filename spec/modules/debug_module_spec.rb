@@ -13,7 +13,7 @@ RSpec.describe Hilda::Modules::DebugModule do
     describe "with param defs" do
       let( :module_params ) { {param_defs: { test: {label: 'test', type: :string} }} }
       it "sets param_defs" do
-        expect(mod.param_defs).to eql({ test: {label: 'test', type: :string, default: nil, group: nil, collection: nil, optional: false} })
+        expect(mod.param_defs).to eql({ test: {label: 'test', type: :string, default: nil, group: nil, collection: nil, optional: false, note: nil} })
       end
     end
   end

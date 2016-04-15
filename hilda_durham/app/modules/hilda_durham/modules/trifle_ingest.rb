@@ -29,10 +29,11 @@ module HildaDurham
         manifest_metadata = {
           'title' => process_metadata[:title],
           'date_published' => process_metadata[:date],
-          'author' => [process_metadata[:author]],
+          'author' => [process_metadata[:author]].compact,
           'description' => process_metadata[:description],
           'licence' => process_metadata[:licence],
-          'attribution' => process_metadata[:attribution]
+          'attribution' => process_metadata[:attribution],
+          'source_record' => process_metadata[:source_record]
         }
         
         begin

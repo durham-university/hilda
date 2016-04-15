@@ -6,12 +6,16 @@ namespace :hilda_durham do
     Hilda::IngestionProcessTemplate.new_template('IIIF Ingestion','iiif_ingest','Ingest a batch of images into Oubliette and Trifle and generate IIIF metadata') do |template|
       template \
         .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_files', module_group: 'Upload') \
-        .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Manifest_metadata', module_group: 'Metadata',
+        .add_module(HildaDurham::Modules::LibraryLinker, module_name: 'Select_library_record', module_group: 'Metadata', optional_module: true) \
+        .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Manifest_metadata', module_group: 'Metadata', optional_module: true, default_disabled: true,
           param_defs: {
             title: {label: 'Title', type: :string},
             date: {label: 'Date of publication', type: :string},
             author: {label: 'Author', type: :string},
-            description: {label: 'Description', type: :text},
+            description: {label: 'Description', type: :text}
+          }) \
+        .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Licence_and_attribution', module_group: 'Metadata',
+          param_defs: {
             licence: {label: 'Licence', type: :select, collection: [
                 'All rights reserved',
                 'http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode'
@@ -23,8 +27,6 @@ namespace :hilda_durham do
             title: {label: 'Title', type: :string }
           }) \
         .add_module(HildaDurham::Modules::TrifleCollectionLinker, module_name: 'Select_IIIF_collection', module_group: 'Metadata') \
-        .add_module(HildaDurham::Modules::SchmitLinker, module_name: 'Select_collection', module_group: 'Metadata', optional_module: true, default_disabled: true) \
-        .add_module(HildaDurham::Modules::LibraryLinker, module_name: 'Select_library_record', module_group: 'Metadata', optional_module: true, default_disabled: true) \
         .add_module(Hilda::Modules::DetectContentType, module_name: 'Verify_content_type', module_group: 'Verify', allow_only: ['image/tiff']) \
         .add_module(HildaDurham::Modules::OublietteIngest, module_name: 'Ingest_to_Oubliette', module_group: 'Ingest') \
         .add_module(HildaDurham::Modules::TrifleIngest, module_name: 'Ingest_to_Trifle', module_group: 'Ingest') # \

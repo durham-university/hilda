@@ -69,6 +69,7 @@ module Hilda::IngestionProcessesHelper
               input_html: { class: 'form-control', onchange: 'moduleDataChanged(this)', value: mod.param_values.try(:[],key) || param[:default] }
             }
             options[:disabled] = 'true' unless mod.can_receive_params?
+            options[:hint] = param[:note] if param[:note].present?
             if [:select, :radio_buttons, :check_boxes].include?(param[:type])
               options[:collection] = param[:collection]
               options[:selected] = options[:input_html].delete(:value)

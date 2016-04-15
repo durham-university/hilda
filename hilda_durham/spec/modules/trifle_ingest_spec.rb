@@ -15,7 +15,8 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
         date: 'test date',
         description: 'test description',
         author: 'test author',
-        attribution: 'test attribution'
+        attribution: 'test attribution',
+        source_record: 'schmit:ark:/12345/testid'
       },
       trifle_collection: 'test_collection_id'
     }
@@ -35,7 +36,8 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
     'description' => 'test description',
     'author' => ['test author'],
     'attribution' => 'test attribution',
-    'licence' => nil
+    'licence' => nil,
+    'source_record' => 'schmit:ark:/12345/testid'
   } }
   let( :deposit_response ) { { status: 'ok', message: nil, resource: double('man_res', id: 'man_id_1', as_json: { "id" => "man_id_1", "title" => "manifest title", "image_container_location" => "image_container", "identifier" => ['ark:/12345/dummydummy']} ) } }
   let( :mod_output ) {

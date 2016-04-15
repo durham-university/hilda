@@ -10,7 +10,7 @@ GIT
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.9)
+    durham_rails (0.0.10)
       active-fedora
       httparty
       hydra-editor (~> 1.1.0)
@@ -106,14 +106,14 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/schmit/schmit_api
   specs:
-    schmit_api (0.1.0)
+    schmit_api (0.1.1)
       httparty
       rails
 
 PATH
   remote: /home/qgkb58/hydra/trifle
   specs:
-    trifle (0.0.2)
+    trifle (0.0.3)
       active-fedora
       active_fedora-noid
       bootstrap-sass (~> 3.3.5)
@@ -135,6 +135,7 @@ PATH
       resque-pool
       rsolr (~> 1.0.6)
       sass-rails (~> 5.0)
+      schmit_api (~> 0.1.1)
       simple_form (~> 3.1.0)
 
 PATH

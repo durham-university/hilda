@@ -109,6 +109,7 @@ module Hilda::Modules
           if field.is_a?(String) || field.is_a?(Symbol)
             field_data[:label] = key.to_s
             field_data[:type] = field.to_sym
+            field_data[:note] = nil
             field_data[:default] = nil
             field_data[:group] = nil
             field_data[:optional] = false
@@ -116,6 +117,7 @@ module Hilda::Modules
           elsif field.is_a? Hash
             field_data[:label] = (field[:label] || field['label'] || key).to_s
             field_data[:type] = (field[:type] || field['type'] || :string).to_sym
+            field_data[:note] = (field[:note] || field['note']).try(:to_s)
             field_data[:default] = (field[:default] || field['default'])
             field_data[:group] = (field[:group] || field['group'])
             field_data[:optional] = (field[:optional] || field['optional'] || false)

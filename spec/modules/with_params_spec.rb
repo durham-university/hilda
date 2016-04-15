@@ -10,14 +10,14 @@ RSpec.describe Hilda::Modules::WithParams do
   let( :param_defs ) { {
     title: {label: 'title', type: :string },
     :'te/st' => {label: 'test', type: :string, default: 'moo' },
-    options: {label: 'options', type: :select, collection: ['aaa','bbb']},
+    options: {label: 'options', type: :select, collection: ['aaa','bbb'], note: 'param note'},
     optional_param: {label: 'optional', type: :string, optional: true}
   } }
   let( :param_defs_sanitised ) { {
-    title: {label: 'title', type: :string, default: nil, group: nil, optional: false, collection: nil },
-    :'te/st' => {label: 'test', type: :string, default: 'moo', group: nil, optional: false, collection: nil },
-    options: {label: 'options', type: :select, default: nil, group: nil, optional: false, collection: ['aaa','bbb']},
-    optional_param: {label: 'optional', type: :string, default: nil, group: nil, optional: true, collection: nil}
+    title: {label: 'title', type: :string, default: nil, group: nil, optional: false, collection: nil, note: nil },
+    :'te/st' => {label: 'test', type: :string, default: 'moo', group: nil, optional: false, collection: nil, note: nil },
+    options: {label: 'options', type: :select, default: nil, group: nil, optional: false, collection: ['aaa','bbb'], note: 'param note'},
+    optional_param: {label: 'optional', type: :string, default: nil, group: nil, optional: true, collection: nil, note: nil}
   } }
   let( :mod ) {
     graph.add_start_module(ModClass).tap do |mod|

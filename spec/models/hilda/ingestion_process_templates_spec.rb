@@ -18,8 +18,8 @@ RSpec.describe Hilda::IngestionProcessTemplate do
     it "copies graph" do
       expect(mod_a).to be_a Hilda::Modules::DebugModule
       expect(mod_b).to be_a Hilda::Modules::DebugModule
-      expect(mod_a.param_defs[:moo]).to eql({ label: 'moo', type: :string, default: nil, group: nil, collection: nil, optional: false })
-      expect(mod_a.param_defs[:baa]).to eql({ label: 'baa', type: :string, default: 'baa', group: nil, collection: nil, optional: false })
+      expect(mod_a.param_defs[:moo]).to eql({ label: 'moo', type: :string, default: nil, group: nil, collection: nil, optional: false, note: nil })
+      expect(mod_a.param_defs[:baa]).to eql({ label: 'baa', type: :string, default: 'baa', group: nil, collection: nil, optional: false, note: nil })
       expect(mod_b.param_defs).to eql({})
       expect(graph.module_source(mod_b)).to eql mod_a
       expect(graph.start_modules).to eql [mod_a]

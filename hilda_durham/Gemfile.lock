@@ -14,13 +14,13 @@ PATH
       hilda
       oubliette_api
       rails
-      schmit_api (~> 0.0.2)
+      schmit_api (~> 0.1.0)
       trifle_api
 
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.8)
+    durham_rails (0.0.10)
       active-fedora
       httparty
       hydra-editor (~> 1.1.0)
@@ -53,7 +53,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/schmit/schmit_api
   specs:
-    schmit_api (0.0.2)
+    schmit_api (0.1.1)
       httparty
       rails
 

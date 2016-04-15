@@ -11,37 +11,48 @@ module HildaDurham
         self.param_defs[:library_record_type] = {
             label: 'Record type', 
             type: :select,
-            collection: ['adlib','millenium']
+            collection: ['Adlib','Millenium','Schmit']
           }
-        # Collection id not needed yet for anything. In the future some systems
-        # might need to specify the collection where the record can be found in
-        # addition to the record id.
-#        self.param_defs[:library_collection_id] = { 
-#            label: 'Collection id',
-#            type: :string
-#          }
         self.param_defs[:library_record_id] = {
             label: 'Record id',
+            note: 'Adlib or Millenium record ID. For Schmit use ARK identifier of the catalogue.',
             type: :string
+          }
+        self.param_defs[:library_record_fragment] = { 
+            label: 'Fragment id',
+            note: 'Leave empty for Adlib and Millenium. For Schmit enter the unitid of the record in the catalogue.',
+            type: :string,
+            optional: true
           }
       end
 
       def selected_record
+        record_type = self.param_values[:library_record_type].try(:downcase)
         record_id = self.param_values[:library_record_id]
+        fragment_id = self.param_values[:library_record_fragment]
         return nil unless record_id
-        begin
-          case self.param_values[:library_record_type].to_sym
-          when :adlib
-            record = DurhamRails::LibrarySystems::Adlib.connection.record(record_id)
-          when :millenium
-            record = DurhamRails::LibrarySystems::Millenium.connection.record(record_id)
-          else
-            return nil
-          end
-          return nil unless record.exists?
-          return record
+        cached_record = "#{record_type}:#{record_id}##{fragment_id}"
+        @selected_record = nil unless @cached_record == cached_record
+        @cached_record = cached_record
+        @selected_record ||= begin
+          record = case record_type.to_sym
+            when :adlib
+              DurhamRails::LibrarySystems::Adlib.connection.record(record_id)
+            when :millenium
+              DurhamRails::LibrarySystems::Millenium.connection.record(record_id)
+            when :schmit
+              r = Schmit::API::Catalogue.find(record_id)
+              if r
+                fragment_id.present? ? r.xml_record.sub_item(fragment_id) : r.xml_record.root_item
+              else
+                nil
+              end
+            else
+              nil
+            end
+          record.exists? ? record : nil
         rescue StandardError => e
-          return nil
+          nil
         end
       end
       
@@ -60,6 +71,8 @@ module HildaDurham
             record.other_name
           when DurhamRails::RecordFormats::MilleniumRecord
             record.title
+          when DurhamRails::RecordFormats::EADRecord::Item, DurhamRails::RecordFormats::TEIRecord::Impl
+            record.title_path
           else
             nil
           end
@@ -75,6 +88,30 @@ module HildaDurham
       def validate_reference
         selected_record.present?
       end
+      
+      def adapt_record_to_params
+        record = selected_record
+        
+        source_record = "#{self.param_values[:library_record_type].downcase}:#{self.param_values[:library_record_id]}"
+        source_record += "##{self.param_values[:library_record_fragment]}" if self.param_values[:library_fragment_id].present?
+        { source_record: source_record }.merge(
+          case record
+          when DurhamRails::RecordFormats::AdlibRecord
+            { title: record.other_name }
+          when DurhamRails::RecordFormats::MilleniumRecord
+            { title: record.title }
+          when DurhamRails::RecordFormats::EADRecord::Item, DurhamRails::RecordFormats::TEIRecord::Impl
+            {
+              title: record.title_path || nil,
+              date: record.date || nil,
+              author: nil,
+              description: record.scopecontent || nil
+            }
+          else
+            {}
+          end
+        )
+      end
 
       def run_module
         unless all_params_valid?
@@ -89,11 +126,13 @@ module HildaDurham
           return
         end
 
-        self.module_output = module_input.deep_dup.merge({
+        self.module_output = module_input.deep_dup.deep_merge({
           library_link: {
-            type: self.param_values[:library_record_type],
-            record_id: self.param_values[:library_record_id]
-          }
+            type: self.param_values[:library_record_type].downcase,
+            record_id: self.param_values[:library_record_id],
+            fragment_id: self.param_values[:library_record_fragment]
+          },
+          process_metadata: adapt_record_to_params
         })
       end
 

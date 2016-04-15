@@ -6,6 +6,7 @@ module Hilda::Modules
     def initialize(module_graph, param_values={})
       super(module_graph, param_values)
       self.param_defs = self.class.sanitise_field_defs(param_values.fetch(:param_defs,{}))
+      check_submitted_status!
     end
     
     def params_output_key

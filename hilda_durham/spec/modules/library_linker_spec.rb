@@ -22,6 +22,10 @@ RSpec.describe HildaDurham::Modules::LibraryLinker do
     let(:exists) { true }
     let(:adlib_record) { double('adlib record', exists?: exists) }
     let(:millenium_record) { double('millenium record', exists?: exists) }
+    let(:schmit_record) { double('schmit record', xml_record: schmit_xml_record) }
+    let(:schmit_xml_record) { double('schmit xml record', root_item: schmit_root_record) }
+    let(:schmit_root_record) { double('schmit root record', exists?: exists) }
+    let(:schmit_sub_record) { double('schmit sub record', exists?: exists) }
     let(:adlib_connection) { double('adlib connection') }
     let(:millenium_connection) { double('adlib connection') }
     before {
@@ -29,17 +33,28 @@ RSpec.describe HildaDurham::Modules::LibraryLinker do
       allow(DurhamRails::LibrarySystems::Millenium).to receive(:connection).and_return(millenium_connection)
       allow(adlib_connection).to receive(:record).with('adlibid').and_return(adlib_record)
       allow(millenium_connection).to receive(:record).with('milleniumid').and_return(millenium_record)
+      allow(Schmit::API::Catalogue).to receive(:find).with('schmitid').and_return(schmit_record)
     }
     it "returns adlib record when type is adlib" do
       mod.param_values[:library_record_id] = 'adlibid'
-      mod.param_values[:library_record_type] = 'adlib'
+      mod.param_values[:library_record_type] = 'Adlib'
       expect(mod.selected_record).to eql(adlib_record)
     end
     
     it "returns millenium record when type is millenium" do
       mod.param_values[:library_record_id] = 'milleniumid'
-      mod.param_values[:library_record_type] = 'millenium'
+      mod.param_values[:library_record_type] = 'Millenium'
       expect(mod.selected_record).to eql(millenium_record)
+    end
+    
+    it "returns schmit record when type is schmit" do
+      mod.param_values[:library_record_id] = 'schmitid'
+      mod.param_values[:library_record_type] = 'Schmit'
+      expect(mod.selected_record).to eql(schmit_root_record)
+      
+      mod.param_values[:library_record_fragment] = 'fragment'
+      expect(schmit_xml_record).to receive(:sub_item).with('fragment').and_return(schmit_sub_record)
+      expect(mod.selected_record).to eql(schmit_sub_record)      
     end
     
     it "returns nil if type not set" do
@@ -51,7 +66,7 @@ RSpec.describe HildaDurham::Modules::LibraryLinker do
       let(:exists) { false }
       it "returns nil" do
         mod.param_values[:library_record_id] = 'adlibid'
-        mod.param_values[:library_recrod_type] = 'adlib'
+        mod.param_values[:library_record_type] = 'adlib'
         expect(mod.selected_record).to eql(nil)
       end
     end
@@ -87,6 +102,9 @@ RSpec.describe HildaDurham::Modules::LibraryLinker do
       expect(mod.selected_record_label).to eql('record name')
     end
   end
+  
+  describe "#adapt_record_to_params" do
+  end
 
   describe "#run_module" do
     before {
@@ -100,9 +118,10 @@ RSpec.describe HildaDurham::Modules::LibraryLinker do
 
     it "sets selected record and type" do
       expect(mod).to receive(:validate_reference).and_return(true)
+      expect(mod).to receive(:adapt_record_to_params).and_return({moo: 'moo'})
       mod.run_module
       expect(mod.run_status).to eql :running # graph sets it to finished
-      expect(mod.module_output).to eql({ library_link: { type: 'adlib', record_id: '12345'} })
+      expect(mod.module_output).to eql({ library_link: { type: 'adlib', record_id: '12345', fragment_id: nil}, process_metadata: {moo: 'moo'} })
     end
     
     it "validates reference and sets error if invalid" do

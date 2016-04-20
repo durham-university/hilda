@@ -86,7 +86,7 @@ RSpec.describe HildaDurham::Modules::LibraryLinker do
         class << obj
           include DurhamRails::RecordFormats::AdlibRecord
         end
-        allow(obj).to receive(:other_name).and_return('record name')
+        allow(obj).to receive(:title).and_return('record name')
       end
     }
     it "sets record name" do

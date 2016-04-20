@@ -60,7 +60,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/trifle/trifle_api
   specs:
-    trifle_api (0.0.2)
+    trifle_api (0.0.3)
       httparty
       rails
 

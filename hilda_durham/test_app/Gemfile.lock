@@ -102,6 +102,7 @@ PATH
       rubyzip
       sass-rails (~> 5.0)
       simple_form (~> 3.1.0)
+      trifle_api (~> 0.0.3)
 
 PATH
   remote: /home/qgkb58/hydra/schmit/schmit_api
@@ -114,7 +115,7 @@ PATH
   remote: /home/qgkb58/hydra/trifle
   specs:
     trifle (0.0.3)
-      active-fedora
+      active-fedora (~> 9.10.0)
       active_fedora-noid
       bootstrap-sass (~> 3.3.5)
       bootstrap-sass-extras
@@ -141,7 +142,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/trifle/trifle_api
   specs:
-    trifle_api (0.0.2)
+    trifle_api (0.0.3)
       httparty
       rails
 

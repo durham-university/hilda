@@ -68,7 +68,7 @@ module HildaDurham
           record = selected_record
           case record
           when DurhamRails::RecordFormats::AdlibRecord
-            record.other_name
+            record.title
           when DurhamRails::RecordFormats::MilleniumRecord
             record.title
           when DurhamRails::RecordFormats::EADRecord::Item, DurhamRails::RecordFormats::TEIRecord::Impl
@@ -93,20 +93,15 @@ module HildaDurham
         record = selected_record
         
         source_record = "#{self.param_values[:library_record_type].downcase}:#{self.param_values[:library_record_id]}"
-        source_record += "##{self.param_values[:library_record_fragment]}" if self.param_values[:library_fragment_id].present?
+        source_record += "##{self.param_values[:library_record_fragment]}" if self.param_values[:library_record_fragment].present?
         { source_record: source_record }.merge(
           case record
           when DurhamRails::RecordFormats::AdlibRecord
-            { title: record.other_name }
+            { title: record.title }
           when DurhamRails::RecordFormats::MilleniumRecord
             { title: record.title }
           when DurhamRails::RecordFormats::EADRecord::Item, DurhamRails::RecordFormats::TEIRecord::Impl
-            {
-              title: record.title_path || nil,
-              date: record.date || nil,
-              author: nil,
-              description: record.scopecontent || nil
-            }
+            { title: record.title_path }
           else
             {}
           end

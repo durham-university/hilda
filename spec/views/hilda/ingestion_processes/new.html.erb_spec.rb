@@ -17,7 +17,7 @@ RSpec.describe "hilda/ingestion_processes/new", type: :view do
 
     templates.each do |template|
       expect(rendered).to include template.title
-      expect(page).to have_selector("input[name='ingestion_process[template]'][value='#{template.template_key}']")
+      expect(page).to have_selector("input[name='ingestion_process[template]'][value='#{template.template_key}']", visible: :all)
     end
   end
 end

@@ -21,6 +21,9 @@ PATH
   specs:
     hilda (0.0.1)
       active-fedora
+      cancancan (~> 1.10)
+      devise
+      devise_ldap_authenticatable
       dropzonejs-rails
       jbuilder (~> 2.0)
       jquery-rails
@@ -98,7 +101,7 @@ PATH
       rails (~> 4.2.4)
       resque
       resque-pool
-      rsolr (~> 1.0.6)
+      rsolr (~> 1.0)
       rubyzip
       sass-rails (~> 5.0)
       simple_form (~> 3.1.0)

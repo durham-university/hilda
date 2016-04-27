@@ -3,6 +3,9 @@ PATH
   specs:
     hilda (0.0.1)
       active-fedora
+      cancancan (~> 1.10)
+      devise
+      devise_ldap_authenticatable
       dropzonejs-rails
       jbuilder (~> 2.0)
       jquery-rails

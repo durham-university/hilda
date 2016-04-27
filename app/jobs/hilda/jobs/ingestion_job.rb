@@ -2,6 +2,7 @@ module Hilda::Jobs
   class IngestionJob
     include DurhamRails::Jobs::JobBase
     include DurhamRails::Jobs::WithResource
+    include DurhamRails::Jobs::WithUser
     include Hilda::Jobs::HildaJob
 
     attr_accessor :module_name

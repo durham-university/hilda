@@ -1,6 +1,9 @@
 module Hilda
   class IngestionProcessesController < Hilda::ApplicationController
+    
+    before_action :authenticate_user!
     before_action :set_ingestion_process, only: [:show, :edit, :update, :destroy, :start_graph, :reset_graph, :rollback_graph, :start_module, :reset_module, :enable_module, :disable_module, :query_module, :rollback_module]
+    before_action :authorize_resource!
     before_action :set_ingestion_module, only: [:update, :start_module, :reset_module, :query_module, :rollback_module, :enable_module, :disable_module]
     before_action :set_ingestion_process_template, only: [:create]
 
@@ -33,6 +36,7 @@ module Hilda
 
     def create
       @ingestion_process = @ingestion_process_template.build_process
+      @ingestion_process.owner = current_user.try(:user_key)
 
       respond_to do |format|
         if @ingestion_process.save
@@ -100,7 +104,7 @@ module Hilda
             mod.run_status=:queued
             mod.changed!
           end
-          Hilda::Jobs::IngestionJob.new(resource: @ingestion_process).queue_job
+          Hilda::Jobs::IngestionJob.new(resource: @ingestion_process, user: current_user).queue_job
           # queue_job saves the object          
         else
           flash[:alert] = "No modules are ready to run"
@@ -138,7 +142,7 @@ module Hilda
       if @ingestion_module.ready_to_run?
         @ingestion_module.run_status=:queued
         @ingestion_module.changed!
-        Hilda::Jobs::IngestionJob.new(resource: @ingestion_process, module_name: @ingestion_module).queue_job
+        Hilda::Jobs::IngestionJob.new(resource: @ingestion_process, module_name: @ingestion_module, user: current_user).queue_job
         # queue_job saves the object
         add_module_notice("Module was queued to be run", :success)
       else
@@ -198,6 +202,10 @@ module Hilda
     end
 
     private
+
+      def authorize_resource!
+        authorize!(params[:action].to_sym, @ingestion_process || Hilda::IngestionProcess)
+      end
 
       # levels: :info, :success, :warning, :danger
       def add_module_notice(message, level=:danger, mod=nil)

@@ -34,6 +34,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'rsolr', '~> 1.0.6'
   s.add_dependency 'active-fedora'
   # s.add_dependency 'hydra-head'
+  
+  s.add_dependency 'devise'
+  s.add_dependency 'devise_ldap_authenticatable'
+  s.add_dependency 'cancancan', '~> 1.10'  
 
   s.add_dependency 'resque'
   s.add_dependency 'resque-pool'

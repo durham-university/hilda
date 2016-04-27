@@ -1,7 +1,4 @@
 class User < ActiveRecord::Base
-  include Oubliette::UserBehaviour
-  include Schmit::UserBehaviour
-  include Trifle::UserBehaviour
   include Hilda::UserBehaviour
 
   serialize :roles, Array

@@ -8,8 +8,9 @@ RSpec.describe Hilda::Jobs::IngestionJob do
   let( :graph_only ) { Hilda::IngestionProcess.new }
   let( :graph ) { all_modules ; graph_only }
   let( :job_params ) { {} }
+  let( :user ) { FactoryGirl.create(:user,:admin) }
 
-  let( :job ) { Hilda::Jobs::IngestionJob.new( {resource: graph}.merge(job_params)) }
+  let( :job ) { Hilda::Jobs::IngestionJob.new( {resource: graph, user: user }.merge(job_params)) }
 
   describe "#initialize" do
     it "initializes" do

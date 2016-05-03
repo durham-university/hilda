@@ -38,7 +38,7 @@
   </head>
   <body>
 
-    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
@@ -57,6 +57,7 @@
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <%= render 'hilda/navbar_login' %>
+            <li><img class="logo" src="<%= asset_path 'hilda/logo.png' %>" /></li>
           </ul>
         </div><!-- /.navbar-collapse -->
       </div>
@@ -80,7 +81,6 @@
       </div><!--/row-->
 
       <footer>
-        <p>&copy; Company 2015</p>
       </footer>
 
     </div> <!-- /container -->

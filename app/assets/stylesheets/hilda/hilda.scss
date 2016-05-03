@@ -3,7 +3,7 @@
 @import "hilda/bulk_file_metadata";
 
 body>.container {
-  padding-top: 80px;
+  padding-top: 100px;
 }
 
 .page-header {
@@ -15,4 +15,50 @@ body>.container {
 
 footer {
   margin: 10px 0;
+}
+
+.navbar .logo {
+  margin-left: 20px;
+  margin-top: 13px;
+}
+
+.navbar-brand {
+  width: auto;
+  height: 58px;
+  font-size: 27px;
+}
+
+table.item-list {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  td {
+    padding-right: 1em;
+  }
+}
+
+.popup-tool-form {
+  margin: 20px;
+}
+
+.show-tools .nav hr {
+  margin: 10px 0 0 0;
+}
+
+.form-group.multi_value>ul {
+  padding-left: 0;
+}
+
+form.new_user {
+  .form-control {
+    width: auto;
+    height: auto;
+    display: inline-block;
+  }
+
+  div.user_remember_me>div {
+    display: inline;
+    input[type='checkbox'] {
+      margin-left: 10px;
+    }
+  }
 }

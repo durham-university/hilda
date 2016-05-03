@@ -21,6 +21,8 @@ PATH
   specs:
     hilda (0.0.1)
       active-fedora
+      bootstrap-sass (~> 3.3.5)
+      bootstrap-sass-extras
       cancancan (~> 1.10)
       devise
       devise_ldap_authenticatable

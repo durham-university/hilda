@@ -14,6 +14,13 @@ module Hilda
   end
 
   def self.config
-    @config ||= YAML.load_file(Rails.root.join('config','hilda.yml'))[Rails.env]
+    @config ||= begin
+      path = Rails.root.join('config','hilda.yml')
+      if File.exists?(path)
+        YAML.load(ERB.new(File.read(path)).tap do |erb| erb.filename = path.to_s end .result)[Rails.env]
+      else
+        {}
+      end
+    end
   end
 end

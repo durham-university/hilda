@@ -21,7 +21,7 @@ module HildaDurham
 
         deposit_items = ingest_files.map do |file_key,file_json|
           file = Oubliette::API::PreservedFile.from_json(file_json)
-          { source_path: file.download_url, 'title' => file.title }
+          { source_path: "oubliette:#{file.id}", 'title' => file.title }
         end
         
         process_metadata = module_input[:process_metadata] || {}

@@ -27,11 +27,14 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'mimemagic'
 
+  s.add_dependency 'bootstrap-sass', '~> 3.3.5'
+  s.add_dependency 'bootstrap-sass-extras'
+
   s.add_dependency 'dropzonejs-rails'
   s.add_dependency 'rubyzip'
   s.add_dependency 'simple_form', '~> 3.1.0'
 
-  s.add_dependency 'rsolr', '~> 1.0.6'
+  s.add_dependency 'rsolr', '~> 1.0'
   s.add_dependency 'active-fedora'
   # s.add_dependency 'hydra-head'
   

@@ -3,7 +3,23 @@ class User < ActiveRecord::Base
 
   serialize :roles, Array
 
-  devise :ldap_authenticatable, :rememberable, :trackable
+  devise :database_authenticatable, :ldap_authenticatable, :rememberable, :trackable
+
+  # To enable both database and ldap authentication, we must somehow differentiate
+  # between ldap and database users. If Devise finds a valid user object that fails
+  # authentication it will not try other authentication strategies. So we must 
+  # prevent returning a user object for the wrong strategy that would then fail
+  # authentication. Differntiation is currently done based on presence of
+  # encrypted_password in the user.
+  def self.find_for_database_authentication(conditions)
+    user = super(conditions)
+    user.try(:encrypted_password).present? ? user : nil
+  end
+  
+  def self.find_for_ldap_authentication(conditions)
+    user = super(conditions)
+    user.try(:encrypted_password).present? ? nil : user
+  end
 
   def is_admin?
     roles.include? 'admin'

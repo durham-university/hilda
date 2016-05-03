@@ -27,8 +27,8 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
     end
   }  
   let( :expected_deposit_items ) { [
-    {source_path: 'http://localhost:3000/oubliette/preserved_files/file_id_1/download', 'title' => '1'},
-    {source_path: 'http://localhost:3000/oubliette/preserved_files/file_id_2/download', 'title' => '2'}
+    {source_path: 'oubliette:file_id_1', 'title' => '1'},
+    {source_path: 'oubliette:file_id_2', 'title' => '2'}
   ] }
   let( :expected_manifest_metadata ){ {
     'title' => 'test title',

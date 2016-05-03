@@ -14,7 +14,7 @@ module Hilda::Modules
       end
 
       param_defs.each do |key,param|
-        self.param_values[key] = params[key.to_s] if params.key?(key.to_s)
+        self.param_values[key] = params[key.to_s].strip if params.key?(key.to_s)
       end
       
       check_submitted_status!

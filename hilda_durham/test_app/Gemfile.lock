@@ -10,10 +10,11 @@ GIT
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.10)
+    durham_rails (0.0.11)
       active-fedora
       httparty
       hydra-editor (~> 1.1.0)
+      net-sftp
       rails (~> 4.2.5)
 
 PATH
@@ -33,7 +34,7 @@ PATH
       rails (~> 4.2.4)
       resque
       resque-pool
-      rsolr (~> 1.0.6)
+      rsolr (~> 1.0)
       rubyzip
       sass-rails (~> 5.0)
       simple_form (~> 3.1.0)
@@ -67,7 +68,7 @@ PATH
       rails (~> 4.2.4)
       resque
       resque-pool
-      rsolr (~> 1.0.6)
+      rsolr (~> 1.0)
       rubyzip
       sass-rails (~> 5.0)
       simple_form (~> 3.1.0)
@@ -76,6 +77,7 @@ PATH
   remote: /home/qgkb58/hydra/oubliette/oubliette_api
   specs:
     oubliette_api (0.0.1)
+      durham_rails
       httmultiparty
       rails
 
@@ -91,7 +93,7 @@ PATH
       devise
       devise_ldap_authenticatable
       diff-lcs
-      durham_rails (~> 0.0.8)
+      durham_rails (~> 0.0.11)
       hydra-editor (~> 1.1.0)
       hydra-pcdm (= 0.6.0)
       hydra-works (= 0.8.1)
@@ -113,6 +115,7 @@ PATH
   remote: /home/qgkb58/hydra/schmit/schmit_api
   specs:
     schmit_api (0.1.1)
+      durham_rails
       httparty
       rails
 
@@ -136,10 +139,11 @@ PATH
       jquery-ui-rails
       kaminari
       nokogiri
-      rails (~> 4.2.5.1)
+      oubliette_api
+      rails (~> 4.2.5)
       resque
       resque-pool
-      rsolr (~> 1.0.6)
+      rsolr (~> 1.0)
       sass-rails (~> 5.0)
       schmit_api (~> 0.1.1)
       simple_form (~> 3.1.0)
@@ -148,6 +152,7 @@ PATH
   remote: /home/qgkb58/hydra/trifle/trifle_api
   specs:
     trifle_api (0.0.3)
+      durham_rails
       httparty
       rails
 

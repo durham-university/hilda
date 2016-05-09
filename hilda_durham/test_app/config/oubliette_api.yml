@@ -4,7 +4,6 @@ defaults: &defaults
 
 development:
   <<: *defaults
-  api_debug: true
 
 test:
   <<: *defaults

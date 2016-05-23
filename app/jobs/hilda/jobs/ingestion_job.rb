@@ -34,5 +34,10 @@ module Hilda::Jobs
     def dump_attributes
       super + [:module_name,:run_mode]
     end
+    
+    def validate_job!
+      super
+      raise "Resource is already running a background job!" if !resource.respond_to?(:background_job_running?)
+    end
   end
 end

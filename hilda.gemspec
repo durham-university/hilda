@@ -34,6 +34,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'rubyzip'
   s.add_dependency 'simple_form', '~> 3.1.0'
 
+  s.add_dependency 'durham_rails', '~> 0.0.12'
+
   s.add_dependency 'rsolr', '~> 1.0'
   s.add_dependency 'active-fedora'
   # s.add_dependency 'hydra-head'

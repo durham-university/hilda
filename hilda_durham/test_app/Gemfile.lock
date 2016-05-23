@@ -10,12 +10,12 @@ GIT
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.11)
+    durham_rails (0.0.12)
       active-fedora
       httparty
-      hydra-editor (~> 1.1.0)
       net-sftp
       rails (~> 4.2.5)
+      redlock
 
 PATH
   remote: /home/qgkb58/hydra/hilda
@@ -28,6 +28,7 @@ PATH
       devise
       devise_ldap_authenticatable
       dropzonejs-rails
+      durham_rails (~> 0.0.12)
       jbuilder (~> 2.0)
       jquery-rails
       mimemagic
@@ -60,8 +61,7 @@ PATH
       cancancan (~> 1.10)
       devise
       devise_ldap_authenticatable
-      durham_rails (~> 0.0.7)
-      hydra-editor (~> 1.1.0)
+      durham_rails (~> 0.0.12)
       jbuilder (~> 2.0)
       jquery-rails
       kaminari
@@ -93,8 +93,7 @@ PATH
       devise
       devise_ldap_authenticatable
       diff-lcs
-      durham_rails (~> 0.0.11)
-      hydra-editor (~> 1.1.0)
+      durham_rails (~> 0.0.12)
       hydra-pcdm (= 0.6.0)
       hydra-works (= 0.8.1)
       jbuilder (~> 2.0)
@@ -131,7 +130,6 @@ PATH
       devise
       devise_ldap_authenticatable
       durham_rails (~> 0.0.9)
-      hydra-editor (~> 1.1.0)
       hydra-pcdm (= 0.6.0)
       hydra-works (= 0.8.1)
       iiif-presentation
@@ -196,8 +194,8 @@ GEM
       deprecation (~> 0.1)
       linkeddata (~> 1.1)
       rdf (~> 1.1)
-    active_fedora-noid (1.0.3)
-      active-fedora (~> 9.7)
+    active_fedora-noid (1.1.0)
+      active-fedora (>= 9.7, < 11)
       noid (~> 0.7)
     activejob (4.2.5.2)
       activesupport (= 4.2.5.2)
@@ -275,17 +273,12 @@ GEM
     httparty (0.13.7)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
-    hydra-derivatives (3.0.1)
-      active-fedora (~> 9.0)
+    hydra-derivatives (3.1.1)
+      active-fedora (>= 9.0, < 11)
       activesupport (~> 4.0)
       deprecation
       mime-types (> 2.0, < 4.0)
       mini_magick (>= 3.2, < 5)
-    hydra-editor (1.1.1)
-      active-fedora (>= 9.0.0)
-      cancancan (~> 1.8)
-      rails (~> 4.1)
-      simple_form (~> 3.1.0)
     hydra-file_characterization (0.3.3)
       activesupport (>= 3.0.0)
     hydra-pcdm (0.6.0)
@@ -475,6 +468,8 @@ GEM
     redis-session-store (0.8.1)
       actionpack (>= 3, < 5.1)
       redis
+    redlock (0.1.6)
+      redis (~> 3, >= 3.3.0)
     responders (2.1.2)
       railties (>= 4.2.0, < 5.1)
     resque (1.26.0)

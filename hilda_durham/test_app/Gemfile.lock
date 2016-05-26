@@ -114,7 +114,7 @@ PATH
   remote: /home/qgkb58/hydra/schmit/schmit_api
   specs:
     schmit_api (0.1.1)
-      durham_rails
+      durham_rails (~> 0.0.12)
       httparty
       rails
 
@@ -129,7 +129,7 @@ PATH
       cancancan (~> 1.10)
       devise
       devise_ldap_authenticatable
-      durham_rails (~> 0.0.9)
+      durham_rails (~> 0.0.12)
       hydra-pcdm (= 0.6.0)
       hydra-works (= 0.8.1)
       iiif-presentation

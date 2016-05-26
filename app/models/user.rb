@@ -42,6 +42,7 @@ class User < ActiveRecord::Base
   end
 
   def ldap_before_save
+    self.encrypted_password = ''
     self.email = Devise::LDAP::Adapter.get_ldap_param(self.username,"mail").first
     self.display_name = Devise::LDAP::Adapter.get_ldap_param(self.username,"initials").first + " " + Devise::LDAP::Adapter.get_ldap_param(self.username,"sn").first
     self.department = Devise::LDAP::Adapter.get_ldap_param(self.username,"department").try(:first)

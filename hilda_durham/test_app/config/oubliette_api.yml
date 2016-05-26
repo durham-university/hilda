@@ -1,6 +1,6 @@
 defaults: &defaults
   local_mode: true
-  #base_url: 'http://localhost:3001/oubliette'
+  base_url: 'http://localhost:3000/oubliette'
 
 development:
   <<: *defaults

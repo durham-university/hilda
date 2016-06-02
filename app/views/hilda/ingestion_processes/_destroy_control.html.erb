@@ -1,26 +1,28 @@
 <% if resource.is_a? ActiveFedora::Base %>
   <li><a href="#" data-target="#destroy_confirm_modal" data-toggle="modal"><%= "Destroy #{resource.model_name.human}" %></a></li>
 
-  <div id="destroy_confirm_modal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="ajax-modal-close close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h1 class="modal-title">Destroy <%= resource.model_name.human %></h1>
-        </div>
-        <div class="popup-tool-form">
-        <%= form_for resource, url: hilda.polymorphic_path(resource), html: {
-            method: 'delete',
-            onsubmit: "return ($(this).find('#confirm_deletion').prop('checked') === true)"
-          } do |f| %>
-          <p><%= check_box_tag(:confirm_deletion) %> <%= label_tag(:confirm_deletion, "Yes, I really want to delete this #{resource.model_name.human}") %></p>
-          <p>
-            <input type="submit" class="btn btn-primary" value="Delete"/>
-            <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-          </p>
-        <% end %>
+  <% content_for :modal_dialogs do %>
+    <div id="destroy_confirm_modal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="ajax-modal-close close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h1 class="modal-title">Destroy <%= resource.model_name.human %></h1>
+          </div>
+          <div class="popup-tool-form">
+          <%= form_for resource, url: hilda.polymorphic_path(resource), html: {
+              method: 'delete',
+              onsubmit: "return ($(this).find('#confirm_deletion').prop('checked') === true)"
+            } do |f| %>
+            <p><%= check_box_tag(:confirm_deletion) %> <%= label_tag(:confirm_deletion, "Yes, I really want to delete this #{resource.model_name.human}") %></p>
+            <p>
+              <input type="submit" class="btn btn-primary" value="Delete"/>
+              <button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            </p>
+          <% end %>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 <% end %>

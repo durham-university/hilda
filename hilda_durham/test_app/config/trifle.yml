@@ -17,6 +17,9 @@ development:
   mirador_location: 'Durham University'
   mirador_base_url: 'http://localhost/mirador/'
   api_debug: true
+  image_convert_command: ['trifle_scripts/convert_jp2.sh']
+  image_size_command: ['trifle_scripts/image_size_jp2.sh']
+  image_convert_format: 'jp2'
   image_server_ssh:
     host: 'localhost'
     user: <%= ENV['USER'] %>

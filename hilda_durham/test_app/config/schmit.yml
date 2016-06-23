@@ -18,7 +18,10 @@ development:
   xtf_config:
     host: 'localhost'
     user: <%= ENV['USER'] %>
-    root: <%= File.join(Dir.home,'mock_xtf') %>/
+#    root: <%= File.join(Dir.home,'mock_xtf') %>/
+#    redirect_root: <%= File.join(Dir.home,'mock_xtf') %>/redirect/
+    root: /home/qgkb58/library/xtf/data/ark/
+    redirect_root: /home/qgkb58/library/xtf/data/redirect/
     
 
 test:

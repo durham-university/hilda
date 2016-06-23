@@ -3,17 +3,20 @@ PATH
   specs:
     hilda (0.0.1)
       active-fedora
+      bootstrap-sass (~> 3.3.5)
+      bootstrap-sass-extras
       cancancan (~> 1.10)
       devise
       devise_ldap_authenticatable
       dropzonejs-rails
+      durham_rails (~> 0.0.12)
       jbuilder (~> 2.0)
       jquery-rails
       mimemagic
       rails (~> 4.2.4)
       resque
       resque-pool
-      rsolr (~> 1.0.6)
+      rsolr (~> 1.0)
       rubyzip
       sass-rails (~> 5.0)
       simple_form (~> 3.1.0)
@@ -21,11 +24,12 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.10)
+    durham_rails (0.0.12)
       active-fedora
       httparty
-      hydra-editor (~> 1.1.0)
+      net-sftp
       rails (~> 4.2.5)
+      redlock
 
 GEM
   remote: https://rubygems.org/
@@ -49,7 +53,7 @@ GEM
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    active-fedora (9.12.0)
+    active-fedora (9.13.0)
       active-triples (~> 0.7.1)
       activemodel (>= 4.2, < 6)
       activesupport (>= 4.2.4, < 6)
@@ -61,10 +65,10 @@ GEM
       rdf-rdfxml (~> 1.1)
       rsolr (~> 1.0, >= 1.0.10)
       solrizer (~> 3.4)
-    active-triples (0.7.5)
+    active-triples (0.7.6)
       activemodel (>= 3.0.0)
       activesupport (>= 3.0.0)
-      deprecation (~> 0.1)
+      deprecation (~> 1.0)
       linkeddata (~> 1.1)
       rdf (~> 1.1)
     activejob (4.2.5)
@@ -106,7 +110,7 @@ GEM
     concurrent-ruby (1.0.0)
     daemons (1.2.3)
     debug_inspector (0.0.2)
-    deprecation (0.2.2)
+    deprecation (1.0.0)
       activesupport
     devise (3.5.2)
       bcrypt (~> 3.0)
@@ -140,13 +144,8 @@ GEM
     httparty (0.13.7)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
-    hydra-editor (1.1.1)
-      active-fedora (>= 9.0.0)
-      cancancan (~> 1.8)
-      rails (~> 4.1)
-      simple_form (~> 3.1.0)
     i18n (0.7.0)
-    jbuilder (2.4.1)
+    jbuilder (2.5.0)
       activesupport (>= 3.0.0, < 5.1)
       multi_json (~> 1.2)
     jettywrapper (2.0.3)
@@ -211,13 +210,16 @@ GEM
       redic
     net-http-persistent (2.9.4)
     net-ldap (0.11)
+    net-sftp (2.1.2)
+      net-ssh (>= 2.6.5)
+    net-ssh (3.1.1)
     nokogiri (1.6.7)
       mini_portile2 (~> 2.0.0.rc2)
     nom-xml (0.5.4)
       activesupport (>= 3.2.18)
       i18n
       nokogiri
-    om (3.1.0)
+    om (3.1.1)
       activemodel
       activesupport
       nokogiri (>= 1.4.2)
@@ -313,6 +315,8 @@ GEM
     redis-session-store (0.8.0)
       actionpack (>= 3, < 5)
       redis
+    redlock (0.1.8)
+      redis (~> 3, >= 3.0.0)
     responders (2.1.0)
       railties (>= 4.2.0, < 5)
     resque (1.25.2)
@@ -324,7 +328,7 @@ GEM
     resque-pool (0.6.0)
       rake
       resque (~> 1.22)
-    rsolr (1.0.13)
+    rsolr (1.1.1)
       builder (>= 2.1.2)
     rubyzip (1.1.7)
     sass (3.4.19)

@@ -4,7 +4,7 @@ module Hilda::HydraModuleGraph
   include Hilda::ModuleGraphBehaviour
 
   included do
-    contains "module_graph_serialisation", class_name: 'ActiveFedora::File'
+    has_subresource "module_graph_serialisation", class_name: 'ActiveFedora::File'
     property :title, multiple: false, predicate: ::RDF::Vocab::DC.title
 
     before_save :serialise_module_graph

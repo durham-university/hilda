@@ -21,7 +21,7 @@ PATH
   remote: /home/qgkb58/hydra/hilda
   specs:
     hilda (0.0.1)
-      active-fedora
+      active-fedora (~> 9.13)
       bootstrap-sass (~> 3.3.5)
       bootstrap-sass-extras
       cancancan (~> 1.10)

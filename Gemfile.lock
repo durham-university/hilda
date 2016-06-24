@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     hilda (0.0.1)
-      active-fedora
+      active-fedora (~> 9.13)
       bootstrap-sass (~> 3.3.5)
       bootstrap-sass-extras
       cancancan (~> 1.10)
@@ -24,8 +24,8 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.12)
-      active-fedora
+    durham_rails (0.0.13)
+      active-fedora (~> 9.13)
       httparty
       net-sftp
       rails (~> 4.2.5)
@@ -53,7 +53,7 @@ GEM
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    active-fedora (9.12.0)
+    active-fedora (9.13.0)
       active-triples (~> 0.7.1)
       activemodel (>= 4.2, < 6)
       activesupport (>= 4.2.4, < 6)
@@ -157,7 +157,7 @@ GEM
       json (~> 1.8)
       multi_xml (>= 0.5.2)
     i18n (0.7.0)
-    jbuilder (2.4.1)
+    jbuilder (2.5.0)
       activesupport (>= 3.0.0, < 5.1)
       multi_json (~> 1.2)
     jettywrapper (2.0.3)
@@ -226,14 +226,14 @@ GEM
     net-ldap (0.11)
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
-    net-ssh (3.1.1)
+    net-ssh (3.2.0)
     nokogiri (1.6.7.2)
       mini_portile2 (~> 2.0.0.rc2)
     nom-xml (0.5.4)
       activesupport (>= 3.2.18)
       i18n
       nokogiri
-    om (3.1.0)
+    om (3.1.1)
       activemodel
       activesupport
       nokogiri (>= 1.4.2)
@@ -330,8 +330,8 @@ GEM
     redis-session-store (0.8.1)
       actionpack (>= 3, < 5.1)
       redis
-    redlock (0.1.6)
-      redis (~> 3, >= 3.3.0)
+    redlock (0.1.8)
+      redis (~> 3, >= 3.0.0)
     responders (2.1.2)
       railties (>= 4.2.0, < 5.1)
     resque (1.26.0)
@@ -407,7 +407,7 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     sqlite3 (1.3.11)
-    stomp (1.3.5)
+    stomp (1.4.1)
     sxp (0.1.5)
     thor (0.19.1)
     thread_safe (0.3.5)

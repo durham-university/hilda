@@ -12,7 +12,7 @@ development:
   ark_naan: '12345'
   image_server_url: 'http://localhost/iipsrv/iipsrv.fcgi'
   image_service_url: 'http://localhost/iipsrv/iipsrv.fcgi?IIIF='
-  static_iiif_url: 'http://localhost/iiif/'
+  published_iiif_url: 'http://localhost/iiif/'
   iiif_host: 'http://localhost:3000'
   mirador_location: 'Durham University'
   mirador_base_url: 'http://localhost/mirador/'
@@ -25,6 +25,7 @@ development:
     user: <%= ENV['USER'] %>
     iiif_root: <%= File.join(Dir.home,'mock_iiif') %>/
     images_root: <%= File.join(Dir.home,'iipimages') %>/
+    create_dirs: true
 
 test:
   <<: *defaults

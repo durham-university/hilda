@@ -24,7 +24,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.13)
+    durham_rails (0.0.14)
       active-fedora (~> 9.13)
       httparty
       net-sftp
@@ -153,8 +153,7 @@ GEM
     hiredis (0.6.1)
     htmlentities (4.3.4)
     http_logger (0.5.1)
-    httparty (0.13.7)
-      json (~> 1.8)
+    httparty (0.14.0)
       multi_xml (>= 0.5.2)
     i18n (0.7.0)
     jbuilder (2.5.0)
@@ -455,3 +454,6 @@ DEPENDENCIES
   spring
   sqlite3
   web-console (~> 2.0)
+
+BUNDLED WITH
+   1.12.5

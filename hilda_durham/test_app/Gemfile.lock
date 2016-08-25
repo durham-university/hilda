@@ -10,12 +10,22 @@ GIT
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.13)
+    durham_rails (0.0.14)
       active-fedora (~> 9.13)
       httparty
       net-sftp
       rails (~> 4.2.5)
       redlock
+
+PATH
+  remote: /home/qgkb58/hydra/hilda/hilda_durham
+  specs:
+    hilda_durham (0.0.1)
+      hilda
+      oubliette_api
+      rails
+      schmit_api (~> 0.1.0)
+      trifle_api
 
 PATH
   remote: /home/qgkb58/hydra/hilda
@@ -41,14 +51,12 @@ PATH
       simple_form (~> 3.1.0)
 
 PATH
-  remote: /home/qgkb58/hydra/hilda/hilda_durham
+  remote: /home/qgkb58/hydra/oubliette/oubliette_api
   specs:
-    hilda_durham (0.0.1)
-      hilda
-      oubliette_api
+    oubliette_api (0.0.1)
+      durham_rails
+      httmultiparty
       rails
-      schmit_api (~> 0.1.0)
-      trifle_api
 
 PATH
   remote: /home/qgkb58/hydra/oubliette
@@ -74,11 +82,11 @@ PATH
       simple_form (~> 3.1.0)
 
 PATH
-  remote: /home/qgkb58/hydra/oubliette/oubliette_api
+  remote: /home/qgkb58/hydra/schmit/schmit_api
   specs:
-    oubliette_api (0.0.1)
-      durham_rails
-      httmultiparty
+    schmit_api (0.1.1)
+      durham_rails (~> 0.0.12)
+      httparty
       rails
 
 PATH
@@ -93,7 +101,7 @@ PATH
       devise
       devise_ldap_authenticatable
       diff-lcs
-      durham_rails (~> 0.0.13)
+      durham_rails (~> 0.0.14)
       hydra-pcdm (= 0.6.0)
       hydra-works (= 0.8.1)
       jbuilder (~> 2.0)
@@ -111,10 +119,10 @@ PATH
       trifle_api (~> 0.0.3)
 
 PATH
-  remote: /home/qgkb58/hydra/schmit/schmit_api
+  remote: /home/qgkb58/hydra/trifle/trifle_api
   specs:
-    schmit_api (0.1.1)
-      durham_rails (~> 0.0.12)
+    trifle_api (0.0.3)
+      durham_rails
       httparty
       rails
 
@@ -145,14 +153,6 @@ PATH
       sass-rails (~> 5.0)
       schmit_api (~> 0.1.1)
       simple_form (~> 3.1.0)
-
-PATH
-  remote: /home/qgkb58/hydra/trifle/trifle_api
-  specs:
-    trifle_api (0.0.3)
-      durham_rails
-      httparty
-      rails
 
 GEM
   remote: https://rubygems.org/
@@ -363,7 +363,7 @@ GEM
     net-ldap (0.11)
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
-    net-ssh (3.1.1)
+    net-ssh (3.2.0)
     noid (0.8.0)
     nokogiri (1.6.8)
       mini_portile2 (~> 2.1.0)
@@ -597,3 +597,6 @@ DEPENDENCIES
   trifle!
   trifle_api!
   web-console (~> 2.0)
+
+BUNDLED WITH
+   1.12.5

@@ -4,6 +4,10 @@ module Hilda
 
     config.autoload_paths += %W(#{config.root}/app/jobs/concerns #{config.root}/app/modules/concerns)
 
+    initializer "hilda.id_translators" do |app|
+      DurhamRails::IdTranslations.set_active_fedora_translators
+    end
+
     initializer "hilda.assets.precompile" do |app|
       app.config.assets.precompile += %w( hilda/logo.png )
     end

@@ -12,12 +12,11 @@ development:
   notification_email_to: []
   wip_feed_id: :first
   primo_config:
-    host: 'localhost'
-    user: <%= ENV['USER'] %>
+    local_copy: true
     root: <%= File.join(Dir.home,'mock_primo') %>/
   xtf_config:
-    host: 'localhost'
-    user: <%= ENV['USER'] %>
+    local_copy: true
+    create_dirs: true
 #    root: <%= File.join(Dir.home,'mock_xtf') %>/
 #    redirect_root: <%= File.join(Dir.home,'mock_xtf') %>/redirect/
     root: /home/qgkb58/library/xtf/data/ark/

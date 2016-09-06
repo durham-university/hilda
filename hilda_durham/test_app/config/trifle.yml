@@ -20,9 +20,10 @@ development:
   image_convert_command: ['trifle_scripts/convert_jp2.sh']
   image_size_command: ['trifle_scripts/image_size_jp2.sh']
   image_convert_format: 'jp2'
-  image_server_ssh:
-    host: 'localhost'
-    user: <%= ENV['USER'] %>
+  image_server_config:
+    local_copy: true
+    #host: 'localhost'
+    #user: <%= ENV['USER'] %>
     iiif_root: <%= File.join(Dir.home,'mock_iiif') %>/
     images_root: <%= File.join(Dir.home,'iipimages') %>/
     create_dirs: true

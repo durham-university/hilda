@@ -17,8 +17,10 @@
           sub_collection_options = []
           root_collection_id = mod.value_for(:trifle_root_collection)
           if root_collection_id.present?
-            root_collection = Trifle::API::IIIFCollection.find(root_collection_id)
-            sub_collection_options = Trifle::API::IIIFCollection.all_in_collection(root_collection).sort do |a,b| a.title <=> b.title end
+            root_collection = Trifle::API::IIIFCollection.try_find(root_collection_id)
+            if root_collection.present?
+              sub_collection_options = Trifle::API::IIIFCollection.all_in_collection(root_collection).sort do |a,b| a.title <=> b.title end
+            end
           end
         %>
         <%= f.input :trifle_sub_collection, label: 'Sub collection', as: :select, collection: sub_collection_options,

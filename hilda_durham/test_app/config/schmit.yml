@@ -1,6 +1,6 @@
 defaults: &defaults
   layout: 'application'
-  identifier_template: 'sa.reeddeeddk'
+  identifier_template: 's0.reeddeeddk'
   identifier_statefile: '/tmp/schmit-minter-state'
   notification_email_from: 'schmit@durham.ac.uk'
   notification_email_to: []

@@ -1,6 +1,6 @@
 defaults: &defaults
   layout: 'application'
-  identifier_template: 'ba.reeddeeddk'
+  identifier_template: 'b0.reeddeeddk'
   identifier_statefile: '/tmp/oubliette-minter-state'
   notification_email_from: 'oubliette@durham.ac.uk'
   notification_email_to: []

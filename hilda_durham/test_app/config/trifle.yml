@@ -1,7 +1,7 @@
 defaults: &defaults
 #  job_temp_dir: '/tmp' # uses system temp dir by default
   layout: 'application'
-  identifier_template: 'ta.reeddeeddk'
+  identifier_template: 't0.reeddeeddk'
   identifier_statefile: '/tmp/trifle-minter-state'
   image_convert_command: ['trifle_scripts/convert_ptif.sh']
   image_size_command: ['trifle_scripts/image_size.sh']

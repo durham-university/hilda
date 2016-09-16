@@ -31,7 +31,7 @@ function init_modules_ajax() {
         
         var change_time = parseInt(new_module_container.find('.module_timestamp').text());
         var old_change_time = parseInt(old_module_container.find('.module_timestamp').text());
-        if(change_time<=old_change_time) {
+        if(change_time<=old_change_time || old_module_container.hasClass('no_module_updates')) {
           var alerts = new_module_container.find('div.alert')
           if(alerts.length>0) {
             alerts.detach();

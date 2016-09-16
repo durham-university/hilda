@@ -8,6 +8,9 @@ $(function(){
   var get_uploader = function(dropzone){
     return $(dropzone.element).closest('.file_uploader');
   };
+  var get_module_container = function(dropzone){
+    return $(dropzone.element).closest('.module_container');
+  };
 
   var init_dropzone = function(uploader){
     var formTemplate = uploader.find('.form_template');
@@ -38,6 +41,8 @@ $(function(){
     });
 
     dropzone.on("queuecomplete", function(progress) {
+      var container=get_module_container(dropzone);
+      container.removeClass('no_module_updates');      
       hilda_modules_poll_change();
     });
 
@@ -64,9 +69,12 @@ $(function(){
       },
       success: function(){
         console.log('file list success')
+        hilda_modules_poll_change();
         callback();
       },
       error: function(xhr, textStatus) {
+        var container=get_module_container(dropzone);
+        container.removeClass('no_module_updates');      
         console.log('file list error')
         alert("Error sending file list: "+textStatus);
       }
@@ -76,6 +84,8 @@ $(function(){
   var calculateMD5s = function(files,callback){
     getFileMD5s(files,function(status,result){
       if(status!='OK') {
+        var container=get_module_container(dropzone);
+        container.removeClass('no_module_updates');      
         $(result.previewElement).find('.error').text('Error calculating MD5');
       }
       else {
@@ -94,6 +104,8 @@ $(function(){
   $('.module_graph').on('click','.file_uploader .upload_action_buttons .start',function(event) {
     event.preventDefault();
     var dropzone=get_dropzone($(this));
+    var container=get_module_container(dropzone);
+    container.addClass('no_module_updates');
     sendFileList(dropzone,function(){
       console.log('calculating md5')
       var files = dropzone.getFilesWithStatus(Dropzone.ADDED);

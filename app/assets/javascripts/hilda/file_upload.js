@@ -29,7 +29,7 @@ $(function(){
       },
       method: "put",
       paramName: "ingestion_process[files]",
-      parallelUploads: 10,
+      parallelUploads: 2,
       uploadMultiple: true,
       previewTemplate: previewTemplate,
       autoQueue: false,

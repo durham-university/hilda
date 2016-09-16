@@ -10,7 +10,7 @@ GIT
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.14)
+    durham_rails (0.0.15)
       active-fedora (~> 9.13)
       httparty
       net-sftp
@@ -61,7 +61,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/oubliette
   specs:
-    oubliette (0.0.1)
+    oubliette (0.0.2)
       active-fedora (~> 9.13)
       active_fedora-noid
       bootstrap-sass (~> 3.3.5)
@@ -70,6 +70,8 @@ PATH
       devise
       devise_ldap_authenticatable
       durham_rails (~> 0.0.12)
+      hydra-pcdm (= 0.6.0)
+      hydra-works (= 0.8.1)
       jbuilder (~> 2.0)
       jquery-rails
       kaminari
@@ -101,7 +103,7 @@ PATH
       devise
       devise_ldap_authenticatable
       diff-lcs
-      durham_rails (~> 0.0.14)
+      durham_rails (~> 0.0.15)
       hydra-pcdm (= 0.6.0)
       hydra-works (= 0.8.1)
       jbuilder (~> 2.0)

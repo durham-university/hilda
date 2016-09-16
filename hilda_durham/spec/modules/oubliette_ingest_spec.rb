@@ -17,7 +17,8 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
         file1: { path: file1_path, original_filename: file1_name, md5: file1_md5, content_type: 'image/jpeg'},
         file2: { path: file2_path, original_filename: file2_name, md5: file2_md5, content_type: 'image/jpeg'}
       },
-      file_metadata: { file1__title: 'File 1', file2__title: 'File 2'}
+      file_metadata: { file1__title: 'File 1', file2__title: 'File 2'},
+      process_metadata: { title: 'process title' }
     }
   }
   let( :mod ) {
@@ -74,11 +75,14 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
   end
 
   describe "#run_module" do
+    let(:parent_double){double('parent',as_json:{dummy:'json'})}
     it "ingests files to Oubliette" do
+      expect(mod).to receive(:create_parent).and_return(parent_double)
       expect(Oubliette::API::PreservedFile).to receive(:ingest).twice do |file,params|
         expect(["md5:#{file1_md5}", "md5:#{file2_md5}"]).to include params[:ingestion_checksum]
         expect(["File 1", "File 2"]).to include params[:title]
         expect(["test1.jpg", "test2.jpg"]).to include params[:original_filename]
+        expect(params[:parent]).to eql(parent_double)
         expect(params[:content_type]).to eql 'image/jpeg'
         expect(params[:ingestion_log]).not_to be_empty
         Oubliette::API::PreservedFile.from_json({'title'=>params[:title], 'ingestion_checksum'=>params[:ingestion_checksum], 'id'=>"id_#{params[:ingestion_checksum]}"})
@@ -87,6 +91,15 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
       expect(mod_output[:source_files]).not_to be_empty
       expect(mod_output[:stored_files][:file1]).to be_a Hash
       expect(mod_output[:stored_files][:file2]).to be_a Hash
+      expect(mod_output[:stored_file_batch]).to eql({dummy:'json'})
+    end
+  end
+  
+  describe "#create_parent" do
+    let(:batch_double){double('batch', id: '123456')}
+    it "creates the parent" do
+      expect(Oubliette::API::FileBatch).to receive(:create).with({title: 'process title'}).and_return(batch_double)
+      expect(mod.create_parent).to eql(batch_double)
     end
   end
   
@@ -97,16 +110,22 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
     }
     context "when files have been ingested" do
       before {
-        mod.module_output = { stored_files: { 
-          'file1' => {"id" => "b1aa11bb22x","ingestion_date" => "2015-11-23T13:10:44.494+00:00","status" => "not checked","check_date" => "2015-11-23T13:11:00.000+00:00","title" => "Test file 1","note" => "","ingestion_checksum" => "md5:dcca695ddf72313d5f9f80935c58cf9ddcca695ddf72313d5f9f80935c58cf9d"}, 
-          'file2' => {"id" => "b1cc33dd44y","ingestion_date" => "2015-11-23T13:10:44.494+00:00","status" => "not checked","check_date" => "2015-11-23T13:11:00.000+00:00","title" => "Test file 1","note" => "","ingestion_checksum" => "md5:dcca695ddf72313d5f9f80935c58cf9ddcca695ddf72313d5f9f80935c58cf9d"}
-        } }
+        mod.module_output = { 
+          stored_files: { 
+            'file1' => {"id" => "b1aa11bb22x","ingestion_date" => "2015-11-23T13:10:44.494+00:00","status" => "not checked","check_date" => "2015-11-23T13:11:00.000+00:00","title" => "Test file 1","note" => "","ingestion_checksum" => "md5:dcca695ddf72313d5f9f80935c58cf9ddcca695ddf72313d5f9f80935c58cf9d"}, 
+            'file2' => {"id" => "b1cc33dd44y","ingestion_date" => "2015-11-23T13:10:44.494+00:00","status" => "not checked","check_date" => "2015-11-23T13:11:00.000+00:00","title" => "Test file 1","note" => "","ingestion_checksum" => "md5:dcca695ddf72313d5f9f80935c58cf9ddcca695ddf72313d5f9f80935c58cf9d"}
+          },
+          stored_file_batch: {"id" => "b1bb55cc66z", "title" => "batch", "type" => "batch"}
+        }
       }
-      it "destroys ingested files and calls super" do
+      it "destroys ingested files, file batch and calls super" do
         deleted = []
         allow_any_instance_of(Oubliette::API::PreservedFile).to receive(:destroy) do |file|
           deleted << file.id
           true
+        end
+        expect_any_instance_of(Oubliette::API::FileBatch).to receive(:destroy) do |batch|
+          expect(batch.id).to eql("b1bb55cc66z")
         end
         mod.rollback
         expect(deleted).to match_array(['b1aa11bb22x','b1cc33dd44y'])

@@ -23,9 +23,24 @@ module HildaDurham
       def autorun?
         true
       end
+      
+      def create_parent
+        process_metadata = module_input[:process_metadata] || {}
+        title = process_metadata.fetch(:title, "Unnamed batch")
+        parent = Oubliette::API::FileBatch.create(title: title)
+        unless parent
+          log! :error, "Unable to create Oubliette file batch"
+          self.run_status = :error
+        else
+          log! :info, "Create file batch in Oubliette with id \"#{parent.id}\""
+        end
+        parent
+      end
 
       def run_module
         stored_files = {}
+        parent = create_parent
+        return unless parent
         archival_files.each_with_index do |(file_key,file),index|
           file_title = file_title(file, file_key)
           log! :info, "Ingesting file to Oubliette: #{file_key}"
@@ -36,7 +51,8 @@ module HildaDurham
                 ingestion_checksum: "md5:#{file[:md5]}",
                 ingestion_log: ingestion_log,
                 content_type: file[:content_type] || 'application/octet-stream',
-                original_filename: original_filename(file) )
+                original_filename: original_filename(file),
+                parent: parent )
               stored_files[file_key] = stored_file.as_json
               log! :info, "Ingested to Oubliette with id \"#{stored_file.id}\""
             end
@@ -46,7 +62,7 @@ module HildaDurham
           end
         end
 
-        self.module_output = module_input.deep_dup.merge(stored_files: stored_files)
+        self.module_output = module_input.deep_dup.merge(stored_files: stored_files, stored_file_batch: parent.try(:as_json))
       end
     
       def rollback
@@ -59,6 +75,15 @@ module HildaDurham
               f.destroy
             rescue StandardError => e
             end
+          end
+        end
+        file_batch_json = self.module_output.try(:[],:stored_file_batch)
+        if file_batch_json
+          file_batch = Oubliette::API::FileBatch.from_json(file_batch_json)
+          self.module_graph.log!("Removing file batch from Oubliette #{file_batch.id}")
+          begin
+            file_batch.destroy
+          rescue StandardError => e
           end
         end
         return super

@@ -88,13 +88,18 @@
           <%= yield %>
         </div>
         <div class="col-md-3">
-          <% if content_for(:sidebar).present? %>
-            <div class="well sidebar-nav">
-              <ul class="nav nav-list">
-                <%= content_for :sidebar %>
-              </ul>
-            </div><!--/.well -->
-          <% end %>
+          <div class="fixed-sidebar">
+            <% if content_for(:sidebar).present? %>
+              <div class="well sidebar-nav">
+                <ul class="nav nav-list">
+                  <%= content_for :sidebar %>
+                </ul>
+              </div><!--/.well -->
+            <% end %>
+            <% if content_for(:side_components).present? %>
+              <%= content_for :side_components %>
+            <% end %>
+          </div>
         </div><!--/span-->
       </div><!--/row-->
 

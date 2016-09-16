@@ -22,6 +22,7 @@ development:
   image_convert_format: 'jp2'
   image_server_config:
     local_copy: true
+    file_permissions: 0644
     #host: 'localhost'
     #user: <%= ENV['USER'] %>
     iiif_root: <%= File.join(Dir.home,'mock_iiif') %>/

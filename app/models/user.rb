@@ -24,6 +24,10 @@ class User < ActiveRecord::Base
   def is_admin?
     roles.include? 'admin'
   end
+  
+  def is_editor?
+    roles.include? 'editor'
+  end
 
   def is_registered?
     !new_record?
@@ -33,12 +37,25 @@ class User < ActiveRecord::Base
     roles.include? 'api'
   end
 
+  def allow_destroy?
+    true
+  end
+
   def to_s
     display_name || username
   end
 
   def self.user_key_attribute
     :username
+  end
+  
+  def title
+    to_s
+  end
+  
+  def self.multiple?(field)
+    return true if field.to_s == 'roles'
+    return false
   end
 
   def ldap_before_save

@@ -12,9 +12,11 @@ module Hilda
       user ||= User.new
       if user.is_admin?
         can :manage, :all
+      elsif user.is_editor?
+        can :manage, Hilda::IngestionProcess
       elsif user.is_registered?
 #        can(:manage, Hilda::IngestionProcess, owner: user.user_key) if user.user_key.present?
-        can :manage, Hilda::IngestionProcess
+#        can :manage, Hilda::IngestionProcess
       else
       end
     end

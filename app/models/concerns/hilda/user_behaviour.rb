@@ -10,6 +10,10 @@ module Hilda
       raise 'Override this'
     end
     
+    def is_editor?
+      raise 'Override this'
+    end
+    
     def is_api_user?
       raise 'Override this'
     end

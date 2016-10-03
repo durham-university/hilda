@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   mount Trifle::Engine => "/trifle"
 
   devise_for :users
+  
+  resources :users, only: [:index, :show, :edit, :update, :destroy]
 
   if defined?(Hilda::ResqueAdmin) && defined?(Resque::Server)
     namespace :admin do

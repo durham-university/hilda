@@ -35,6 +35,10 @@ class User < ActiveRecord::Base
   def is_api_user?
     roles.include? 'api'
   end
+  
+  def is_editor?
+    roles.include? 'editor'
+  end
 
   def to_s
     display_name || username
@@ -42,6 +46,15 @@ class User < ActiveRecord::Base
 
   def self.user_key_attribute
     :username
+  end
+  
+  def title
+    to_s
+  end
+  
+  def self.multiple?(field)
+    return true if field.to_s == 'roles'
+    return false
   end
 
   def ldap_before_save

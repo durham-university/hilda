@@ -27,7 +27,14 @@ namespace :hilda_durham do
             title: {label: 'Title', type: :string }
           }) \
         .add_module(HildaDurham::Modules::TrifleCollectionLinker, module_name: 'Select_IIIF_collection', module_group: 'Metadata') \
-        .add_module(Hilda::Modules::DetectContentType, module_name: 'Verify_content_type', module_group: 'Verify', allow_only: ['image/tiff']) \
+#        .add_module(Hilda::Modules::DetectContentType, module_name: 'Verify_content_type', module_group: 'Verify', allow_only: ['image/tiff']) \
+        .add_module(Hilda::Modules::FitsValidator, module_name: 'Fits_validation', module_group: 'Verify', validation_rules: [
+            { label: 'mimetype', xpath: '/xmlns:fits/xmlns:identification/xmlns:identity[@mimetype="image/tiff"]'},
+            { label: 'well-formed', xpath: '/xmlns:fits/xmlns:filestatus/xmlns:well-formed[@toolname="Jhove"][text()="true"]'},
+            { label: 'valid', xpath: '/xmlns:fits/xmlns:filestatus/xmlns:valid[@toolname="Jhove"][text()="true"]'},
+            { label: 'uncompressed', xpath: '/xmlns:fits/xmlns:metadata/xmlns:image/xmlns:compressionScheme[@toolname="Jhove"][text()="Uncompressed"]'},
+            { label: 'colour', xpath: '/xmlns:fits/xmlns:metadata/xmlns:image/xmlns:colorSpace[@toolname="Jhove"][text()="RGB"]'}
+          ]) \
         .add_module(HildaDurham::Modules::OublietteIngest, module_name: 'Ingest_to_Oubliette', module_group: 'Ingest') \
         .add_module(HildaDurham::Modules::TrifleIngest, module_name: 'Ingest_to_Trifle', module_group: 'Ingest') # \
 #        .add_module(Hilda::Modules::DebugModule,

@@ -12,6 +12,7 @@ development:
   # This lets anyone in with full access as long as api_debug request parameter
   # is set. Only for development or debugging.
   api_debug: true
+  fits_path: '/home/qgkb58/hydra/fits-0.8.6/fits.sh'
 
 test:
   <<: *defaults

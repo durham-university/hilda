@@ -10,7 +10,7 @@ GIT
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.16)
+    durham_rails (0.0.17)
       active-fedora (~> 9.13)
       httparty
       net-sftp
@@ -38,7 +38,7 @@ PATH
       devise
       devise_ldap_authenticatable
       dropzonejs-rails
-      durham_rails (~> 0.0.12)
+      durham_rails (~> 0.0.17)
       jbuilder (~> 2.0)
       jquery-rails
       mimemagic

@@ -127,10 +127,15 @@ RSpec.describe Hilda::IngestionProcess do
     let( :dir ) { process.file_service.add_dir }
     let( :file1 ) { process.file_service.add_file do |file| file.write('test content 1') end }
     let( :file2 ) { process.file_service.add_file(nil,dir) do |file| file.write('test content 2') end }
-    it "uses FedoraFileService" do
+    it "can use FedoraFileService" do
+      expect(process).to receive(:file_service_options).and_return({type: 'fedora'})
       expect(process.file_service).to be_a(DurhamRails::Services::FedoraFileService)
     end
+    it "can use normal FileService" do
+      expect(process.file_service).to be_a(DurhamRails::Services::FileService)
+    end
     it "destroys files when process is destroyed" do
+      allow(process).to receive(:file_service_options).and_return({type: 'fedora'})
       expect(DurhamRails::FileServiceFile.where(id: file1).to_a).not_to be_empty
       expect(DurhamRails::FileServiceFile.where(id: file2).to_a).not_to be_empty
       expect(DurhamRails::FileServiceFile.where(id: dir).to_a).not_to be_empty

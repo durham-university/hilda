@@ -46,12 +46,18 @@ RSpec.describe Hilda::Modules::FitsValidator do
   end
   
   describe "#validate_files" do
-    it "runs fits and validation for each file" do
+    before {
       expect(mod).to receive(:run_fits_io).twice.and_return([Nokogiri::XML('<fits></fits'),'',0])
       expect(mod).to receive(:run_validation_rules).twice.and_return(true)
-      mod.validate_files
+      expect(mod).to receive(:fits_content_type).twice.and_return('image/tiff')
+    }
+    it "runs fits and validation for each file and sets content type" do
+      mod.validate_files(mod_input[:source_files])
       expect(mod.log.errors?).to eql(false)
+      expect(mod_input[:source_files][:file1][:content_type]).to eql('image/tiff')
+      expect(mod_input[:source_files][:file2][:content_type]).to eql('image/tiff')
     end
+    
   end
   
   describe "#run_validation_rules" do

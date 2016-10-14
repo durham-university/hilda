@@ -18,10 +18,6 @@ module Hilda::Modules
       param_values.fetch(:source_files_key,:source_files).to_sym
     end
 
-    def source_files
-      module_input[source_files_key]
-    end
-    
     def run_validation_rules(file_label, fits_xml)
       validation_rules.each do |rule|
         unless fits_xml.xpath(rule[:xpath]).any?
@@ -30,11 +26,15 @@ module Hilda::Modules
         end
       end
     end
+    
+    def fits_content_type(fits_xml)
+      fits_xml.xpath('/xmlns:fits/xmlns:identification/xmlns:identity/@mimetype')
+    end
         
-    def validate_files
+    def validate_files(files)
       test_list = validation_rules.each.map do |r| r[:label] end .join(', ')
       log! :info, "Running Fits tests: #{test_list}"
-      source_files.each do |key,file|
+      files.each do |key,file|
         module_graph.file_service.get_file(file[:path]) do |open_file|        
           (fits_xml, error_out, exit_code) = run_fits_io(open_file)
           unless exit_code == 0
@@ -44,6 +44,7 @@ module Hilda::Modules
           end
           file_label = file[:original_filename] || key
           run_validation_rules(file_label, fits_xml)
+          file[:content_type] ||= fits_content_type(fits_xml)
         end
       end
       unless self.run_status == :error
@@ -56,9 +57,9 @@ module Hilda::Modules
     end
 
     def run_module
-      if validate_files
-        self.module_output = module_input.deep_dup
-      end
+      self.module_output = module_input.deep_dup
+      files = self.module_output[source_files_key]
+      self.module_output = nil unless validate_files(files)
     end
 
     def autorun?

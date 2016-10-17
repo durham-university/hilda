@@ -75,4 +75,11 @@ RSpec.describe Hilda::Modules::FitsValidator do
       end
     end
   end
+  
+  describe "#fits_content_type" do
+    let(:xml) { Nokogiri::XML('<fits xmlns="http://hul.harvard.edu/ois/xml/ns/fits/fits_output"><identification><identity mimetype="application/test"/></identification></fits>')}
+    it "returns the content type" do
+      expect(mod.fits_content_type(xml)).to eql('application/test')
+    end
+  end
 end

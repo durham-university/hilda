@@ -4,12 +4,13 @@ defaults: &defaults
   identifier_template: 't0.reeddeeddk'
   identifier_statefile: '/tmp/trifle-minter-state'
   image_convert_command: ['trifle_scripts/convert_ptif.sh']
-  image_size_command: ['trifle_scripts/image_size.sh']
   image_convert_format: 'ptif'
 
 development:
   <<: *defaults
+  fits_path: '/home/qgkb58/hydra/fits-0.8.6/fits.sh'
   ark_naan: '12345'
+  allowed_ark_naan: ['12345','11111']
   image_server_url: 'http://localhost/iipsrv/iipsrv.fcgi'
   image_service_url: 'http://localhost/iipsrv/iipsrv.fcgi?IIIF='
   published_iiif_url: 'http://localhost/iiif/'

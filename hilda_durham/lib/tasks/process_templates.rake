@@ -33,7 +33,7 @@ namespace :hilda_durham do
             { label: 'well-formed', xpath: '/xmlns:fits/xmlns:filestatus/xmlns:well-formed[@toolname="Jhove"][text()="true"]'},
             { label: 'valid', xpath: '/xmlns:fits/xmlns:filestatus/xmlns:valid[@toolname="Jhove"][text()="true"]'},
             { label: 'uncompressed', xpath: '/xmlns:fits/xmlns:metadata/xmlns:image/xmlns:compressionScheme[@toolname="Jhove"][text()="Uncompressed"]'},
-            { label: 'colour', xpath: '/xmlns:fits/xmlns:metadata/xmlns:image/xmlns:colorSpace[@toolname="Jhove"][text()="RGB"]'}
+            { label: 'colourspace', xpath: '/xmlns:fits/xmlns:metadata/xmlns:image/xmlns:colorSpace[@toolname="Jhove"][(text()="RGB") or (text()="BlackIsZero")]'}
           ]) \
         .add_module(HildaDurham::Modules::OublietteIngest, module_name: 'Ingest_to_Oubliette', module_group: 'Ingest') \
         .add_module(HildaDurham::Modules::TrifleIngest, module_name: 'Ingest_to_Trifle', module_group: 'Ingest') # \

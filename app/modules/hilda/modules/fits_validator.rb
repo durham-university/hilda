@@ -28,7 +28,7 @@ module Hilda::Modules
     end
     
     def fits_content_type(fits_xml)
-      fits_xml.xpath('/xmlns:fits/xmlns:identification/xmlns:identity/@mimetype').to_s
+      fits_xml.xpath('/xmlns:fits/xmlns:identification/xmlns:identity/@mimetype').first.to_s
     end
         
     def validate_files(files)

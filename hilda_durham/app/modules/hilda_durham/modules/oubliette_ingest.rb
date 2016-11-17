@@ -53,7 +53,7 @@ module HildaDurham
                 content_type: file[:content_type] || 'application/octet-stream',
                 original_filename: original_filename(file),
                 parent: parent )
-              stored_files[file_key] = stored_file.as_json
+              stored_files[file_key] = stored_file.as_json.merge('temp_file' => file[:path])
               log! :info, "Ingested to Oubliette with id \"#{stored_file.id}\""
             end
           rescue StandardError => e

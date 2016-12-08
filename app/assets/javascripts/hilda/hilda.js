@@ -18,5 +18,6 @@
 //# require turbolinks
 //= require hilda/modules
 //= require hilda/file_upload
+//= require hilda/file_select
 //= require spark-md5.min.js
 //= require hilda/md5

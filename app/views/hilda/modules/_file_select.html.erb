@@ -1,0 +1,49 @@
+<% form_disabled = (mod.can_receive_params?) %>
+<li class="list-group-item file_selector">
+  <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_path(@ingestion_process, mod.module_name), html: { class: 'form_template' } do |f| %>
+    <%= f.input :no_layout, as: :hidden, input_html: { value: 'true' } %>
+    <% node_counter = 0 %>
+    <% traverse_files = lambda do |node,node_open| %>
+      <% 
+        node_counter += 1
+        node_id = "file_selector_node_#{node_counter}"
+        children_id = "#{node_id}_children"
+        check_id = "#{node_id}_check"
+        children = (node[:children] || {}).values.sort do |a,b|
+          [a[:type], a[:name]] <=> [b[:type], b[:name]]
+        end
+        node_open ||= node[:selected]
+      %>
+      <div class="file_node">
+        <% if children.any? %>
+          <a role="button" data-toggle="collapse" href="#<%= children_id %>"><span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span></a>
+        <% end %>
+        
+        <% unless node[:path] == '/' %>
+          <div class="form-group boolean optional ingestion_process_select_files">
+            <div class="checkbox">
+              <label class="boolean optional" for="<%= check_id %>" <%= (!mod.can_receive_params?) ? "disabled=\"disabled\"" : '' %> >
+                <input id="<%= check_id %>" value="<%= node[:path] %>" name="ingestion_process[select_files][]" class="boolean optional" type="checkbox" <%= node[:selected] ? "checked=\"checked\"" : '' %> <%= (!mod.can_receive_params?) ? "disabled=\"disabled\"" : '' %> />
+                <%= node[:name] %>
+              </label>
+            </div>
+          </div>
+        <% end %>
+        
+        <% if children.any? %>
+          <div id="<%= children_id %>" class="file_children out collapse <%= node_open ? 'in' : '' %>" aria-expanded="<%= node_open ? 'true' : 'false' %>">
+            <%
+              children.each do |child|
+                traverse_files.call(child,false)
+              end
+            %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    <% traverse_files.call(mod.get_file_list,true) %>
+    <% if mod.can_receive_params? %>
+      <%= f.button(:submit, 'Update module', class: "btn btn-primary") unless mod.rendering_option(:no_submit) %>
+    <% end %>
+  <% end %>
+</li>

@@ -1,0 +1,21 @@
+.file_selector {
+  &>form>.file_node {
+    margin-bottom: 10px;
+  }
+  .file_node {
+    .form-group.ingestion_process_select_files {
+      display: inline;
+      
+      div.checkbox {
+        display: inline;
+        margin-left: 5px;
+      }
+    }
+    .file_children {
+      padding-left: 10px;
+      margin-left: 5px;
+      border-left: 1px solid black;
+    }
+    
+  }  
+}

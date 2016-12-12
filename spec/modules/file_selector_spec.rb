@@ -88,13 +88,19 @@ RSpec.describe Hilda::Modules::FileSelector do
     end
   end
   
-  describe "#all_params_valid?" do
-  end
-  
   describe "#run_module" do
-    it "calculates md5s" do
-    end
-    it "outputs selected files" do
+    let(:files){
+      {
+        'test1'=>{path: 'test1', original_file: 'test1', md5: '123'}, 
+        'test2'=>{path: 'test2', original_file: 'test2', md5: '456'} 
+      }
+    }
+    before { mod.param_values[:files] = files }
+    it "cals essential functions and outputs files" do
+      expect(mod).to receive(:all_params_valid?).and_return(true)
+      expect(mod).to receive(:calculate_md5s)
+      mod.run_module
+      expect(mod.module_output[:source_files]).to eql(files)
     end
   end
   

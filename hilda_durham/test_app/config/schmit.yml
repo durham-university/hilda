@@ -21,6 +21,7 @@ development:
 #    redirect_root: <%= File.join(Dir.home,'mock_xtf') %>/redirect/
     root: /home/qgkb58/library/xtf/data/ark/
     redirect_root: /home/qgkb58/library/xtf/data/redirect/
+    public_url_base: 'http://localhost/xtf/view?docId='
     
 
 test:

@@ -5,8 +5,8 @@ namespace :hilda_durham do
   task "create_templates" => :environment do
     Hilda::IngestionProcessTemplate.new_template('IIIF Ingestion','iiif_ingest','Ingest a batch of images into Oubliette and Trifle and generate IIIF metadata') do |template|
       template \
-        .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_files', module_group: 'Upload') \
-#        .add_start_module(Hilda::Modules::FileSelector, module_name: 'Select_files', module_group: 'Upload', root_path: '/home/qgkb58/hilda_temp/testdata', filter_re: '(?i)^.*\\.tiff?$') \
+#        .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_files', module_group: 'Upload') \
+        .add_start_module(Hilda::Modules::FileSelector, module_name: 'Select_files', module_group: 'Upload', root_path: '/digitisation_staging', filter_re: '(?i)^.*\\.tiff?$') \
         .add_module(HildaDurham::Modules::LibraryLinker, module_name: 'Select_library_record', module_group: 'Metadata', optional_module: true) \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Manifest_metadata', module_group: 'Metadata', optional_module: true, default_disabled: true,
           param_defs: {

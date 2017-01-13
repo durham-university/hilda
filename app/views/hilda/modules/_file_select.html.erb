@@ -25,6 +25,9 @@
               <label class="boolean optional" for="<%= check_id %>" <%= (!mod.can_receive_params?) ? "disabled=\"disabled\"" : '' %> >
                 <input id="<%= check_id %>" value="<%= node[:path] %>" name="ingestion_process[select_files][]" class="boolean optional" type="checkbox" <%= node[:selected] ? "checked=\"checked\"" : '' %> <%= (!mod.can_receive_params?) ? "disabled=\"disabled\"" : '' %> />
                 <%= node[:name] %>
+                <% if node[:size] %>
+                  - <span class="file_size"><%= node[:size] %> B</span>
+                <% end %>
               </label>
             </div>
           </div>

@@ -121,10 +121,8 @@ RSpec.describe Hilda::Modules::FileSelector do
       File.unlink(file1)
       Dir.rmdir(root_path)
     }
-    it "returns a files hash" do
-      file1 ; file2 ; file3 # create by referencing
-      mod.param_values[:files] = {'file3.txt' => {logical_path: '/subdir/file3.txt'}}
-      expect(mod.get_file_list).to eql({
+    let(:expected_list){
+      {
         name: '/',
         path: '/',
         type: 'dir',
@@ -136,20 +134,38 @@ RSpec.describe Hilda::Modules::FileSelector do
             type: 'dir',
             selected: true,
             children: {
-              'file3.txt' => { name: 'file3.txt', path: '/subdir/file3.txt', type: 'file', size: 16, selected: true }
+              'file3.txt' => { name: 'file3.txt', path: '/subdir/file3.txt', type: 'file', size: 16, selected: true, mtime: File.mtime(file3).to_s }
             }
           },
-          'file1.txt' => { name: 'file1.txt', path: '/file1.txt', type: 'file', size: 8, selected: false },
-          'file2.txt' => { name: 'file2.txt', path: '/file2.txt', type: 'file', size: 12, selected: false }
+          'file1.txt' => { name: 'file1.txt', path: '/file1.txt', type: 'file', size: 8, selected: false, mtime: File.mtime(file1).to_s },
+          'file2.txt' => { name: 'file2.txt', path: '/file2.txt', type: 'file', size: 12, selected: false, mtime: File.mtime(file2).to_s }
         }
-      })
+      }      
+    }
+    it "returns a files hash" do
+      file1 ; file2 ; file3 # create by referencing
+      mod.param_values[:files] = {'file3.txt' => {logical_path: '/subdir/file3.txt'}}
+      expect(File).to receive(:stat).exactly(4).times.and_call_original
+      expect(mod.get_file_list).to eql(expected_list)
     end
     it "filters using match_filter" do
       mod.param_values[:filter_re] = '^.*file[13].txt$'
-      expect(mod).to receive(:match_filter).exactly(3).times.and_call_original
+      expect(mod).to receive(:match_filter).exactly(4).times.and_call_original
       file1 ; file2 ; file3 # create by referencing
       files = mod.get_file_list
       expect(files[:children].keys).to match_array(['subdir','file1.txt'])
+    end
+    it "caches file stats" do
+      file1 ; file2 ; file3 # create by referencing
+      mod.param_values[:files] = {'file3.txt' => {logical_path: '/subdir/file3.txt'}}
+      expect(File).to receive(:stat).exactly(4).times.and_call_original
+      change_time = mod.change_time
+      expect(mod.get_file_list).to eql(expected_list) # called 4 times in this
+      expect(mod.change_time).to be > change_time
+      expect(mod.param_values[:file_list_cache][file1]).to be_present
+      change_time = mod.change_time
+      expect(mod.get_file_list).to eql(expected_list) # 0 times in this
+      expect(mod.change_time).to eql(change_time)
     end
   end
   

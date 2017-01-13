@@ -6,6 +6,7 @@ module Hilda
     before_action :authorize_resource!
     before_action :set_ingestion_module, only: [:update, :start_module, :reset_module, :query_module, :rollback_module, :enable_module, :disable_module]
     before_action :set_ingestion_process_template, only: [:create]
+    after_action :autosave_graph, only: [:edit]
 
     def initialize(*args)
       @module_notices = {}
@@ -202,6 +203,10 @@ module Hilda
     end
 
     private
+    
+      def autosave_graph
+        @ingestion_process.autosave
+      end
 
       def authorize_resource!
         authorize!(params[:action].to_sym, @ingestion_process || Hilda::IngestionProcess)

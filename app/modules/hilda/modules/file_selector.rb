@@ -94,9 +94,27 @@ module Hilda::Modules
         children: {},
         selected: false
       }
-      Dir[File.join(root_path,'**','*')].select do |path| 
-        File.file?(path) && match_filter(path)
-      end .each do |local_path| 
+      cache = param_values[:file_list_cache]
+      if cache.nil?
+        self.param_values[:file_list_cache] = {}
+        cache = param_values[:file_list_cache]
+        changed!
+      end
+      Dir[File.join(root_path,'**','*')].each do |local_path| 
+        next unless match_filter(local_path)
+        stat = cache[local_path]
+        unless stat.present?
+          stat = File.stat(local_path)
+          stat = { 
+            file?: stat.file?,
+            size: stat.size,
+            mtime: stat.mtime.to_s
+          }
+          cache[local_path] = stat
+          changed!
+        end
+        next unless stat[:file?]
+        
         path = local_path.split(re)[1] # remove root_path
         path = File.split(path) # split to path components
         folder = path[0..-2].inject(tree) do |folder, path_part| 
@@ -112,7 +130,8 @@ module Hilda::Modules
           name: path.last,
           path: File.join(folder[:path], path.last),
           type: 'file',
-          size: File.size(local_path),
+          size: stat[:size],
+          mtime: stat[:mtime],
           selected: file_selected?(File.join(folder[:path], path.last))
         }
       end

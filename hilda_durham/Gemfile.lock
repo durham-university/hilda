@@ -20,7 +20,7 @@ PATH
 PATH
   remote: /home/qgkb58/hydra/durham_rails
   specs:
-    durham_rails (0.0.17)
+    durham_rails (0.0.18)
       active-fedora (~> 9.13)
       httparty
       net-sftp
@@ -272,7 +272,7 @@ GEM
     net-ldap (0.11)
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
-    net-ssh (3.2.0)
+    net-ssh (4.0.1)
     nokogiri (1.6.8.1)
       mini_portile2 (~> 2.1.0)
     nom-xml (0.6.0)

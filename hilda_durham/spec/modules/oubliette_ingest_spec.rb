@@ -76,6 +76,7 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
 
   describe "#run_module" do
     let(:parent_double){double('parent',as_json:{dummy:'json'})}
+
     it "ingests files to Oubliette" do
       expect(mod).to receive(:create_parent).and_return(parent_double)
       expect(Oubliette::API::PreservedFile).to receive(:ingest).twice do |file,params|
@@ -86,12 +87,33 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
         expect(params[:content_type]).to eql 'image/jpeg'
         expect(params[:ingestion_log]).not_to be_empty
         Oubliette::API::PreservedFile.from_json({'title'=>params[:title], 'ingestion_checksum'=>params[:ingestion_checksum], 'id'=>"id_#{params[:ingestion_checksum]}"})
-      end
+      end      
       # referencing mod_output runs module
       expect(mod_output[:source_files]).not_to be_empty
       expect(mod_output[:stored_files][:file1]).to be_a Hash
       expect(mod_output[:stored_files][:file2]).to be_a Hash
       expect(mod_output[:stored_file_batch]).to eql({dummy:'json'})
+    end
+    
+    it "retries on failure" do
+      expect(mod).to receive(:create_parent).and_return(parent_double)
+      counter = 0
+      expect(Oubliette::API::PreservedFile).to receive(:ingest).exactly(3).times do |file,params|
+        counter += 1
+        raise 'Test error' if counter == 1
+        expect(["md5:#{file1_md5}", "md5:#{file2_md5}"]).to include params[:ingestion_checksum]
+        expect(["File 1", "File 2"]).to include params[:title]
+        expect(["test1.jpg", "test2.jpg"]).to include params[:original_filename]
+        expect(params[:parent]).to eql(parent_double)
+        expect(params[:content_type]).to eql 'image/jpeg'
+        expect(params[:ingestion_log]).not_to be_empty
+        Oubliette::API::PreservedFile.from_json({'title'=>params[:title], 'ingestion_checksum'=>params[:ingestion_checksum], 'id'=>"id_#{params[:ingestion_checksum]}"})
+      end      
+      # referencing mod_output runs module
+      expect(mod_output[:source_files]).not_to be_empty
+      expect(mod_output[:stored_files][:file1]).to be_a Hash
+      expect(mod_output[:stored_files][:file2]).to be_a Hash
+      expect(mod_output[:stored_file_batch]).to eql({dummy:'json'})      
     end
   end
   

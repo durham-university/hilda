@@ -2,6 +2,7 @@ module HildaDurham
   module Modules
     class OublietteIngest
       include Hilda::ModuleBase
+      include DurhamRails::Retry
 
       def archival_files
         module_input[:source_files]
@@ -45,20 +46,27 @@ module HildaDurham
           file_title = file_title(file, file_key)
           log! :info, "Ingesting file to Oubliette: #{file_key}"
           begin
-            module_graph.file_service.get_file(file[:path]) do |open_file|
-              stored_file = Oubliette::API::PreservedFile.ingest(open_file,
-                title: file_title,
-                ingestion_checksum: "md5:#{file[:md5]}",
-                ingestion_log: ingestion_log,
-                content_type: file[:content_type] || 'application/octet-stream',
-                original_filename: original_filename(file),
-                parent: parent )
-              stored_files[file_key] = stored_file.as_json.merge('temp_file' => file[:path])
-              log! :info, "Ingested to Oubliette with id \"#{stored_file.id}\""
+            self.retry(Proc.new do |error, counter|
+              delay = 10+30*counter
+              log! :warning, "Error ingesting file to Oubliette, retrying after #{delay} seconds", error
+              delay
+            end, 5) do
+              module_graph.file_service.get_file(file[:path]) do |open_file|
+                stored_file = Oubliette::API::PreservedFile.ingest(open_file,
+                  title: file_title,
+                  ingestion_checksum: "md5:#{file[:md5]}",
+                  ingestion_log: ingestion_log,
+                  content_type: file[:content_type] || 'application/octet-stream',
+                  original_filename: original_filename(file),
+                  parent: parent )
+                stored_files[file_key] = stored_file.as_json.merge('temp_file' => file[:path])
+                log! :info, "Ingested to Oubliette with id \"#{stored_file.id}\""
+              end
             end
           rescue StandardError => e
-            log! :error, "Error ingesting file to Oubliette", e
+            log! :error, "Error ingesting file to Oubliette, aborting", e
             self.run_status = :error
+            break
           end
         end
 

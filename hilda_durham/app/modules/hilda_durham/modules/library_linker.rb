@@ -101,7 +101,12 @@ module HildaDurham
           when DurhamRails::RecordFormats::MilleniumRecord
             { title: record.title }
           when DurhamRails::RecordFormats::EADRecord::Item, DurhamRails::RecordFormats::TEIRecord::Impl
-            { title: record.title_path }
+            { 
+              title: record.title_path,
+              date: record.date,
+              author: record.author, 
+              description: record.scopecontent
+            }
           else
             {}
           end

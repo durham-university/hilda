@@ -7,7 +7,7 @@ development:
   fits_path: '/home/qgkb58/hydra/fits-0.8.6/fits.sh'
   temp_file_service:
     type: 'file'
-    temp_dir: '/home/qgkb58/hilda_temp'
+    temp_dir: '/digitisation_staging'
 
 test:
   <<: *defaults

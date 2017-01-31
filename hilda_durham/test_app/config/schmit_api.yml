@@ -1,6 +1,6 @@
 defaults: &defaults
   schmit_local_mode: true
-  #schmit_base_url: 'http://localhost:3000/schmit'
+  schmit_base_url: 'http://localhost:3000/schmit'
 
 development:
   <<: *defaults

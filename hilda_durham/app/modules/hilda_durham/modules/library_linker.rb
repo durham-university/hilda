@@ -11,16 +11,16 @@ module HildaDurham
         self.param_defs[:library_record_type] = {
             label: 'Record type', 
             type: :select,
-            collection: ['Adlib','Millenium','Schmit']
+            collection: ['Adlib','Millennium','Schmit']
           }
         self.param_defs[:library_record_id] = {
             label: 'Record id',
-            note: 'Adlib or Millenium record ID. For Schmit use ARK identifier of the catalogue.',
+            note: 'Adlib or Millennium record ID. For Schmit use ARK identifier of the catalogue.',
             type: :string
           }
         self.param_defs[:library_record_fragment] = { 
             label: 'Fragment id',
-            note: 'Leave empty for Adlib and Millenium. For Schmit enter the unitid of the record in the catalogue.',
+            note: 'Leave empty for Adlib and Millennium. For Schmit enter the unitid of the record in the catalogue.',
             type: :string,
             optional: true
           }
@@ -38,8 +38,8 @@ module HildaDurham
           record = case record_type.to_sym
             when :adlib
               DurhamRails::LibrarySystems::Adlib.connection.record(record_id)
-            when :millenium
-              DurhamRails::LibrarySystems::Millenium.connection.record(record_id)
+            when :millennium
+              DurhamRails::LibrarySystems::Millennium.connection.record(record_id)
             when :schmit
               r = Schmit::API::Catalogue.find(record_id)
               if r
@@ -69,7 +69,7 @@ module HildaDurham
           case record
           when DurhamRails::RecordFormats::AdlibRecord
             record.title
-          when DurhamRails::RecordFormats::MilleniumRecord
+          when DurhamRails::RecordFormats::MillenniumRecord
             record.title
           when DurhamRails::RecordFormats::EADRecord::Item, DurhamRails::RecordFormats::TEIRecord::Impl
             record.title_path
@@ -98,7 +98,7 @@ module HildaDurham
           case record
           when DurhamRails::RecordFormats::AdlibRecord
             { title: record.title }
-          when DurhamRails::RecordFormats::MilleniumRecord
+          when DurhamRails::RecordFormats::MillenniumRecord
             { title: record.title }
           when DurhamRails::RecordFormats::EADRecord::Item, DurhamRails::RecordFormats::TEIRecord::Impl
             { 

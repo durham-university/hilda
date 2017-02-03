@@ -21,18 +21,18 @@ RSpec.describe HildaDurham::Modules::LibraryLinker do
   describe "#selected_record" do
     let(:exists) { true }
     let(:adlib_record) { double('adlib record', exists?: exists) }
-    let(:millenium_record) { double('millenium record', exists?: exists) }
+    let(:millennium_record) { double('millennium record', exists?: exists) }
     let(:schmit_record) { double('schmit record', xml_record: schmit_xml_record) }
     let(:schmit_xml_record) { double('schmit xml record', root_item: schmit_root_record) }
     let(:schmit_root_record) { double('schmit root record', exists?: exists) }
     let(:schmit_sub_record) { double('schmit sub record', exists?: exists) }
     let(:adlib_connection) { double('adlib connection') }
-    let(:millenium_connection) { double('adlib connection') }
+    let(:millennium_connection) { double('adlib connection') }
     before {
       allow(DurhamRails::LibrarySystems::Adlib).to receive(:connection).and_return(adlib_connection)
-      allow(DurhamRails::LibrarySystems::Millenium).to receive(:connection).and_return(millenium_connection)
+      allow(DurhamRails::LibrarySystems::Millennium).to receive(:connection).and_return(millennium_connection)
       allow(adlib_connection).to receive(:record).with('adlibid').and_return(adlib_record)
-      allow(millenium_connection).to receive(:record).with('milleniumid').and_return(millenium_record)
+      allow(millennium_connection).to receive(:record).with('millenniumid').and_return(millennium_record)
       allow(Schmit::API::Catalogue).to receive(:find).with('schmitid').and_return(schmit_record)
     }
     it "returns adlib record when type is adlib" do
@@ -41,10 +41,10 @@ RSpec.describe HildaDurham::Modules::LibraryLinker do
       expect(mod.selected_record).to eql(adlib_record)
     end
     
-    it "returns millenium record when type is millenium" do
-      mod.param_values[:library_record_id] = 'milleniumid'
-      mod.param_values[:library_record_type] = 'Millenium'
-      expect(mod.selected_record).to eql(millenium_record)
+    it "returns millennium record when type is millennium" do
+      mod.param_values[:library_record_id] = 'millenniumid'
+      mod.param_values[:library_record_type] = 'Millennium'
+      expect(mod.selected_record).to eql(millennium_record)
     end
     
     it "returns schmit record when type is schmit" do

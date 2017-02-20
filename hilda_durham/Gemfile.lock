@@ -71,7 +71,7 @@ PATH
   specs:
     trifle_api (0.0.3)
       durham_rails
-      httparty
+      httmultiparty
       rails
 
 GEM

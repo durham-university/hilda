@@ -18,7 +18,7 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
         file2: { path: file2_path, original_filename: file2_name, md5: file2_md5, content_type: 'image/jpeg'}
       },
       file_metadata: { file1__title: 'File 1', file2__title: 'File 2'},
-      process_metadata: { title: 'process title' }
+      process_metadata: { title: 'process title', subtitle: ' A' }
     }
   }
   let( :mod ) {
@@ -120,7 +120,7 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
   describe "#create_parent" do
     let(:batch_double){double('batch', id: '123456')}
     it "creates the parent" do
-      expect(Oubliette::API::FileBatch).to receive(:create).with({title: 'process title'}).and_return(batch_double)
+      expect(Oubliette::API::FileBatch).to receive(:create).with({title: 'process title A'}).and_return(batch_double)
       expect(mod.create_parent).to eql(batch_double)
     end
   end

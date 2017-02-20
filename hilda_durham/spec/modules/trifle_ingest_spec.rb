@@ -12,6 +12,8 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
       },
       process_metadata: {
         title: 'test title',
+        subtitle: ' test subtitle',
+        digitisation_note: 'digitisation note',
         date: 'test date',
         description: 'test description',
         author: 'test author',
@@ -31,7 +33,9 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
     {'source_path' => 'oubliette:file_id_2', 'title' => '2', 'temp_file' => nil}
   ] }
   let( :expected_manifest_metadata ){ {
-    'title' => 'test title',
+    'title' => 'test title test subtitle',
+    'subtitle' => ' test subtitle',
+    'digitisation_note' => 'digitisation note',
     'date_published' => 'test date',
     'description' => 'test description',
     'author' => ['test author'],

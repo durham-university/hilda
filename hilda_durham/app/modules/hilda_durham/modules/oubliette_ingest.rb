@@ -28,6 +28,7 @@ module HildaDurham
       def create_parent
         process_metadata = module_input[:process_metadata] || {}
         title = process_metadata.fetch(:title, "Unnamed batch")
+        title += process_metadata[:subtitle] if process_metadata[:subtitle].present?
         parent = Oubliette::API::FileBatch.create(title: title)
         unless parent
           log! :error, "Unable to create Oubliette file batch"

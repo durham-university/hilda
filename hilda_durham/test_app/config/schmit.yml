@@ -14,6 +14,7 @@ development:
   primo_config:
     local_copy: true
     root: <%= File.join(Dir.home,'mock_primo') %>/
+    tei_root: <%= File.join(Dir.home,'mock_primo','tei') %>/
   xtf_config:
     local_copy: true
     create_dirs: true

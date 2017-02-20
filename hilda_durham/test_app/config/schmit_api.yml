@@ -1,6 +1,7 @@
 defaults: &defaults
   schmit_local_mode: true
   schmit_base_url: 'http://localhost:3000/schmit'
+  schmit_xtf_base_url: 'http://localhost/xtf/view?docId='
 
 development:
   <<: *defaults

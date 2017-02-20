@@ -26,8 +26,13 @@ module HildaDurham
         
         process_metadata = module_input[:process_metadata] || {}
         
+        title = process_metadata[:title]
+        title += process_metadata[:subtitle] if process_metadata[:subtitle].present?
+        
         manifest_metadata = {
-          'title' => process_metadata[:title],
+          'title' => title,
+          'subtitle' => process_metadata[:subtitle],
+          'digitisation_note' => process_metadata[:digitisation_note],
           'date_published' => process_metadata[:date],
           'author' => [process_metadata[:author]].compact,
           'description' => process_metadata[:description],

@@ -15,6 +15,11 @@ namespace :hilda_durham do
             author: {label: 'Author', type: :string},
             description: {label: 'Description', type: :text}
           }) \
+        .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Digitisation_metadata', module_group: 'Metadata',
+          param_defs: {
+            subtitle: {label: 'Subtitle', type: :string},
+            digitisation_note: {label: 'Digitisation note', type: :text}
+          }) \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Licence_and_attribution', module_group: 'Metadata',
           param_defs: {
             licence: {label: 'Licence', type: :select, collection: [

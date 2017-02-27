@@ -1,5 +1,6 @@
 Hilda::Engine.routes.draw do
-  root 'ingestion_processes#index'
+  #root 'ingestion_processes#index'
+  root 'static_pages#home'  
   resources :ingestion_processes, path: 'processes'
   patch 'processes/:id/module/:module' => 'ingestion_processes#update', as: 'ingestion_process_module'
   put 'processes/:id/module/:module' => 'ingestion_processes#update'

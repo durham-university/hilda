@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  root 'hilda/ingestion_processes#index'
+  root 'hilda/static_pages#home'
 
   mount Hilda::Engine => "/hilda"
 

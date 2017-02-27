@@ -17,8 +17,12 @@ module Hilda
       !(params.key?(:no_layout) || params[:ingestion_process].try(:key?,:no_layout))
     end
 
+    def self.index_processes
+      IngestionProcess.all
+    end
+
     def index
-      @ingestion_processes = IngestionProcess.all
+      @ingestion_processes = self.class.index_processes
     end
 
     def show

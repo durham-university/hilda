@@ -1,0 +1,15 @@
+<div class="page-header">
+  <h1>Hilda</h1>
+</div>
+
+<p>Hydra image loader and dissemination application</p>
+
+<% if can? :index, Hilda::IngestionProcess %>
+  <%= render 'hilda/ingestion_processes/processes_list', ingestion_processes: Hilda::IngestionProcessesController.index_processes %>
+  
+  <% if can? :create, Hilda::IngestionProcess %>
+    <%= link_to t('.new', :default => t("helpers.links.new")),
+                hilda.new_ingestion_process_path,
+                :class => 'btn btn-primary' %>  
+  <% end %>
+<% end %>

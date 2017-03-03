@@ -10,14 +10,13 @@ namespace :hilda_durham do
         .add_module(HildaDurham::Modules::LibraryLinker, module_name: 'Select_library_record', module_group: 'Metadata', optional_module: true) \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Manifest_metadata', module_group: 'Metadata', optional_module: true, default_disabled: true,
           param_defs: {
-            title: {label: 'Title', type: :string},
             date: {label: 'Date of publication', type: :string, optional: true},
             author: {label: 'Author', type: :string, optional: true},
             description: {label: 'Description', type: :text, optional: true}
           }) \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Digitisation_metadata', module_group: 'Metadata',
           param_defs: {
-            subtitle: {label: 'Subtitle', type: :string, optional: true},
+            title: {label: 'Title', type: :string},
             digitisation_note: {label: 'Digitisation note', type: :text, optional: true}
           }) \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Licence_and_attribution', module_group: 'Metadata',

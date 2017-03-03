@@ -48,5 +48,23 @@ namespace :hilda_durham do
 #          info_template: 'hilda/modules/debug_info',
 #          sleep: 20 )
     end
+    Hilda::IngestionProcessTemplate.new_template('Letters Batch','batch_ingest','Ingest a batch letters of into Oubliette and Trifle and generate a series of IIIF manifests') do |template|
+      template \
+        .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_batch_metadata', module_group: 'Setup') \
+        .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Licence_and_attribution', module_group: 'Setup',
+          param_defs: {
+            licence: {label: 'Licence', type: :select, collection: [
+                'All rights reserved',
+                'http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode'
+              ], default: 'http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode'},
+            attribution: {label: 'Attribution', type: :string, default: 'Provided by Durham Priory Library Project - a collaboration between Durham University and Durham Cathedral'}
+          }) \
+        .add_module(HildaDurham::Modules::TrifleCollectionLinker, module_name: 'Select_IIIF_collection', module_group: 'Setup') \
+        .add_module(HildaDurham::Modules::LettersBatchIngest, module_name: 'Letters_ingest', module_group: 'Batch', 
+                      ingest_root: '/home/qgkb58/hydra/testdata/letters/', 
+                      title_base: 'Cosin letters ',
+                      licence: 'http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode',
+                      attribution: 'Provided by Durham Priory Library Project - a collaboration between Durham University and Durham Cathedral')
+    end
   end
 end

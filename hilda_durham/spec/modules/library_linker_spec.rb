@@ -57,6 +57,15 @@ RSpec.describe HildaDurham::Modules::LibraryLinker do
       expect(mod.selected_record).to eql(schmit_sub_record)      
     end
     
+    it "logs errors if told to do so" do
+      mod.param_values[:library_record_id] = 'schmitid'
+      mod.param_values[:library_record_type] = 'Schmit'
+      expect(Schmit::API::Catalogue).to receive(:find) { raise Schmit::API::FetchError }
+      expect(mod.log.errors?).to eql(false)
+      expect(mod.selected_record(true)).to eql(nil)
+      expect(mod.log.errors?).to eql(true)
+    end
+    
     it "returns nil if type not set" do
       mod.param_values[:library_record_id] = 'adlibid'
       expect(mod.selected_record).to eql(nil)

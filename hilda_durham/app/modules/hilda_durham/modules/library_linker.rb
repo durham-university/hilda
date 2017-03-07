@@ -26,7 +26,7 @@ module HildaDurham
           }
       end
 
-      def selected_record
+      def selected_record(log_errors = false)
         record_type = self.param_values[:library_record_type].try(:downcase)
         record_id = self.param_values[:library_record_id]
         fragment_id = self.param_values[:library_record_fragment]
@@ -52,6 +52,7 @@ module HildaDurham
             end
           record.exists? ? record : nil
         rescue StandardError => e
+          log!(:error,e) if log_errors
           nil
         end
       end
@@ -86,7 +87,7 @@ module HildaDurham
       end
 
       def validate_reference
-        selected_record.present?
+        selected_record(true).present?
       end
       
       def adapt_record_to_params
@@ -121,7 +122,7 @@ module HildaDurham
         end
 
         unless validate_reference
-          log! :error, 'Invalid reference'
+          log! :error, 'Couldn\'t find linked record'
           self.run_status = :error
           return
         end

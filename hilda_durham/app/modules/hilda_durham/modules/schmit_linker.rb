@@ -97,6 +97,7 @@ module HildaDurham
 
           return true
         rescue Schmit::API::FetchError => e
+          log!(:error,e)
           return false
         end
       end
@@ -109,7 +110,7 @@ module HildaDurham
         end
 
         unless validate_reference
-          log! :error, 'Invalid reference'
+          log! :error, 'Couldn\'t find linked record'
           self.run_status = :error
           return
         end

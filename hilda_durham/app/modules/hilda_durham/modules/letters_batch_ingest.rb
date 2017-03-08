@@ -197,8 +197,8 @@ module HildaDurham
             letter_data = {
               folder: csv[0],
               title: csv[1],
-              date: csv[2],
-              author: csv[3],
+              author: csv[2],
+              date: csv[3],
               description: csv[4],
               source_record: csv[5],
               source_fragment: csv[6],

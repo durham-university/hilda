@@ -1,12 +1,18 @@
 namespace :hilda_durham do
+  def clean_value(val)
+    return nil if val.nil?
+    val.gsub(/\p{C}/,'') # remove all characters with Unicode category "Other"
+                         # in particular text direction markers and the like
+  end
+  
   def csv_values(folder, xml_record, ark, fragment)
     xml_record = xml_record.sub_item(fragment) if fragment.present?
     [
       folder,
-      xml_record.title || xml_record.id,
-      xml_record.author,
-      xml_record.date,
-      xml_record.scopecontent,
+      clean_value(xml_record.title || xml_record.id),
+      clean_value(xml_record.author),
+      clean_value(xml_record.date),
+      clean_value(xml_record.scopecontent),
       ark,
       fragment
     ]

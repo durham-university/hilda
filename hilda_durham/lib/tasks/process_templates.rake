@@ -61,7 +61,7 @@ namespace :hilda_durham do
           }) \
         .add_module(HildaDurham::Modules::TrifleCollectionLinker, module_name: 'Select_IIIF_collection', module_group: 'Setup') \
         .add_module(HildaDurham::Modules::LettersBatchIngest, module_name: 'Letters_ingest', module_group: 'Batch', 
-                      ingest_root: '/home/qgkb58/hydra/testdata/letters/', 
+                      ingest_root: '/digitisation_staging/letters/', 
                       title_base: 'Cosin letters ',
                       licence: 'http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode',
                       attribution: 'Provided by Durham Priory Library Project - a collaboration between Durham University and Durham Cathedral')

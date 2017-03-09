@@ -1,5 +1,5 @@
 module Hilda
-  class StaticPagesController < Trifle::ApplicationController
+  class StaticPagesController < Hilda::ApplicationController
     def home
     end
   end

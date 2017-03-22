@@ -16,9 +16,13 @@ module HildaDurham
       def oubliette_module
         @oubliette_module ||= HildaDurham::Modules::OublietteIngest.new(dummy_graph).tap do |mod|
           mod.log = self.log
+          mod.instance_variable_set(:@letters_graph, module_graph)
           class << mod
             def module_input
               @module_input ||= {}
+            end
+            def ingestion_log
+              @letters_graph.combined_log.map(&:to_full_s).join("\n")
             end
           end
         end
@@ -97,7 +101,7 @@ module HildaDurham
       end
       
       def ingest_oubliette(letter)
-        log!(:info, "Ingesting #{letter[:title]} to Trifle")
+        log!(:info, "Ingesting #{letter[:title]} to Oubliette")
         set_sub_module_input(oubliette_module.module_input, letter)
         oubliette_module.module_output = {}
         

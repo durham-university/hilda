@@ -58,8 +58,8 @@ module HildaDurham
           date: letter[:date],
           author: letter[:author],
           description: letter[:description],
-          licence: param_values[:licence],
-          attribution: param_values[:attribution],
+          licence: self.module_input[:process_metadata].try(:[],:licence) || param_values[:licence],
+          attribution: self.module_input[:process_metadata].try(:[],:attribution) || param_values[:attribution],
           source_record: source_link
         }
         input

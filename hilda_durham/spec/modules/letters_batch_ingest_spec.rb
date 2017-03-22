@@ -87,6 +87,19 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
       expect(module_input[:file_metadata][:"file2.tiff__title"]).to eql('2')
       expect(module_input[:trifle_collection]).to eql('trifle_test_collection')
     end
+    context "with process_metadata set" do
+      let( :mod_input ) { {
+        source_files: { 'batch_metadata.csv' => {
+          path: 'batch_metadata.csv'
+        } },
+        trifle_collection: 'trifle_test_collection',
+        process_metadata: {licence: 'Process licence', attribution: 'Process attribution'}
+      } }      
+      it "uses process_metadata licence and attribution" do
+        expect(module_input[:process_metadata][:licence]).to eql('Process licence')
+        expect(module_input[:process_metadata][:attribution]).to eql('Process attribution')
+      end
+    end
   end
   
   describe "#fetch_linked_metadata" do

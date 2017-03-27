@@ -34,7 +34,6 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
   ] }
   let( :expected_manifest_metadata ){ {
     'title' => 'test title test subtitle',
-    'subtitle' => ' test subtitle',
     'digitisation_note' => 'digitisation note',
     'date_published' => 'test date',
     'description' => 'test description',
@@ -65,6 +64,34 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
       mod_input.delete(:trifle_collection)
       expect(mod_output).to be_empty
       expect(mod.run_status).to eql(:error)
+    end
+    
+    it "retries on collection failures" do
+      counter = 0
+      expect(Trifle::API::IIIFCollection).to receive(:find).with('test_collection_id').twice do
+        counter += 1
+        raise 'Test error' if counter == 1
+        collection_mock
+      end
+      expect(Trifle::API::IIIFManifest).to receive(:deposit_new).with(collection_mock, expected_deposit_items, expected_manifest_metadata).and_return(deposit_response)
+      expect(mod_output[:trifle_manifest]['id']).to eql('man_id_1')
+    end
+    
+    it "doesn't retry on collection not found" do
+      expect(Trifle::API::IIIFCollection).to receive(:find).with('test_collection_id').once.and_raise(Trifle::API::FetchError,"test error")
+      expect(Trifle::API::IIIFManifest).not_to receive(:deposit_new)
+      mod_output # triggers run_module
+    end
+    
+    it "retries on deposit failures" do
+      expect(Trifle::API::IIIFCollection).to receive(:find).with('test_collection_id').and_return(collection_mock)
+      counter = 0
+      expect(Trifle::API::IIIFManifest).to receive(:deposit_new).with(collection_mock, expected_deposit_items, expected_manifest_metadata).twice do 
+        counter += 1
+        raise 'Test error' if counter == 1
+        deposit_response
+      end
+      expect(mod_output[:trifle_manifest]['id']).to eql('man_id_1')
     end
   end
   

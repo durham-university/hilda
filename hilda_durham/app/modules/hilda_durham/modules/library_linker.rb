@@ -3,6 +3,7 @@ module HildaDurham
     class LibraryLinker
       include Hilda::ModuleBase
       include Hilda::Modules::WithParams
+      include DurhamRails::Retry
 
       def initialize(module_graph, param_values={})
         super(module_graph, param_values)
@@ -41,7 +42,15 @@ module HildaDurham
             when :millennium
               DurhamRails::LibrarySystems::Millennium.connection.record(record_id)
             when :schmit
-              r = Schmit::API::Catalogue.find(record_id)
+              r = nil
+              self.retry(Proc.new do |error, counter|
+                raise error if error.is_a?(Schmit::API::FetchError)
+                delay = 10+30*counter
+                log! :warning, "Error fetching record from Schmit, retrying after #{delay} seconds", error
+                delay
+              end, self.run_status==:running ? 5 : 0) do # don't retry outside run_module
+                r = Schmit::API::Catalogue.find(record_id)
+              end
               if r
                 fragment_id.present? ? r.xml_record.sub_item(fragment_id) : r.xml_record.root_item
               else

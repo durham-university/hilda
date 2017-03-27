@@ -57,6 +57,26 @@ RSpec.describe HildaDurham::Modules::LibraryLinker do
       expect(mod.selected_record).to eql(schmit_sub_record)      
     end
     
+    it "retries schmit when module is running" do
+      mod.run_status = :running
+      counter = 0
+      expect(Schmit::API::Catalogue).to receive(:find).with('schmitid').twice do
+        counter += 1
+        raise 'Test error' if counter == 1
+        schmit_record
+      end
+      mod.param_values[:library_record_id] = 'schmitid'
+      mod.param_values[:library_record_type] = 'Schmit'
+      expect(mod.selected_record).to eql(schmit_root_record)
+    end
+    
+    it "doesn't retry schmit when module is not running" do
+      expect(Schmit::API::Catalogue).to receive(:find).with('schmitid').once.and_raise('Test error')
+      mod.param_values[:library_record_id] = 'schmitid'
+      mod.param_values[:library_record_type] = 'Schmit'
+      mod.selected_record
+    end
+    
     it "logs errors if told to do so" do
       mod.param_values[:library_record_id] = 'schmitid'
       mod.param_values[:library_record_type] = 'Schmit'

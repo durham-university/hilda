@@ -95,7 +95,22 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
       expect(mod_output[:stored_file_batch]).to eql({dummy:'json'})
     end
     
-    it "retries on failure" do
+    it "retries on batch failures" do
+      counter = 0
+      expect(mod).to receive(:create_parent).exactly(2).times do
+        counter += 1
+        raise 'Test error' if counter == 1
+        parent_double
+      end      
+      allow(Oubliette::API::PreservedFile).to receive(:ingest) do |file,params|
+        Oubliette::API::PreservedFile.from_json({'title'=>params[:title], 'ingestion_checksum'=>params[:ingestion_checksum], 'id'=>"id_#{params[:ingestion_checksum]}"})
+      end      
+      # referencing mod_output runs module
+      expect(mod_output[:source_files]).not_to be_empty
+      expect(mod_output[:stored_file_batch]).to eql({dummy:'json'})      
+    end
+    
+    it "retries on file failures" do
       expect(mod).to receive(:create_parent).and_return(parent_double)
       counter = 0
       expect(Oubliette::API::PreservedFile).to receive(:ingest).exactly(3).times do |file,params|
@@ -120,7 +135,7 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
   describe "#create_parent" do
     let(:batch_double){double('batch', id: '123456')}
     it "creates the parent" do
-      expect(Oubliette::API::FileBatch).to receive(:create).with({title: 'process title A'}).and_return(batch_double)
+      expect(Oubliette::API::FileBatch).to receive(:create).with({title: 'process title A', no_duplicates: 'true'}).and_return(batch_double)
       expect(mod.create_parent).to eql(batch_double)
     end
   end

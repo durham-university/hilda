@@ -29,7 +29,7 @@ module HildaDurham
         process_metadata = module_input[:process_metadata] || {}
         title = process_metadata.fetch(:title, "Unnamed batch")
         title += process_metadata[:subtitle] if process_metadata[:subtitle].present?
-        parent = Oubliette::API::FileBatch.create(title: title)
+        parent = Oubliette::API::FileBatch.create(title: title, no_duplicates: 'true')
         unless parent
           log! :error, "Unable to create Oubliette file batch"
           self.run_status = :error
@@ -41,7 +41,14 @@ module HildaDurham
 
       def run_module
         stored_files = {}
-        parent = create_parent
+        parent = nil
+        self.retry(Proc.new do |error, counter|
+          delay = 10+30*counter
+          log! :warning, "Error creating batch in Oubliette, retrying after #{delay} seconds", error
+          delay
+        end, 5) do
+          parent = create_parent
+        end
         return unless parent
         archival_files.each_with_index do |(file_key,file),index|
           file_title = file_title(file, file_key)

@@ -2,7 +2,7 @@ module HildaDurham
   module Modules
     class TrifleIngest
       include Hilda::ModuleBase
-      
+      include DurhamRails::Retry      
       
       def autorun?
         true
@@ -31,7 +31,6 @@ module HildaDurham
         
         manifest_metadata = {
           'title' => title,
-          'subtitle' => process_metadata[:subtitle],
           'digitisation_note' => process_metadata[:digitisation_note],
           'date_published' => process_metadata[:date],
           'author' => [process_metadata[:author]].compact,
@@ -42,8 +41,23 @@ module HildaDurham
         }
         
         begin
-          parent = Trifle::API::IIIFCollection.find(module_input[:trifle_collection])
-          response = Trifle::API::IIIFManifest.deposit_new(parent, deposit_items, manifest_metadata)
+          parent = nil
+          response = nil
+          self.retry(Proc.new do |error, counter|
+            raise error if error.is_a?(Trifle::API::FetchError)
+            delay = 10+30*counter
+            log! :warning, "Error fetching collection from Trifle, retrying after #{delay} seconds", error
+            delay
+          end, 5) do          
+            parent = Trifle::API::IIIFCollection.find(module_input[:trifle_collection])
+          end
+          self.retry(Proc.new do |error, counter|
+            delay = 10+30*counter
+            log! :warning, "Error depositing images to Trifle, retrying after #{delay} seconds", error
+            delay
+          end, 5) do          
+            response = Trifle::API::IIIFManifest.deposit_new(parent, deposit_items, manifest_metadata)
+          end
         rescue StandardError => e
           log! :error, "Error depositing images to Trifle", e
           self.run_status = :error

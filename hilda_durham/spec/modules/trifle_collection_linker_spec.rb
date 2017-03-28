@@ -83,6 +83,17 @@ RSpec.describe HildaDurham::Modules::TrifleCollectionLinker do
       mod_params[:trifle_sub_collection] = sub_collection2.id
       expect(mod.validate_reference).to eql false
     end
+    
+    it "retries on errors" do
+      counter = 0
+      expect(mod).to receive(:current_root_collection).once.and_return(root_collection)
+      expect(mod).to receive(:current_sub_collection).twice do
+        counter += 1
+        raise 'Test error' if counter == 1
+        sub_collection
+      end
+      expect(mod.validate_reference).to eql(true)      
+    end
   end
 
   describe "#value_for" do

@@ -3,6 +3,7 @@ module HildaDurham
     class TrifleCollectionLinker
       include Hilda::ModuleBase
       include Hilda::Modules::WithParams
+      include DurhamRails::Retry
 
       def initialize(module_graph, param_values={})
         super(module_graph, param_values)
@@ -53,12 +54,25 @@ module HildaDurham
 
       def validate_reference
         begin
-          root_collection = current_root_collection
-          sub_collection = current_sub_collection
+          root_collection = nil
+          sub_collectiont = nil
+          self.retry(Proc.new do |error, counter|
+            raise error if error.is_a?(Trifle::API::FetchError)
+            delay = 10+30*counter
+            log! :warning, "Error validating collection record in Trifle, retrying after #{delay} seconds", error
+            delay
+          end, 5 ) do
+            # Three potential failure points in this block. Don't need to retry
+            # the first ones if the latter ones fail. (Although note that
+            # sub_collection might be nil)
+            root_collection ||= current_root_collection 
+            sub_collection ||= current_sub_collection
 
-          return false unless root_collection
+            return false unless root_collection
 
-          return false if sub_collection && !Trifle::API::IIIFCollection.all_in_collection(root_collection).map(&:id).include?(sub_collection.id)
+            # TODO: Trifle::API should have some better way to check that a collection is under some other collection
+            return false if sub_collection && !Trifle::API::IIIFCollection.all_in_collection(root_collection).map(&:id).include?(sub_collection.id)
+          end
 
           return true
         rescue Trifle::API::FetchError => e

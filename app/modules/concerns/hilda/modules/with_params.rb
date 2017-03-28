@@ -14,7 +14,12 @@ module Hilda::Modules
       end
 
       param_defs.each do |key,param|
-        self.param_values[key] = params[key.to_s].strip if params.key?(key.to_s)
+        if params.key?(key.to_s)
+          self.param_values[key] = params[key.to_s].strip
+          if param_values[key].present? && param_defs[key][:graph_title] && module_graph.respond_to?(:title=)
+            module_graph.title = param_values[key]
+          end
+        end
       end
       
       check_submitted_status!
@@ -114,6 +119,7 @@ module Hilda::Modules
             field_data[:group] = nil
             field_data[:optional] = false
             field_data[:collection] = nil
+            field_data[:graph_title] = false
           elsif field.is_a? Hash
             field_data[:label] = (field[:label] || field['label'] || key).to_s
             field_data[:type] = (field[:type] || field['type'] || :string).to_sym
@@ -122,6 +128,7 @@ module Hilda::Modules
             field_data[:group] = (field[:group] || field['group'])
             field_data[:optional] = (field[:optional] || field['optional'] || false)
             field_data[:collection] = (field[:collection] || field['collection'])
+            field_data[:graph_title] = (field[:graph_title] || field[:graph_title] || false)
           end
           o[key] = field_data
         end

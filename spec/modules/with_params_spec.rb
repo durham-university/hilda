@@ -8,16 +8,16 @@ RSpec.describe Hilda::Modules::WithParams do
     end
   }
   let( :param_defs ) { {
-    title: {label: 'title', type: :string },
+    title: {label: 'title', type: :string, graph_title: true },
     :'te/st' => {label: 'test', type: :string, default: 'moo' },
     options: {label: 'options', type: :select, collection: ['aaa','bbb'], note: 'param note'},
     optional_param: {label: 'optional', type: :string, optional: true}
   } }
   let( :param_defs_sanitised ) { {
-    title: {label: 'title', type: :string, default: nil, group: nil, optional: false, collection: nil, note: nil },
-    :'te/st' => {label: 'test', type: :string, default: 'moo', group: nil, optional: false, collection: nil, note: nil },
-    options: {label: 'options', type: :select, default: nil, group: nil, optional: false, collection: ['aaa','bbb'], note: 'param note'},
-    optional_param: {label: 'optional', type: :string, default: nil, group: nil, optional: true, collection: nil, note: nil}
+    title: {label: 'title', type: :string, default: nil, group: nil, optional: false, collection: nil, note: nil, graph_title: true },
+    :'te/st' => {label: 'test', type: :string, default: 'moo', group: nil, optional: false, collection: nil, note: nil, graph_title: false },
+    options: {label: 'options', type: :select, default: nil, group: nil, optional: false, collection: ['aaa','bbb'], note: 'param note', graph_title: false },
+    optional_param: {label: 'optional', type: :string, default: nil, group: nil, optional: true, collection: nil, note: nil, graph_title: false }
   } }
   let( :mod ) {
     graph.add_start_module(ModClass).tap do |mod|
@@ -47,6 +47,13 @@ RSpec.describe Hilda::Modules::WithParams do
       expect{
         mod.receive_params({'title' => 'new title', 'te/st' => 'new test', 'other' => 'something else'})
       }.to raise_error("Module cannot receive params in current state")
+    end
+    it "sets graph title" do
+      class << graph
+        attr_accessor :title
+      end
+      mod.receive_params({'title' => 'new graph title'})
+      expect(graph.title).to eql('new graph title')
     end
   end
 

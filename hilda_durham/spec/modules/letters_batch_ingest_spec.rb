@@ -285,7 +285,7 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
         },
         {
           folder: "Letters_2/",
-          title: "Test Letters L2",
+          title: "Test Letters L2 – test",
           date: "1895",
           author: "Test Author",
           description: "Letters from bar to foo relating to baa",
@@ -301,6 +301,7 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
           }
         }
       ])
+      expect(mod.letters[1][:title].encoding.to_s).to eql('UTF-8')
     end
   end
   

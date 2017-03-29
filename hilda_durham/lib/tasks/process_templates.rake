@@ -6,7 +6,7 @@ namespace :hilda_durham do
     Hilda::IngestionProcessTemplate.new_template('IIIF Ingestion','iiif_ingest','Ingest a batch of images into Oubliette and Trifle and generate IIIF metadata') do |template|
       template \
 #        .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_files', module_group: 'Upload') \
-        .add_start_module(Hilda::Modules::FileSelector, module_name: 'Select_files', module_group: 'Upload', root_path: '/digitisation_staging', filter_re: '(?i)^.*\\.tiff?$') \
+        .add_start_module(Hilda::Modules::FileSelector, module_name: 'Select_files', module_group: 'Upload', root_path: '/shared_data/ingestion_temp', filter_re: '(?i)^.*\\.tiff?$') \
         .add_module(HildaDurham::Modules::LibraryLinker, module_name: 'Select_library_record', module_group: 'Metadata', optional_module: true) \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Manifest_metadata', module_group: 'Metadata', optional_module: true, default_disabled: true,
           param_defs: {
@@ -16,7 +16,7 @@ namespace :hilda_durham do
           }) \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Digitisation_metadata', module_group: 'Metadata',
           param_defs: {
-            title: {label: 'Title', type: :string},
+            title: {label: 'Title', type: :string, graph_title: true},
             digitisation_note: {label: 'Digitisation note', type: :text, optional: true}
           }) \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Licence_and_attribution', module_group: 'Metadata',
@@ -57,14 +57,22 @@ namespace :hilda_durham do
                 'All rights reserved',
                 'http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode'
               ], default: 'http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode'},
-            attribution: {label: 'Attribution', type: :string, default: 'Provided by Durham Priory Library Project - a collaboration between Durham University and Durham Cathedral'}
+            attribution: {label: 'Attribution', type: :string, default: ''}
           }) \
         .add_module(HildaDurham::Modules::TrifleCollectionLinker, module_name: 'Select_IIIF_collection', module_group: 'Setup') \
         .add_module(HildaDurham::Modules::LettersBatchIngest, module_name: 'Letters_ingest', module_group: 'Batch', 
-                      ingest_root: '/digitisation_staging/letters/', 
-                      title_base: 'Cosin letters ',
-                      licence: 'http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode',
-                      attribution: 'Provided by Durham Priory Library Project - a collaboration between Durham University and Durham Cathedral')
+                      ingest_root: '/shared_data/ingestion_temp/', 
+                      title_base: 'Cosin letters ')
+    end
+    Hilda::IngestionProcessTemplate.new_template('Bagit ingest','bagit_ingest','Ingest a BagIt bag into Oubliette') do |template|
+      template \
+        .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_bagit', module_group: 'Setup') \
+        .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Deposit_metadata', module_group: 'Setup',
+          param_defs: {
+            title: {label: 'Title', type: :string, graph_title: true}
+          }) \
+        .add_module(Hilda::Modules::BagitValidator, module_name: 'Bagit_validation', module_group: 'Verify') \
+        .add_module(HildaDurham::Modules::OublietteIngest, module_name: 'Ingest_to_Oubliette', module_group: 'Ingest')
     end
   end
 end

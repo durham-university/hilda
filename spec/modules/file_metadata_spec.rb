@@ -8,7 +8,7 @@ RSpec.describe Hilda::Modules::FileMetadata do
     end 
   }
   let( :metadata_fields) { { title: {label: 'title', type: :string }, other_field: {label: 'test', type: :string, default: 'moo'} } }
-  let( :metadata_fields_sanitised ) { { title: {label: 'title', type: :string, default: nil, group: nil, collection: nil, optional: false, note: nil}, other_field: {label: 'test', type: :string, default: 'moo', group: nil, collection: nil, optional: false, note: nil} } }
+  let( :metadata_fields_sanitised ) { { title: {label: 'title', type: :string, default: nil, group: nil, collection: nil, optional: false, note: nil, graph_title: false}, other_field: {label: 'test', type: :string, default: 'moo', group: nil, collection: nil, optional: false, note: nil, graph_title: false} } }
   let( :mod ) {
     graph.add_start_module(Hilda::Modules::FileMetadata, metadata_fields: metadata_fields)
   }
@@ -46,7 +46,8 @@ RSpec.describe Hilda::Modules::FileMetadata do
           default: nil,
           collection: nil,
           optional: false,
-          note: nil
+          note: nil,
+          graph_title: false
         },
         :'testfile.pdf__other_field' => {
           group: 'testfile.pdf',
@@ -55,7 +56,8 @@ RSpec.describe Hilda::Modules::FileMetadata do
           default: 'moo',
           collection: nil,
           optional: false,
-          note: nil
+          note: nil,
+          graph_title: false
         },
         :'othertestfile.pdf__title' => {
           group: 'othertestfile.pdf',
@@ -64,7 +66,8 @@ RSpec.describe Hilda::Modules::FileMetadata do
           default: nil,
           collection: nil,
           optional: false,
-          note: nil
+          note: nil,
+          graph_title: false
         },
         :'othertestfile.pdf__other_field' => {
           group: 'othertestfile.pdf',
@@ -73,7 +76,8 @@ RSpec.describe Hilda::Modules::FileMetadata do
           default: 'moo',
           collection: nil,
           optional: false,
-          note: nil
+          note: nil,
+          graph_title: false
         }
       })
     end

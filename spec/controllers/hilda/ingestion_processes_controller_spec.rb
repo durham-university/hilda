@@ -235,7 +235,7 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
           post :create, {ingestion_process: { template: template.template_key }}
           mod = assigns(:ingestion_process).find_module('mod_a')
           expect(mod).to be_a Hilda::Modules::DebugModule
-          expect(mod.param_defs[:moo]).to eql({ label: 'moo', type: :string, default: nil, group: nil, collection: nil, optional: false, note: nil })
+          expect(mod.param_defs[:moo]).to eql({ label: 'moo', type: :string, default: nil, group: nil, collection: nil, optional: false, note: nil, graph_title: false })
           expect(assigns(:ingestion_process).title).to be_present
         end
       end

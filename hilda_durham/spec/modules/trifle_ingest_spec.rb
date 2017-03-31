@@ -25,6 +25,7 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
   }
   let( :mod ) {
     graph.add_start_module(HildaDurham::Modules::TrifleIngest, mod_params).tap do |mod|
+      mod.assign_job_tag
       allow(mod).to receive(:module_input).and_return(mod_input)
     end
   }  
@@ -40,7 +41,8 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
     'author' => ['test author'],
     'attribution' => 'test attribution',
     'licence' => nil,
-    'source_record' => 'schmit:ark:/12345/testid'
+    'source_record' => 'schmit:ark:/12345/testid',
+    'job_tag' => mod.job_tag+'/deposit'
   } }
   let( :deposit_response ) { { status: 'ok', message: nil, resource: double('man_res', id: 'man_id_1', as_json: { "id" => "man_id_1", "title" => "manifest title", "image_container_location" => "image_container", "identifier" => ['ark:/12345/dummydummy']} ) } }
   let( :mod_output ) {

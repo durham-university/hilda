@@ -2,6 +2,7 @@ module HildaDurham
   module Modules
     class LettersBatchIngest
       include Hilda::ModuleBase
+      include Hilda::Modules::WithJobTag
 
       def autorun?
         true
@@ -15,6 +16,7 @@ module HildaDurham
       
       def oubliette_module
         @oubliette_module ||= HildaDurham::Modules::OublietteIngest.new(dummy_graph).tap do |mod|
+          mod.job_tag = self.job_tag
           mod.log = self.log
           mod.instance_variable_set(:@letters_graph, module_graph)
           class << mod
@@ -30,6 +32,7 @@ module HildaDurham
       
       def trifle_module
         @trifle_module ||= HildaDurham::Modules::TrifleIngest.new(dummy_graph).tap do |mod|
+          mod.job_tag = self.job_tag
           mod.log = self.log
           class << mod
             def module_input

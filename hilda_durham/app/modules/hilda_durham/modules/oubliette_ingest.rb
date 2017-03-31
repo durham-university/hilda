@@ -3,6 +3,7 @@ module HildaDurham
     class OublietteIngest
       include Hilda::ModuleBase
       include DurhamRails::Retry
+      include Hilda::Modules::WithJobTag
 
       def archival_files
         module_input[:source_files]
@@ -29,7 +30,7 @@ module HildaDurham
         process_metadata = module_input[:process_metadata] || {}
         title = process_metadata.fetch(:title, "Unnamed batch")
         title += process_metadata[:subtitle] if process_metadata[:subtitle].present?
-        parent = Oubliette::API::FileBatch.create(title: title, no_duplicates: 'true')
+        parent = Oubliette::API::FileBatch.create(title: title, job_tag: job_tag+'/parent')
         unless parent
           log! :error, "Unable to create Oubliette file batch"
           self.run_status = :error
@@ -66,7 +67,8 @@ module HildaDurham
                   ingestion_log: ingestion_log,
                   content_type: file[:content_type] || 'application/octet-stream',
                   original_filename: original_filename(file),
-                  parent: parent )
+                  parent: parent,
+                  job_tag: job_tag+"/"+file[:md5] )
                 stored_files[file_key] = stored_file.as_json.merge('temp_file' => file[:path])
                 log! :info, "Ingested to Oubliette with id \"#{stored_file.id}\""
               end

@@ -3,6 +3,7 @@ module HildaDurham
     class TrifleIngest
       include Hilda::ModuleBase
       include DurhamRails::Retry      
+      include Hilda::Modules::WithJobTag
       
       def autorun?
         true
@@ -37,7 +38,8 @@ module HildaDurham
           'description' => process_metadata[:description],
           'licence' => process_metadata[:licence],
           'attribution' => process_metadata[:attribution],
-          'source_record' => process_metadata[:source_record]
+          'source_record' => process_metadata[:source_record],
+          'job_tag' => job_tag+'/deposit'
         }
         
         begin

@@ -23,6 +23,7 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
   }
   let( :mod ) {
     graph.add_start_module(HildaDurham::Modules::OublietteIngest, mod_params).tap do |mod|
+      mod.assign_job_tag
       allow(mod).to receive(:module_input).and_return(mod_input)
     end
   }
@@ -119,6 +120,7 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
         expect(["md5:#{file1_md5}", "md5:#{file2_md5}"]).to include params[:ingestion_checksum]
         expect(["File 1", "File 2"]).to include params[:title]
         expect(["test1.jpg", "test2.jpg"]).to include params[:original_filename]
+        expect([mod.job_tag+"/"+file1_md5, mod.job_tag+"/"+file2_md5]).to include params[:job_tag]
         expect(params[:parent]).to eql(parent_double)
         expect(params[:content_type]).to eql 'image/jpeg'
         expect(params[:ingestion_log]).not_to be_empty
@@ -135,7 +137,7 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
   describe "#create_parent" do
     let(:batch_double){double('batch', id: '123456')}
     it "creates the parent" do
-      expect(Oubliette::API::FileBatch).to receive(:create).with({title: 'process title A', no_duplicates: 'true'}).and_return(batch_double)
+      expect(Oubliette::API::FileBatch).to receive(:create).with({title: 'process title A', job_tag: mod.job_tag+"/parent"}).and_return(batch_double)
       expect(mod.create_parent).to eql(batch_double)
     end
   end

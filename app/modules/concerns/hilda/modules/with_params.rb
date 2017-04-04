@@ -128,7 +128,7 @@ module Hilda::Modules
             field_data[:group] = (field[:group] || field['group'])
             field_data[:optional] = (field[:optional] || field['optional'] || false)
             field_data[:collection] = (field[:collection] || field['collection'])
-            field_data[:graph_title] = (field[:graph_title] || field[:graph_title] || false)
+            field_data[:graph_title] = (field[:graph_title] || field['graph_title'] || false)
           end
           o[key] = field_data
         end

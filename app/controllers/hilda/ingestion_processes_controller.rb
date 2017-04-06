@@ -109,7 +109,11 @@ module Hilda
             mod.run_status=:queued
             mod.changed!
           end
-          Hilda::Jobs::IngestionJob.new(resource: @ingestion_process, user: current_user).queue_job
+          begin
+            Hilda::Jobs::IngestionJob.new(resource: @ingestion_process, user: current_user).queue_job
+          rescue StandardError => e
+            flash[:alert] = e.to_s
+          end
           # queue_job saves the object          
         else
           flash[:alert] = "No modules are ready to run"

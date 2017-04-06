@@ -322,6 +322,13 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
         expect(mod_g.run_status).to eql(:queued)      
         expect(mod_b.run_status).to eql(:initialized)
       end
+      it "reports errors" do
+        expect(Hilda.queue).to receive(:push).and_raise('Error queuing job')
+        expect {
+          post :start_graph, {id: ingestion_process.to_param}
+        }.not_to raise_error
+        expect(flash[:alert]).to eql('Error queuing job')
+      end
       it "doesn't add a job if graph already queued" do
         expect(Hilda.queue).not_to receive(:push)
         mod_a.run_status = :queued

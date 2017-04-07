@@ -107,6 +107,7 @@ module HildaDurham
         log!(:info, "Ingesting #{letter[:title]} to Oubliette")
         set_sub_module_input(oubliette_module.module_input, letter)
         oubliette_module.module_output = {}
+        oubliette_module.job_tag = self.job_tag + '/' + letter[:folder]
         
         oubliette_module.run_status = :running
         oubliette_module.run_module
@@ -124,6 +125,7 @@ module HildaDurham
         log!(:info, "Ingesting #{letter[:title]} to Trifle")
         set_sub_module_input(trifle_module.module_input, letter)
         trifle_module.module_output = {}
+        trifle_module.job_tag = self.job_tag + '/' + letter[:folder]
         
         trifle_module.run_status = :running
         trifle_module.run_module

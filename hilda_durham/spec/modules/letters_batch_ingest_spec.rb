@@ -31,6 +31,7 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
   let( :mod ) { 
     graph.add_start_module(HildaDurham::Modules::LettersBatchIngest, mod_params).tap do |mod|
       allow(mod).to receive(:module_input).and_return(mod_input)
+      mod.assign_job_tag
       mod.module_output = {}
     end
   }
@@ -163,6 +164,7 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
     let(:letter_data) { 
       double('letter').tap do |letter| 
         allow(letter).to receive(:[]).with(:title).and_return("Test title")
+        allow(letter).to receive(:[]).with(:folder).and_return("test/folder")
       end
     }
     let(:stored_files) { double('stored_files') }
@@ -174,6 +176,7 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
       end
       expect(letter_data).to receive(:[]=).with(:oubliette_files, stored_files)
       expect(mod.ingest_oubliette(letter_data)).to eql(true)
+      expect(mod.oubliette_module.job_tag).to eql(mod.job_tag+'/test/folder')
     end
   end
   
@@ -181,6 +184,7 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
     let(:letter_data) { 
       double('letter').tap do |letter| 
         allow(letter).to receive(:[]).with(:title).and_return("Test title")
+        allow(letter).to receive(:[]).with(:folder).and_return("test/folder")
       end
     }
     
@@ -191,6 +195,7 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
       end
       expect(mod.ingest_trifle(letter_data)).to eql(true)
       expect(mod.module_output[:trifle_manifests]).to eql(['t0test'])
+      expect(mod.trifle_module.job_tag).to eql(mod.job_tag+'/test/folder')
     end
   end
   

@@ -31,7 +31,7 @@ module HildaDurham
         record_type = self.param_values[:library_record_type].try(:downcase)
         record_id = self.param_values[:library_record_id]
         fragment_id = self.param_values[:library_record_fragment]
-        return nil unless record_id
+        return nil unless record_id.present?
         cached_record = "#{record_type}:#{record_id}##{fragment_id}"
         @selected_record = nil unless @cached_record == cached_record
         @cached_record = cached_record

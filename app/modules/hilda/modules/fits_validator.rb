@@ -19,6 +19,7 @@ module Hilda::Modules
     end
 
     def run_validation_rules(file_label, fits_xml)
+      log!(:debug,"Validating #{file_label}") if self.param_values[:verbose]
       validation_rules.each do |rule|
         unless fits_xml.xpath(rule[:xpath]).any?
           self.run_status = :error

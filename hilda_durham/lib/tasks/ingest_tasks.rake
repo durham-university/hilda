@@ -89,4 +89,44 @@ namespace :hilda_durham do
       end
     end
   end
+  
+  desc "Runs Fits validation on specified files"
+  task "fits_validation", [:directory] => :environment do |t,args|
+    directory = args[:directory].to_s
+    unless directory.present? && File.directory?(directory)
+      puts 'Usage:'
+      puts '  bundle exec rake hilda_durham_fits_validation[directory]'
+    else
+      template = Hilda::IngestionProcessTemplate.where(template_key: 'iiif_ingest').first
+      unless template ; puts "Couldn't find template iiif_ingest" ; return ; end
+      m = template.find_module('Fits_validation')
+      unless m ; puts "Couldn't find module Fits_validation" ; return ; end
+      rules = m.param_values['validation_rules']
+      unless rules.present? ; puts "Couldn't find validation rules" ; return ; end
+      
+      dummy_graph = Hilda::ModuleGraph.new.tap do |g|
+        g.instance_variable_set(:@file_service, DurhamRails::Services::FileService.new({temp_dir: directory}))
+      end
+      
+      validation_module = Hilda::Modules::FitsValidator.new(dummy_graph, validation_rules: rules, verbose: true)
+      class << validation_module
+        def module_input
+          @module_input ||= {}
+        end
+      end
+      validation_module.log.to_stdout!
+      
+      tiff_re = /(?i)^.*\.tiff?$/
+      files = Dir.glob(File.join(directory,'**','*')).select do |f| f.match(tiff_re) && File.file?(f) end
+
+      files = files.each_with_object({}) do |file,hash|
+        hash[file] = {path: file, original_filename: file}
+      end
+
+      validation_module.module_input[:source_files] = files
+      validation_module.module_output = {}
+      validation_module.run_status = :running
+      validation_module.run_module
+    end
+  end
 end

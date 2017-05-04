@@ -14,6 +14,17 @@ module HildaDurham
         end
       end
       
+      def validation_module
+        @validation_module ||= Hilda::Modules::FitsValidator.new(dummy_graph, validation_rules: param_values[:validation_rules]).tap do |mod|
+          mod.log = self.log
+          class << mod
+            def module_input
+              @module_input ||= {}
+            end
+          end
+        end
+      end
+      
       def oubliette_module
         @oubliette_module ||= HildaDurham::Modules::OublietteIngest.new(dummy_graph).tap do |mod|
           mod.job_tag = self.job_tag
@@ -230,10 +241,34 @@ module HildaDurham
           ingest_trifle(letter)
       end
       
+      def validate_letter(letter)
+        log!(:info, "Validating #{letter[:title]}")
+        set_sub_module_input(validation_module.module_input, letter)
+        validation_module.module_output = {}
+        
+        validation_module.run_status = :running
+        validation_module.run_module
+        
+        return false if validation_module.run_status == :error
+        true        
+      end
+      
       def run_module
         if !read_letters_data
           self.run_status = :error
           return
+        end
+        
+        if param_values[:validation_rules].present?
+          all_ok = true
+          letters.each do |letter|
+            all_ok &= validate_letter(letter)
+          end
+          unless all_ok
+            self.run_status = :error
+            log!(:error, "Validation failed, stopping")
+            return
+          end
         end
         
         letters.each do |letter|

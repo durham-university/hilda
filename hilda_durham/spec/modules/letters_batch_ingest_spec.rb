@@ -54,6 +54,47 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
     end
   end
   
+  describe "#validation_module" do
+    it "returns FitsValidator module" do
+      expect(mod.validation_module).to be_a(Hilda::Modules::FitsValidator)
+    end
+    it "allows module_input to be called" do
+      expect(mod.validation_module.module_input).to eql({})
+    end
+  end
+  
+  describe "#validate_letter" do
+    let( :mod_params ) { {
+        ingest_root: '/tmp/ingest_test',
+        title_base: 'Test Letters ',
+        licence: 'Test licence',
+        attribution: 'Test attribution',
+        validation_rules: [ { label: 'dummy' } ]
+      } 
+    }
+    
+    let(:letter_data) { 
+      double('letter').tap do |letter| 
+        allow(letter).to receive(:[]).with(:title).and_return("Test title")
+        allow(letter).to receive(:[]).with(:folder).and_return("test/folder")
+      end
+    }
+    
+    it "calls methods" do
+      expect(mod).to receive(:set_sub_module_input).with(mod.validation_module.module_input, letter_data)
+      expect(mod.validation_module).to receive(:run_module) 
+      expect(mod.validate_letter(letter_data)).to eql(true)
+    end
+    
+    it "returns false on errors" do
+      expect(mod).to receive(:set_sub_module_input).with(mod.validation_module.module_input, letter_data)
+      expect(mod.validation_module).to receive(:run_module) do
+        mod.validation_module.run_status = :error
+      end
+      expect(mod.validate_letter(letter_data)).to eql(false)
+    end
+  end
+  
   describe "#set_sub_module_input" do
     let(:letter_data){
       {
@@ -337,6 +378,15 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
       expect(mod).to receive(:ingest_letter).exactly(:twice).and_return(true)
       mod.run_module
       expect(mod.run_status).not_to eql(:error)
+    end
+    it "runs validations" do
+      mod.param_values[:validation_rules] = [{label: 'dummy'}]
+      mod.instance_variable_set(:@letters,[double('letter1'),double('letter2')])
+      expect(mod).to receive(:read_letters_data).and_return(true)
+      expect(mod).to receive(:validate_letter).twice.and_return(false)
+      expect(mod).not_to receive(:ingest_letter)
+      mod.run_module
+      expect(mod.run_status).to eql(:error)      
     end
   end  
 

@@ -3,6 +3,14 @@ require 'rsolr'
 namespace :hilda_durham do
   desc "create process templates"
   task "create_templates" => :environment do
+    validation_rules = [
+        { label: 'mimetype', xpath: '/xmlns:fits/xmlns:identification/xmlns:identity[@mimetype="image/tiff"]'},
+        { label: 'well-formed', xpath: '/xmlns:fits/xmlns:filestatus/xmlns:well-formed[@toolname="Jhove"][text()="true"]'},
+        { label: 'valid', xpath: '/xmlns:fits/xmlns:filestatus/xmlns:valid[@toolname="Jhove"][text()="true"]'},
+        { label: 'uncompressed', xpath: '/xmlns:fits/xmlns:metadata/xmlns:image/xmlns:compressionScheme[@toolname="Jhove"][text()="Uncompressed"]'},
+        { label: 'colourspace', xpath: '/xmlns:fits/xmlns:metadata/xmlns:image/xmlns:colorSpace[@toolname="Jhove"][(text()="RGB") or (text()="BlackIsZero")]'}
+      ]
+    
     Hilda::IngestionProcessTemplate.new_template('IIIF Ingestion','iiif_ingest','Ingest a batch of images into Oubliette and Trifle and generate IIIF metadata') do |template|
       template \
 #        .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_files', module_group: 'Upload') \
@@ -33,13 +41,7 @@ namespace :hilda_durham do
           }) \
         .add_module(HildaDurham::Modules::TrifleCollectionLinker, module_name: 'Select_IIIF_collection', module_group: 'Metadata') \
 #        .add_module(Hilda::Modules::DetectContentType, module_name: 'Verify_content_type', module_group: 'Verify', allow_only: ['image/tiff']) \
-        .add_module(Hilda::Modules::FitsValidator, module_name: 'Fits_validation', module_group: 'Verify', validation_rules: [
-            { label: 'mimetype', xpath: '/xmlns:fits/xmlns:identification/xmlns:identity[@mimetype="image/tiff"]'},
-            { label: 'well-formed', xpath: '/xmlns:fits/xmlns:filestatus/xmlns:well-formed[@toolname="Jhove"][text()="true"]'},
-            { label: 'valid', xpath: '/xmlns:fits/xmlns:filestatus/xmlns:valid[@toolname="Jhove"][text()="true"]'},
-            { label: 'uncompressed', xpath: '/xmlns:fits/xmlns:metadata/xmlns:image/xmlns:compressionScheme[@toolname="Jhove"][text()="Uncompressed"]'},
-            { label: 'colourspace', xpath: '/xmlns:fits/xmlns:metadata/xmlns:image/xmlns:colorSpace[@toolname="Jhove"][(text()="RGB") or (text()="BlackIsZero")]'}
-          ]) \
+        .add_module(Hilda::Modules::FitsValidator, module_name: 'Fits_validation', module_group: 'Verify', validation_rules: validation_rules) \
         .add_module(HildaDurham::Modules::OublietteIngest, module_name: 'Ingest_to_Oubliette', module_group: 'Ingest') \
         .add_module(HildaDurham::Modules::TrifleIngest, module_name: 'Ingest_to_Trifle', module_group: 'Ingest') # \
 #        .add_module(Hilda::Modules::DebugModule,
@@ -48,7 +50,7 @@ namespace :hilda_durham do
 #          info_template: 'hilda/modules/debug_info',
 #          sleep: 20 )
     end
-    Hilda::IngestionProcessTemplate.new_template('Letters Batch','batch_ingest','Ingest a batch letters of into Oubliette and Trifle and generate a series of IIIF manifests') do |template|
+    Hilda::IngestionProcessTemplate.new_template('Batch ingest','batch_ingest','Ingest a batch into Oubliette and Trifle and generate a series of IIIF manifests') do |template|
       template \
         .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_batch_metadata', module_group: 'Setup') \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Licence_and_attribution', module_group: 'Setup',
@@ -60,9 +62,10 @@ namespace :hilda_durham do
             attribution: {label: 'Attribution', type: :string, default: ''}
           }) \
         .add_module(HildaDurham::Modules::TrifleCollectionLinker, module_name: 'Select_IIIF_collection', module_group: 'Setup') \
-        .add_module(HildaDurham::Modules::LettersBatchIngest, module_name: 'Letters_ingest', module_group: 'Batch', 
-                      ingest_root: '/shared_data/ingestion_temp/', 
-                      title_base: 'Cosin letters ')
+        .add_module(HildaDurham::Modules::LettersBatchIngest, module_name: 'Batch_ingest', module_group: 'Batch', 
+                      ingest_root: '/digitisation_staging/', 
+                      title_base: '',
+                      validation_rules: validation_rules)
     end
     Hilda::IngestionProcessTemplate.new_template('Bagit ingest','bagit_ingest','Ingest a BagIt bag into Oubliette') do |template|
       template \

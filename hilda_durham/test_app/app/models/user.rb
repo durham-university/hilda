@@ -1,7 +1,9 @@
 class User < ActiveRecord::Base
-  include Oubliette::UserBehaviour
-  include Schmit::UserBehaviour
-  include Trifle::UserBehaviour
+  unless Rails.env.test?
+    include Oubliette::UserBehaviour
+    include Schmit::UserBehaviour
+    include Trifle::UserBehaviour
+  end
   include Hilda::UserBehaviour
 
   serialize :roles, Array

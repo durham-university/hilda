@@ -3,11 +3,13 @@ Rails.application.routes.draw do
 
   mount Hilda::Engine => "/hilda"
 
-  mount Schmit::Engine => "/schmit"
+  unless Rails.env.test?
+    mount Schmit::Engine => "/schmit"
 
-  mount Oubliette::Engine => "/oubliette"
+    mount Oubliette::Engine => "/oubliette"
 
-  mount Trifle::Engine => "/trifle"
+    mount Trifle::Engine => "/trifle"
+  end
 
   devise_for :users
   

@@ -8,7 +8,7 @@ RSpec.describe Hilda::Modules::BulkFileMetadata do
   let( :file_names ) { ['f1','f2','f3'] }
   let( :graph ) { 
     Hilda::ModuleGraph.new.tap do |graph| 
-      graph[:source_file_names] = file_names
+      graph.graph_params[:source_file_names] = file_names
     end 
   }
   let( :mod ) {

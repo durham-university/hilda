@@ -56,7 +56,7 @@ module Hilda
     end
 
     delegate :log!, to: :log
-    delegate :[], :[]=, :fetch, to: :graph_params
+#    delegate :[], :[]=, :fetch, to: :graph_params
 
     def graph_params_changed
       graph.keys.each do |mod|

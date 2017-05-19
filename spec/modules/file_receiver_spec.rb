@@ -66,7 +66,7 @@ RSpec.describe Hilda::Modules::FileReceiver do
     it "copies file_names to graph params" do
       expect(graph).to receive(:graph_params_changed)
       mod.file_names_changed!
-      expect(graph[:source_file_names]).to eql(file_names)
+      expect(graph.graph_params[:source_file_names]).to eql(file_names)
     end
   end
 

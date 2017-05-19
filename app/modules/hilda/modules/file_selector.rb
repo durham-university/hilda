@@ -42,7 +42,7 @@ module Hilda::Modules
     end
     
     def file_names_changed!
-      self.module_graph[:source_file_names] = param_values[:file_names]
+      self.module_graph.graph_params[:source_file_names] = param_values[:file_names]
       self.module_graph.graph_params_changed
     end
 

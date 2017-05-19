@@ -4,7 +4,7 @@ RSpec.describe Hilda::Modules::FileMetadata do
   let( :file_names ) { ['testfile.pdf','othertestfile.pdf'] }
   let( :graph ) { 
     Hilda::ModuleGraph.new.tap do |graph| 
-      graph[:source_file_names] = file_names
+      graph.graph_params[:source_file_names] = file_names
     end 
   }
   let( :metadata_fields) { { title: {label: 'title', type: :string }, other_field: {label: 'test', type: :string, default: 'moo'} } }
@@ -32,7 +32,7 @@ RSpec.describe Hilda::Modules::FileMetadata do
 
   describe "#build_param_defs" do
     it "works with nil input" do
-      graph[:source_file_names] = nil
+      graph.graph_params[:source_file_names] = nil
       expect { mod.build_param_defs }.not_to raise_error
       expect(mod.param_defs).to eql({})
     end

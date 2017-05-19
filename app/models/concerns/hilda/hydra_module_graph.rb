@@ -18,9 +18,29 @@ module Hilda::HydraModuleGraph
   end
 
   def deserialise_module_graph
-    from_json( self.module_graph_serialisation.content )
+    if self.module_graph_serialisation.is_a?(ActiveFedora::LoadableFromJson::SolrBackedMetadataFile)
+      from_json({log:{log:[]}, graph_params:{}, modules:[], graph:{}, start_modules:[]}) 
+    else
+      from_json( self.module_graph_serialisation.content )
+    end
   end
   
+  def run_status(modules=nil)
+    return @solr_run_status if @solr_run_status
+    super
+  end
+  
+  def init_with_json(json)
+    super(json)
+    parsed = JSON.parse(json)
+    @solr_run_status = parsed['run_status'].try(:to_sym)
+    self
+  end
+  
+  def serializable_hash(*args)
+    super(*args).merge({'run_status' => run_status })
+  end
+    
   def reload(*args)
     super(*args).tap do |obj|
       deserialise_module_graph

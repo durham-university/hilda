@@ -18,7 +18,7 @@ module Hilda
     end
 
     def self.index_processes
-      IngestionProcess.all
+      IngestionProcess.all.from_solr!.order('system_create_dtsi desc')
     end
 
     def index

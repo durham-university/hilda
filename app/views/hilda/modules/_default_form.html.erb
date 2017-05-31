@@ -1,6 +1,6 @@
 <% if mod.respond_to? :param_defs %>
   <% has_files = mod.param_defs.any? do |key,param| param[:type]==:file end || false %>
-  <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_path(@ingestion_process, mod.module_name), html: { class: 'form', multipart: has_files } do |f| %>
+  <%= simple_form_for @ingestion_process, url: hilda.ingestion_process_module_path(@ingestion_process, mod.module_name), html: { class: "form #{defined?(form_class) ? form_class : ''}", multipart: has_files } do |f| %>
     <%= f.input :no_layout, as: :hidden, input_html: { value: 'true' } %>
     <%= render_module_params(mod, f) do %>
       <% if mod.can_receive_params? %>

@@ -21,7 +21,7 @@ module HildaDurham
           }
         self.param_defs[:library_record_fragment] = { 
             label: 'Fragment id',
-            note: 'Leave empty for Adlib and Millennium. For Schmit enter the unitid of the record in the catalogue.',
+            note: 'For Schmit enter the unitid of the record in the catalogue. For Millennium, optionally select the holding',
             type: :string,
             optional: true
           }
@@ -40,7 +40,11 @@ module HildaDurham
             when :adlib
               DurhamRails::LibrarySystems::Adlib.connection.record(record_id)
             when :millennium
-              DurhamRails::LibrarySystems::Millennium.connection.record(record_id)
+              r = DurhamRails::LibrarySystems::Millennium.connection.record(record_id)
+              if r && r.exists? && fragment_id.present?
+                r = r.holdings.find do |h| h.holding_id == fragment_id end
+              end
+              r
             when :schmit
               r = nil
               self.retry(Proc.new do |error, counter|
@@ -69,6 +73,7 @@ module HildaDurham
       def receive_params(params)
         return super(params).tap do |ret|
           fetch_selected_record_label
+          update_fragment_options
         end
       end
       
@@ -79,7 +84,7 @@ module HildaDurham
           case record
           when DurhamRails::RecordFormats::AdlibRecord
             record.title
-          when DurhamRails::RecordFormats::MillenniumRecord
+          when DurhamRails::RecordFormats::MillenniumRecord, DurhamRails::RecordFormats::MillenniumRecord::Holding
             record.title
           when DurhamRails::RecordFormats::EADRecord::Item, DurhamRails::RecordFormats::TEIRecord::Impl
             record.title_path
@@ -87,6 +92,30 @@ module HildaDurham
             nil
           end
         end
+        changed!
+      end
+      
+      def update_fragment_options
+        record = selected_record
+        options = case record
+          when DurhamRails::RecordFormats::MillenniumRecord
+            count = record.holdings.count
+            [["#{count} #{"holding".pluralize(count)}",nil]] + record.holdings.map do |h| [h.holding_title,h.holding_id] end
+          when DurhamRails::RecordFormats::MillenniumRecord::Holding
+            count = record.parent.holdings.count
+            [["#{count} #{"holding".pluralize(count)}",nil]] + record.parent.holdings.map do |h| [h.holding_title,h.holding_id] end
+          else
+            nil
+        end
+        
+        if options==nil
+          self.param_defs[:library_record_fragment][:type] = :string
+          self.param_defs[:library_record_fragment][:collection] = nil          
+        else
+          self.param_defs[:library_record_fragment][:type] = :select
+          self.param_defs[:library_record_fragment][:collection] = options
+        end
+        
         changed!
       end
       

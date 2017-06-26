@@ -8,7 +8,7 @@ development:
   temp_file_service:
     type: 'file'
 #    temp_dir: '/digitisation_staging'
-    temp_dir: ['/home/qgkb58/hilda_temp/', '/digitisation_staging/', '/home/qgkb58/hydra/testdata/letters/']
+    temp_dir: ['/home/qgkb58/hilda_temp/', '/digitisation_staging/', '/home/qgkb58/hydra/testdata/']
 
 test:
   <<: *defaults

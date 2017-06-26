@@ -27,6 +27,10 @@ namespace :hilda_durham do
             title: {label: 'Title', type: :string, graph_title: true},
             digitisation_note: {label: 'Digitisation note', type: :text, optional: true}
           }) \
+        .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Conversion_profile', module_group: 'Metadata',
+          param_defs: {
+            conversion_profile: {label: 'Conversion profile', type: :select, collection: ['default'], default: 'default'},
+          }) \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Licence_and_attribution', module_group: 'Metadata',
           param_defs: {
             licence: {label: 'Licence', type: :select, collection: [

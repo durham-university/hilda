@@ -62,6 +62,15 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
       expect(mod_output[:trifle_manifest]['id']).to eql('man_id_1')
     end
     
+    it "sets conversion profile" do
+      expected_deposit_items[0]['conversion_profile'] = 'printed'
+      expected_deposit_items[1]['conversion_profile'] = 'printed'
+      mod_input[:process_metadata][:conversion_profile] = 'printed'
+      expect(Trifle::API::IIIFCollection).to receive(:find).with('test_collection_id').and_return(collection_mock)
+      expect(Trifle::API::IIIFManifest).to receive(:deposit_new).with(collection_mock, expected_deposit_items, expected_manifest_metadata).and_return(deposit_response)
+      expect(mod_output[:trifle_manifest]['id']).to eql('man_id_1')
+    end
+    
     it "requires a collection_id to proceed" do
       mod_input.delete(:trifle_collection)
       expect(mod_output).to be_empty

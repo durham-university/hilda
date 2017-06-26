@@ -8,7 +8,7 @@ namespace :hilda_durham do
         { label: 'well-formed', xpath: '/xmlns:fits/xmlns:filestatus/xmlns:well-formed[@toolname="Jhove"][text()="true"]'},
         { label: 'valid', xpath: '/xmlns:fits/xmlns:filestatus/xmlns:valid[@toolname="Jhove"][text()="true"]'},
         { label: 'uncompressed', xpath: '/xmlns:fits/xmlns:metadata/xmlns:image/xmlns:compressionScheme[@toolname="Jhove"][text()="Uncompressed"]'},
-        { label: 'colourspace', xpath: '/xmlns:fits/xmlns:metadata/xmlns:image/xmlns:colorSpace[@toolname="Jhove"][(text()="RGB") or (text()="BlackIsZero")]'}
+        { label: 'colourspace', xpath: '/xmlns:fits/xmlns:metadata/xmlns:image/xmlns:colorSpace[@toolname="Jhove"][(text()="RGB") or (text()="BlackIsZero") or (text()="WhiteIsZero")]'}
       ]
     
     Hilda::IngestionProcessTemplate.new_template('IIIF Ingestion','iiif_ingest','Ingest a batch of images into Oubliette and Trifle and generate IIIF metadata') do |template|

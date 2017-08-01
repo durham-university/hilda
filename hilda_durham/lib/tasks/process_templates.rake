@@ -39,10 +39,13 @@ namespace :hilda_durham do
               ], default: 'http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode'},
             attribution: {label: 'Attribution', type: :string, default: 'Provided by Durham Priory Library Project - a collaboration between Durham University and Durham Cathedral'}
           }) \
-        .add_module(Hilda::Modules::BulkFileMetadata, module_name: 'Set_canvas_titles', module_group: 'Metadata',
+        .add_module(Hilda::Modules::BulkFileMetadata, module_name: 'Set_canvas_metadata', module_group: 'Metadata',
           metadata_fields: {
-            title: {label: 'Title', type: :string }
-          }) \
+            title: {label: 'Title', type: :string },
+            image_record: {label: 'Image record', type: :string, optional: true },
+            image_description: {label: 'Image description', type: :string, optional: true }
+          },
+          data_delimiter: ',') \
         .add_module(HildaDurham::Modules::TrifleCollectionLinker, module_name: 'Select_IIIF_collection', module_group: 'Metadata') \
 #        .add_module(Hilda::Modules::DetectContentType, module_name: 'Verify_content_type', module_group: 'Verify', allow_only: ['image/tiff']) \
         .add_module(Hilda::Modules::FitsValidator, module_name: 'Fits_validation', module_group: 'Verify', validation_rules: validation_rules) \

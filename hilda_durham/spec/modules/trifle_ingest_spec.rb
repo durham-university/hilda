@@ -20,6 +20,12 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
         attribution: 'test attribution',
         source_record: 'schmit:ark:/12345/testid'
       },
+      file_metadata: {
+        file1__title: "1",
+        file1__image_description: "test image description",
+        file1__image_record: "schmit:ark:/12345/othertestid#abcdef",
+        file2__title: "2"
+      },
       trifle_collection: 'test_collection_id'
     }
   }
@@ -30,8 +36,8 @@ RSpec.describe HildaDurham::Modules::TrifleIngest do
     end
   }  
   let( :expected_deposit_items ) { [
-    {'source_path' => 'oubliette:file_id_1', 'title' => '1', 'temp_file' => nil},
-    {'source_path' => 'oubliette:file_id_2', 'title' => '2', 'temp_file' => nil}
+    {'source_path' => 'oubliette:file_id_1', 'title' => '1', 'temp_file' => nil, 'description' => 'test image description', 'source_record' => 'schmit:ark:/12345/othertestid#abcdef'},
+    {'source_path' => 'oubliette:file_id_2', 'title' => '2', 'temp_file' => nil, 'description' => nil, 'source_record' => nil}
   ] }
   let( :expected_manifest_metadata ){ {
     'title' => 'test title test subtitle',

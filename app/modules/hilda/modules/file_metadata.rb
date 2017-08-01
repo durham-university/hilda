@@ -18,7 +18,8 @@ module Hilda::Modules
             group: file_name,
             label: field[:label],
             type: field[:type],
-            default: ( field[:default] == '__key__' ? file_name : field[:default] )
+            default: ( field[:default] == '__key__' ? file_name : field[:default] ),
+            optional: field.fetch(:optional, false)
           }
         end
       end )

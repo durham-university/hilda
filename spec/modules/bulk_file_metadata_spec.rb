@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Hilda::Modules::BulkFileMetadata do
   let( :simple_metadata_fields) { { title: {label: 'title', type: :string } } }
-  let( :complex_metadata_fields) { { title: {label: 'title', type: :string }, tag: {label: 'tag', type: :string, default: 'moo'} } }
+  let( :complex_metadata_fields) { { title: {label: 'title', type: :string }, tag: {label: 'tag', type: :string, default: 'moo'}, description: {label: 'description', type: :string, optional: true} } }
   let( :metadata_fields ) { simple_metadata_fields }
   
   let( :file_names ) { ['f1','f2','f3'] }
@@ -46,6 +46,14 @@ RSpec.describe Hilda::Modules::BulkFileMetadata do
       mod.receive_params({'bulk_data' => "aa\nbb"})
       expect(mod.all_params_valid?).to eql(false)
     end
+    context "with complex defs" do
+      let( :metadata_fields ) { complex_metadata_fields }
+      before {  mod.param_values[:data_delimiter] = ',' }
+      it "handles default values" do
+        mod.receive_params({'bulk_data' => "aa\nbb,cc\ndd,ee,ff"})
+        expect(mod.all_params_valid?).to eql(true)
+      end
+    end
   end
   
   describe "#parse_bulk_params" do
@@ -65,14 +73,16 @@ RSpec.describe Hilda::Modules::BulkFileMetadata do
         mod.param_values[:data_delimiter] = ';'
         expect(mod.data_delimiter).to eql(';')
       }
-      let(:input) { "test1;foo1\ntest2;foo2\ntest3" }
+      let(:input) { "test1;foo1\ntest2;foo2;bar2\ntest3;;bar3" }
       it "parses" do
         expect(parsed).to eql({ 
           'f1__title' => 'test1',
           'f1__tag' => 'foo1',
           'f2__title' => 'test2',
           'f2__tag' => 'foo2',
-          'f3__title' => 'test3'
+          'f2__description' => 'bar2',
+          'f3__title' => 'test3',
+          'f3__description' => 'bar3'
         })
       end
     end

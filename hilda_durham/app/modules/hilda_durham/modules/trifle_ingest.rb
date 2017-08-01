@@ -21,10 +21,17 @@ module HildaDurham
         end
 
         process_metadata = module_input[:process_metadata] || {}
+        file_metadata = module_input[:file_metadata] || {}
 
         deposit_items = ingest_files.map do |file_key,file_json|
           file = Oubliette::API::PreservedFile.from_json(file_json)
-          image_hash = { 'source_path' => "oubliette:#{file.id}", 'title' => file.title, 'temp_file' => file_json['temp_file'] }
+          image_hash = { 
+            'source_path' => "oubliette:#{file.id}", 
+            'title' => file.title, 
+            'temp_file' => file_json['temp_file'],
+            'description' => file_metadata[:"#{file_key}__image_description"],
+            'source_record' => file_metadata[:"#{file_key}__image_record"]
+          }
           image_hash['conversion_profile'] = process_metadata[:conversion_profile] if process_metadata.key?(:conversion_profile)
           image_hash
         end

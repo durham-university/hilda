@@ -45,9 +45,12 @@ module Hilda::Modules
         defs_by_group.each_with_index do |(group,params),i|
           line = lines[i] || ''
           if data_delimiter
-            values = line.split(data_delimiter) 
+            values = line.parse_csv(col_sep: data_delimiter).map do |val|
+              val = val.try(:strip)
+              val.present? ? val : nil
+            end
           else
-            values = [line]
+            values = [line.strip]
           end
           
           params.zip(values).each do |param,value|

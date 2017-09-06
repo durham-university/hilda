@@ -112,10 +112,8 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
       }
     }
     let(:module_input) { {} }
-    before {
-      mod.set_sub_module_input(module_input, letter_data)
-    }
     it "sets module_input data" do
+      mod.set_sub_module_input(module_input, letter_data)
       expect(module_input[:process_metadata][:title]).to eql('Test title')
       expect(module_input[:process_metadata][:date]).to eql('1987')
       expect(module_input[:process_metadata][:author]).to eql('Test author')
@@ -129,6 +127,24 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
       expect(module_input[:file_metadata][:"file2.tiff__title"]).to eql('2')
       expect(module_input[:trifle_collection]).to eql('trifle_test_collection')
     end
+    it "works with millennium source record" do
+      letter_data[:source_record] = "millennium:m12345"
+      letter_data[:source_fragment] = "i6789abc"
+      mod.set_sub_module_input(module_input, letter_data)
+      expect(module_input[:process_metadata][:source_record]).to eql('millennium:m12345#i6789abc')
+    end
+    it "works with schmit source record" do
+      letter_data[:source_record] = 'schmit:ark:/12345/abcdefgh'
+      letter_data[:source_fragment] = "ABC-1"
+      mod.set_sub_module_input(module_input, letter_data)
+      expect(module_input[:process_metadata][:source_record]).to eql('schmit:ark:/12345/abcdefgh#ABC-1')
+    end
+    it "defaults to schmit source record" do
+      letter_data[:source_record] = 'ark:/12345/abcdefgh'
+      letter_data[:source_fragment] = "ABC-1"
+      mod.set_sub_module_input(module_input, letter_data)
+      expect(module_input[:process_metadata][:source_record]).to eql('schmit:ark:/12345/abcdefgh#ABC-1')
+    end
     context "with process_metadata set" do
       let( :mod_input ) { {
         source_files: { 'batch_metadata.csv' => {
@@ -138,44 +154,87 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
         process_metadata: {licence: 'Process licence', attribution: 'Process attribution'}
       } }      
       it "uses process_metadata licence and attribution" do
+        mod.set_sub_module_input(module_input, letter_data)
         expect(module_input[:process_metadata][:licence]).to eql('Process licence')
         expect(module_input[:process_metadata][:attribution]).to eql('Process attribution')
       end
     end
   end
   
-  describe "#fetch_linked_metadata" do
+  describe "#fetch_schmit_metadata" do
     let(:schmit_record) { double('schmit_record', xml_record: ead_record) }
     let(:ead_record) { 
-      double('ead_record').tap do |r|
+      double('ead_record', main_hash.merge(scopecontent: main_hash[:description])).tap do |r|
         allow(r).to receive(:sub_item).with(record_fragment).and_return(sub_record)
       end
     }
-    let(:sub_record) { double('sub_record') }
+    let(:sub_record) { double('sub_record', sub_hash.merge(scopecontent: sub_hash[:description])) }
+    let(:main_hash) { { id: 'mainid', title: 'maintitle', date: 'maindate', author: 'mainauthor', description: 'maindescription' } }
+    let(:sub_hash) { { id: 'subid', title: 'subtitle', date: 'subdate', author: 'subauthor', description: 'subdescription' } }
     let(:source_id) { 'ark:/12345/abcdefgh' }
     let(:record_fragment) { 'ABC-1' }
     before {
       allow(Schmit::API::Catalogue).to receive(:find).with(source_id).and_return(schmit_record)
     }
     it "returns fetched record" do
-      expect(mod.fetch_linked_metadata(source_id,nil)).to eql(ead_record)
-      expect(mod.fetch_linked_metadata(source_id,record_fragment)).to eql(sub_record)
+      expect(mod.fetch_schmit_metadata(source_id,nil)).to eql(main_hash)
+      expect(mod.fetch_schmit_metadata("schmit:#{source_id}",nil)).to eql(main_hash)
+      expect(mod.fetch_schmit_metadata(source_id,record_fragment)).to eql(sub_hash)
     end
     it "cachecs records" do
-      expect(mod.fetch_linked_metadata(source_id,record_fragment)).to eql(sub_record)
+      expect(mod.fetch_schmit_metadata(source_id,record_fragment)).to eql(sub_hash)
       expect(Schmit::API::Catalogue).not_to receive(:find)
-      expect(mod.fetch_linked_metadata(source_id,record_fragment)).to eql(sub_record)
+      expect(mod.fetch_schmit_metadata(source_id,record_fragment)).to eql(sub_hash)
+    end
+  end
+  
+  describe "#fetch_millennium_metadata" do
+    let(:millennium_record) { double('millennium_record', holdings: [
+      double('h1',holding_id: 'something_else'),
+      double('h2',holding_id: record_fragment, recordkey: "subid", title: 'subtitle', author: 'subauthor'),
+    ], recordkey: 'mainid', title: 'maintitle', author: 'mainauthor') }
+    let(:main_hash) { { id: 'mainid', title: 'maintitle', date: nil, author: 'mainauthor', description: nil } }
+    let(:sub_hash) { { id: 'subid', title: 'subtitle', date: nil, author: 'subauthor', description: nil } }
+    let(:source_id) { '12abcde' }
+    let(:record_fragment) { 'i345fghi' }
+    before {
+      allow(DurhamRails::LibrarySystems::Millennium.connection).to receive(:record).with(source_id).and_return(millennium_record)
+    }
+    it "returns fetched record" do
+      expect(mod.fetch_millennium_metadata(source_id,nil)).to eql(main_hash)
+      expect(mod.fetch_millennium_metadata("millennium:#{source_id}",nil)).to eql(main_hash)
+      expect(mod.fetch_millennium_metadata(source_id,record_fragment)).to eql(sub_hash)
+    end
+    it "cachecs records" do
+      expect(mod.fetch_millennium_metadata(source_id,record_fragment)).to eql(sub_hash)
+      expect(DurhamRails::LibrarySystems::Millennium.connection).not_to receive(:record)
+      expect(mod.fetch_millennium_metadata(source_id,record_fragment)).to eql(sub_hash)
+    end
+  end
+  
+  describe "#fetch_linked_metadata" do
+    it "works with schmit: prefix" do
+      expect(mod).to receive(:fetch_schmit_metadata).with("schmit:testid", "fragmentid")
+      mod.fetch_linked_metadata("schmit:testid","fragmentid")
+    end
+    it "works with millennium: prefix" do
+      expect(mod).to receive(:fetch_millennium_metadata).with("millennium:testid", "fragmentid")
+      mod.fetch_linked_metadata("millennium:testid","fragmentid")
+    end
+    it "uses schmit if no prefix" do
+      expect(mod).to receive(:fetch_schmit_metadata).with("testid", "fragmentid")
+      mod.fetch_linked_metadata("testid","fragmentid")
     end
   end
   
   describe "#populate_source_metadata" do
     let(:source_id) { 'ark:/12345/abcdefgh' }
     let(:record_fragment) { 'ABC-1' }
-    let(:ead_record) { 
-      double('ead_record', title: 'Record title', id: 'record_id', date: 'Record date', scopecontent: 'Record description', author: 'Record author')
+    let(:linked_record) { 
+      {title: 'Record title', id: 'record_id', date: 'Record date', description: 'Record description', author: 'Record author'}
     }
     before {
-      allow(mod).to receive(:fetch_linked_metadata).with(source_id,record_fragment).and_return(ead_record)
+      allow(mod).to receive(:fetch_linked_metadata).with(source_id,record_fragment).and_return(linked_record)
     }
     it "doesn't do anything if no source_record" do
       expect(mod).not_to receive(:fetch_linked_metadata)

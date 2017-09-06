@@ -5,6 +5,7 @@ defaults: &defaults
   identifier_statefile: '/tmp/trifle-minter-state'
   image_convert_command: ['trifle_scripts/convert_ptif.sh']
   image_convert_format: 'ptif'
+  n2t_server: 'https://n2t.durham.ac.uk'
 
 development:
   <<: *defaults
@@ -28,6 +29,11 @@ development:
     #user: <%= ENV['USER'] %>
     iiif_root: <%= File.join(Dir.home,'mock_iiif') %>/
     images_root: <%= File.join(Dir.home,'iipimages') %>/
+    create_dirs: true
+  millennium_linking_config:
+    local_copy: true
+    file_permissions: 0644
+    root: <%= File.join(Dir.home,'mock_millennium') %>/
     create_dirs: true
 
 test:

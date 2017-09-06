@@ -64,7 +64,8 @@ module HildaDurham
         end
         source_link = nil
         if letter[:source_record].present?
-          source_link = "schmit:#{letter[:source_record]}"
+          source_link = letter[:source_record]
+          source_link = "schmit:#{source_link}" unless source_link.starts_with?("millennium:") || source_link.starts_with?("schmit:")
           source_link += "##{letter[:source_fragment]}" if letter[:source_fragment].present?
         end
         input[:process_metadata] = { 
@@ -79,24 +80,68 @@ module HildaDurham
         input
       end
       
-      def fetch_linked_metadata(source_id,fragment_id=nil)
-        # returns a DurhamRails::RecordFormats::EADRecord (or TEIRecord) or a
-        # subitem of one
+      def fetch_millennium_metadata(source_id, fragment_id=nil)
+        source_id = source_id[11..-1] if source_id.start_with?("millennium:")
+        
         @cached_records ||= {}
-        record = if @cached_records.key?(source_id)
-          @cached_records[source_id]
+        record = if @cached_records.key?("millennium:#{source_id}")
+          @cached_records["millennium:#{source_id}"]
+        else
+          log!(:info,"Fetching record #{source_id} from Millennium")
+          millennium_record = DurhamRails::LibrarySystems::Millennium.connection.record(source_id)
+          unless millennium_record
+            log!(:error,"Couldn't find record #{source_id} in Millennium")
+            return nil
+          end
+          @cached_records["millennium:#{source_id}"] = millennium_record
+        end
+        return nil unless record
+        record = record.holdings.find do |h| h.holding_id == fragment_id end if fragment_id.present?
+        return nil unless record
+        {
+          id: record.recordkey,
+          title: record.title,
+          date: nil,
+          description: nil,
+          author: record.author
+        }
+      end
+      
+      def fetch_schmit_metadata(source_id, fragment_id=nil)
+        source_id = source_id[7..-1] if source_id.start_with?("schmit:")
+        
+        @cached_records ||= {}
+        record = if @cached_records.key?("schmit:#{source_id}")
+          @cached_records["schmit:#{source_id}"]
         else
           log!(:info,"Fetching record #{source_id} from Schmit")
           schmit_record = Schmit::API::Catalogue.find(source_id)
           unless schmit_record
             log!(:error,"Couldn't find record #{source_id} in Schmit")
-            return false
+            return nil
           end
-          @cached_records[source_id] = schmit_record.xml_record
+          @cached_records["schmit:#{source_id}"] = schmit_record.xml_record
         end
-        return false unless record
+        return nil unless record
         record = record.sub_item(fragment_id) if fragment_id.present?
-        record
+        return nil unless record
+        {
+          id: record.id,
+          title: record.title,
+          date: record.date,
+          description: record.scopecontent,
+          author: record.author
+        }
+      end
+      
+      def fetch_linked_metadata(source_id,fragment_id=nil)
+        if source_id.start_with?("millennium:")
+          fetch_millennium_metadata(source_id,fragment_id)
+        elsif source_id.start_with?("schmit:")
+          fetch_schmit_metadata(source_id,fragment_id)
+        else
+          fetch_schmit_metadata(source_id,fragment_id)
+        end
       end
       
       def populate_source_metadata(letter_data)
@@ -105,11 +150,11 @@ module HildaDurham
         return false unless record
         
         unless letter_data[:title].present?
-          letter_data[:title] = (param_values[:title_base] || '') + (record.title || record.id)
+          letter_data[:title] = (param_values[:title_base] || '') + (record[:title] || record[:id])
         end
-        letter_data[:date] = record.date || '' unless letter_data[:date].present?
-        letter_data[:description] = record.scopecontent || '' unless letter_data[:description].present?
-        letter_data[:author] = record.author || '' unless letter_data[:author].present?
+        letter_data[:date] = record[:date] || '' unless letter_data[:date].present?
+        letter_data[:description] = record[:description] || '' unless letter_data[:description].present?
+        letter_data[:author] = record[:author] || '' unless letter_data[:author].present?
         
         true
       end

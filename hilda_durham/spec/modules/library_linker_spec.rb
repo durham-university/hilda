@@ -106,6 +106,14 @@ RSpec.describe HildaDurham::Modules::LibraryLinker do
       expect(mod).to receive(:fetch_selected_record_label)
       mod.receive_params({})
     end
+    it "fills in millennium check digit" do
+      mod.receive_params({'library_record_type' => 'millennium', 'library_record_id' => 'b1640124'})
+      expect(mod.param_values[:library_record_id]).to eql('b16401244')
+      mod.receive_params({'library_record_type' => 'millennium', 'library_record_id' => 'b16401244'})
+      expect(mod.param_values[:library_record_id]).to eql('b16401244')
+      mod.receive_params({'library_record_type' => 'millennium', 'library_record_id' => ''})
+      expect(mod.param_values[:library_record_id]).to eql('')
+    end
   end
   
   describe "#fetch_selected_record_label" do

@@ -70,8 +70,22 @@ module HildaDurham
         end
       end
       
+      def set_check_digit
+        record_type = self.param_values[:library_record_type].try(:downcase)
+        if record_type == 'millennium'
+          record_id = self.param_values[:library_record_id]
+          if record_id.present? && record_id.length == 8 && record_id[0] == 'b'
+            check_digit = DurhamRails::LibrarySystems::Millennium.check_digit(record_id)
+            if check_digit.present?
+              self.param_values[:library_record_id] += check_digit
+            end
+          end
+        end
+      end
+      
       def receive_params(params)
         return super(params).tap do |ret|
+          set_check_digit
           fetch_selected_record_label
           update_fragment_options
         end

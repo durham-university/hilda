@@ -6,6 +6,7 @@ defaults: &defaults
   image_convert_command: ['trifle_scripts/convert_ptif.sh']
   image_convert_format: 'ptif'
   n2t_server: 'https://n2t.durham.ac.uk'
+  millennium_base_url: 'http://discover.durham.ac.uk/44DUR_VU1:CSCOP_ALL:44DUR_LMS_DS.'
 
 development:
   <<: *defaults

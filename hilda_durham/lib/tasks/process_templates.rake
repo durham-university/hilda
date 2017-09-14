@@ -45,7 +45,8 @@ namespace :hilda_durham do
             image_record: {label: 'Image record', type: :string, optional: true },
             image_description: {label: 'Image description', type: :string, optional: true }
           },
-          data_delimiter: ',') \
+          data_delimiter: ',',
+          note: "image label, [image record], [image description]<br>Use double quotes around values if they contain any commas.") \
         .add_module(HildaDurham::Modules::TrifleCollectionLinker, module_name: 'Select_IIIF_collection', module_group: 'Metadata') \
 #        .add_module(Hilda::Modules::DetectContentType, module_name: 'Verify_content_type', module_group: 'Verify', allow_only: ['image/tiff']) \
         .add_module(Hilda::Modules::FitsValidator, module_name: 'Fits_validation', module_group: 'Verify', validation_rules: validation_rules) \

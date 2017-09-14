@@ -13,6 +13,9 @@
         </td>
       </tr>
     </table>
+    <% if mod.param_values[:note].present? %>
+      <p class="help-block"><%= mod.param_values[:note].html_safe %></p>
+    <% end %>
     <% if mod.can_receive_params? %>
       <%= f.button(:submit, 'Update module', class: "btn btn-primary") unless mod.rendering_option(:no_submit) %>
     <% end %>

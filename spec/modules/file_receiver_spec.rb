@@ -125,6 +125,16 @@ RSpec.describe Hilda::Modules::FileReceiver do
       expect(mod.param_values[:received_temp_files].length).to eql 4
     end
     
+    it "sets graph title" do
+      class << graph
+        attr_accessor :title
+      end
+      mod.param_values[:graph_title_prefix] = "prefix "
+      mod.param_values[:graph_title] = true
+      new_files # make by referencing
+      expect(graph.title).to eql('prefix test.zip')
+    end
+    
     context "undeclared files" do
       let(:file_names) { ['test1.jpg','test2.jpg'] } 
       it "raises an error if file is not pre-declared" do

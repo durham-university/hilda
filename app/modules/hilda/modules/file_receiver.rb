@@ -90,6 +90,11 @@ module Hilda::Modules
         file_values[file_name] = new_file
         new_files << new_file
       end
+      
+      if param_values[:graph_title].to_s == 'true' && file_values.any? && module_graph.respond_to?(:title=)
+        module_graph.title = "#{param_values[:graph_title_prefix]}#{file_values.keys.sort.first}"
+      end
+      
       return new_files
     end
     

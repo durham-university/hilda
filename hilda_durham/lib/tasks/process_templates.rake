@@ -60,7 +60,7 @@ namespace :hilda_durham do
     end
     Hilda::IngestionProcessTemplate.new_template('Batch ingest','batch_ingest','Ingest a batch into Oubliette and Trifle and generate a series of IIIF manifests') do |template|
       template \
-        .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_batch_metadata', module_group: 'Setup') \
+        .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_batch_metadata', module_group: 'Setup', graph_title: true, graph_title_prefix: "Batch ingest - ") \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Licence_and_attribution', module_group: 'Setup',
           param_defs: {
             licence: {label: 'Licence', type: :select, collection: [

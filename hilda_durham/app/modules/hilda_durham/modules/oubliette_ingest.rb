@@ -42,6 +42,9 @@ module HildaDurham
 
       def run_module
         stored_files = {}
+        process_metadata = module_input[:process_metadata] || {}
+        tags = process_metadata[:tags] || []
+        tags = tags.split(/[ ,]+/) if tags.present? && tags.is_a?(String)
         parent = nil
         self.retry(Proc.new do |error, counter|
           delay = 10+30*counter
@@ -68,6 +71,7 @@ module HildaDurham
                   content_type: file[:content_type] || 'application/octet-stream',
                   original_filename: original_filename(file),
                   parent: parent,
+                  tag: tags,
                   job_tag: job_tag+"/"+file[:md5] )
                 stored_files[file_key] = stored_file.as_json.merge('temp_file' => file[:path])
                 log! :info, "Ingested to Oubliette with id \"#{stored_file.id}\""

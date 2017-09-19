@@ -25,7 +25,8 @@ namespace :hilda_durham do
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Digitisation_metadata', module_group: 'Metadata',
           param_defs: {
             title: {label: 'Title', type: :string, graph_title: true},
-            digitisation_note: {label: 'Digitisation note', type: :text, optional: true}
+            digitisation_note: {label: 'Digitisation note', type: :text, optional: true},
+            tags: {label: 'Oubliette tags', type: :string, optional: true}
           }) \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Conversion_profile', module_group: 'Metadata',
           param_defs: {

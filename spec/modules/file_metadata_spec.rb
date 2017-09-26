@@ -22,11 +22,38 @@ RSpec.describe Hilda::Modules::FileMetadata do
   describe "#graph_params_changed" do
     it "builds new param defs" do
       expect(mod).to receive(:build_param_defs)
+      expect(mod).to receive(:set_default_values)
       mod.graph_params_changed
     end
 
     it "updates timestamp" do
       expect { mod.graph_params_changed }.to change(mod, :change_time)
+    end
+  end
+  
+  describe "#set_default_values" do
+    before {
+      class TestSetter
+        def self.set_default_values(mod)
+        end
+      end
+    }
+    after {
+      Object.send(:remove_const,:TestSetter)
+    }
+    let(:params_mock) { double('params') }
+    it "calls setter if specified in options" do
+      mod.param_values[:defaults_setter]='TestSetter'
+      expect(mod).to receive(:receive_params).with(params_mock)
+      expect(TestSetter).to receive(:set_default_values).with(mod).and_return(params_mock)
+      mod.set_default_values
+    end
+    it "does nothing if not specified in options" do
+      expect(mod).not_to receive(:receive_params)
+      expect(TestSetter).not_to receive(:set_default_values)
+      expect {
+        mod.set_default_values
+      } .not_to raise_error
     end
   end
 

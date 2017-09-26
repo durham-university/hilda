@@ -42,8 +42,16 @@ module Hilda::Modules
       super
       old_defs = self.param_defs
       build_param_defs
+      set_default_values
       check_submitted_status!
       changed! unless old_defs == self.param_defs
+    end
+    
+    def set_default_values
+      if self.param_values[:defaults_setter].present?
+        values = self.param_values[:defaults_setter].constantize.set_default_values(self)
+        self.receive_params(values) unless values.nil? || !self.can_receive_params?
+      end
     end
 
     def params_output_key

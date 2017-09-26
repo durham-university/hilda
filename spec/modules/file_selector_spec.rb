@@ -99,8 +99,31 @@ RSpec.describe Hilda::Modules::FileSelector do
     it "cals essential functions and outputs files" do
       expect(mod).to receive(:all_params_valid?).and_return(true)
       expect(mod).to receive(:calculate_md5s)
+      expect(mod).to receive(:sort_files).and_call_original
       mod.run_module
       expect(mod.module_output[:source_files]).to eql(files)
+    end
+  end
+  
+  describe "#sort_files" do
+    let(:files) { double('file list') }
+    let(:sorted) { double('sorted list') }
+    let(:sorter) { "TestSorter" }
+    before {
+      class TestSorter
+        def self.sort(files) ; end
+      end
+    }
+    after {
+      Object.send(:remove_const, :TestSorter)
+    }
+    it "uses a sorter when defined" do
+      mod.param_values[:file_sorter] = sorter
+      expect(TestSorter).to receive(:sort).with(files).and_return(sorted)
+      expect(mod.send(:sort_files, files)).to eql(sorted)
+    end
+    it "returns the same list if no sorter defined" do
+      expect(mod.send(:sort_files, files)).to eql(files)
     end
   end
   

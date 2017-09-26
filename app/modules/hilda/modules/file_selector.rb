@@ -79,6 +79,7 @@ module Hilda::Modules
       files.each do |key,file|
         log! :info, "- #{file[:original_filename]} (md5:#{file[:md5]})"
       end
+      files = sort_files(files)
       module_output.merge!({ source_files: files })
     end
     
@@ -167,6 +168,11 @@ module Hilda::Modules
     end    
     
     private
+    
+      def sort_files(files)
+        return files unless self.param_values[:file_sorter].present?
+        self.param_values[:file_sorter].constantize.sort(files)
+      end
     
       def filter_re
         @filter_re ||= begin

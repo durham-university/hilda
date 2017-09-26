@@ -11,10 +11,12 @@ namespace :hilda_durham do
         { label: 'colourspace', xpath: '/xmlns:fits/xmlns:metadata/xmlns:image/xmlns:colorSpace[@toolname="Jhove"][(text()="RGB") or (text()="BlackIsZero") or (text()="WhiteIsZero")]'}
       ]
     
-    Hilda::IngestionProcessTemplate.new_template('IIIF Ingestion','iiif_ingest','Ingest a batch of images into Oubliette and Trifle and generate IIIF metadata') do |template|
+    file_selector_root = Rails.env.development? ? '/home/qgkb58/hydra/testdata' : '/shared_data/ingestion_temp'
+    
+    iiif_ingest = Hilda::IngestionProcessTemplate.new_template('IIIF Ingestion','iiif_ingest','Ingest a batch of images into Oubliette and Trifle and generate IIIF metadata') do |template|
       template \
 #        .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_files', module_group: 'Upload') \
-        .add_start_module(Hilda::Modules::FileSelector, module_name: 'Select_files', module_group: 'Upload', root_path: '/shared_data/ingestion_temp', filter_re: '(?i)^.*\\.tiff?$') \
+        .add_start_module(Hilda::Modules::FileSelector, module_name: 'Select_files', module_group: 'Upload', root_path: file_selector_root, filter_re: '(?i)^.*\\.tiff?$') \
         .add_module(HildaDurham::Modules::LibraryLinker, module_name: 'Select_library_record', module_group: 'Metadata', optional_module: true) \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Manifest_metadata', module_group: 'Metadata', optional_module: true, default_disabled: true,
           param_defs: {
@@ -49,16 +51,16 @@ namespace :hilda_durham do
           data_delimiter: ',',
           note: "image label, [image record], [image description]<br>Use double quotes around values if they contain any commas.") \
         .add_module(HildaDurham::Modules::TrifleCollectionLinker, module_name: 'Select_IIIF_collection', module_group: 'Metadata') \
-#        .add_module(Hilda::Modules::DetectContentType, module_name: 'Verify_content_type', module_group: 'Verify', allow_only: ['image/tiff']) \
         .add_module(Hilda::Modules::FitsValidator, module_name: 'Fits_validation', module_group: 'Verify', validation_rules: validation_rules) \
         .add_module(HildaDurham::Modules::OublietteIngest, module_name: 'Ingest_to_Oubliette', module_group: 'Ingest') \
         .add_module(HildaDurham::Modules::TrifleIngest, module_name: 'Ingest_to_Trifle', module_group: 'Ingest') # \
-#        .add_module(Hilda::Modules::DebugModule,
-#          module_group: 'Debug',
-#          param_defs: { test: {label: 'test param', type: :string, default: 'moo'} },
-#          info_template: 'hilda/modules/debug_info',
-#          sleep: 20 )
     end
+    
+    iiif_ingest.clone('Museum IIIF Ingest', 'museum_ingest', 'Ingest a batch of images into Oubliette and Trifle and generate IIIF metadata using museum presets') do |template|
+      template.find_module('Select_files').param_values[:file_sorter] = 'HildaDurham::MuseumTools'
+      template.find_module('Set_canvas_metadata').param_values[:defaults_setter] = 'HildaDurham::MuseumTools'
+    end
+    
     Hilda::IngestionProcessTemplate.new_template('Batch ingest','batch_ingest','Ingest a batch into Oubliette and Trifle and generate a series of IIIF manifests') do |template|
       template \
         .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_batch_metadata', module_group: 'Setup', graph_title: true, graph_title_prefix: "Batch ingest - ") \

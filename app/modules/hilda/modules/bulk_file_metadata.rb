@@ -27,10 +27,14 @@ module Hilda::Modules
       return true
     end
     
-    def groups
-      (param_defs || {}).map do |k,x| x[:group] end .uniq
+    def set_default_values
+      super
+      if self.param_values[:defaults_setter].present?
+        labels = self.param_values[:defaults_setter].constantize.default_file_labels(self.groups)
+        self.receive_params({data_key => labels.join("\n")}) unless labels.nil? || !self.can_receive_params?
+      end
     end
-    
+        
     def bulk_data_lines
       (self.param_values[:bulk_data] || '').split(/\r?\n/)
     end

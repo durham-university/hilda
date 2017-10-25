@@ -1,6 +1,6 @@
 module HildaDurham
   class MuseumTools
-    def self.set_default_values(mod)
+    def self.default_file_labels(file_names)
       suffix_re = /^.*[_ -]([^\.]+)\.[^\.]+$/
       labels = {
         'ff' => 'front',
@@ -20,8 +20,8 @@ module HildaDurham
         'ux' => 'underside inscription',
         /^pc([0-9]+)$/ => 'post conservation image \1'
       }
-      bulk_data = mod.groups.map do |group|
-        m = suffix_re.match(group)
+      file_names.map do |file_name|
+        m = suffix_re.match(file_name)
         if m.present?
           suffix = m[1].downcase
           labels.to_a.map do |matcher,replacement|
@@ -35,13 +35,12 @@ module HildaDurham
         else
           ''
         end
-      end .join("\n")
-      {mod.data_key => bulk_data}
+      end
     end
     
     def self.sort(files)
       ret = {}
-      ['ff','q1','rr','q2','bb','q3','ll','q4','tt','uu','q[0-9]+','gg','d[0-9]+',
+      ['ff','q1','ll','q2','bb','q3','rr','q4','tt','uu','q[0-9]+','gg','d[0-9]+',
              'fx','bx','lx','rx','tx','ux','pc[0-9]+'].each do |suffix|
         ret.merge!(self.find_files(files,suffix))
       end

@@ -61,7 +61,7 @@ namespace :hilda_durham do
       template.find_module('Set_canvas_metadata').param_values[:defaults_setter] = 'HildaDurham::MuseumTools'
     end
     
-    Hilda::IngestionProcessTemplate.new_template('Batch ingest','batch_ingest','Ingest a batch into Oubliette and Trifle and generate a series of IIIF manifests') do |template|
+    batch_ingest = Hilda::IngestionProcessTemplate.new_template('Batch ingest','batch_ingest','Ingest a batch into Oubliette and Trifle and generate a series of IIIF manifests') do |template|
       template \
         .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_batch_metadata', module_group: 'Setup', graph_title: true, graph_title_prefix: "Batch ingest - ") \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Licence_and_attribution', module_group: 'Setup',
@@ -78,6 +78,12 @@ namespace :hilda_durham do
                       title_base: '',
                       validation_rules: validation_rules)
     end
+    
+    batch_ingest.clone('Museum Batch ingest','museum_batch_ingest','Ingest a batch into Oubliette and Trifle using museum settings') do |template|
+      template.find_module('Batch_ingest').param_values[:file_sorter] = 'HildaDurham::MuseumTools'
+      template.find_module('Batch_ingest').param_values[:defaults_setter] = 'HildaDurham::MuseumTools'
+    end
+    
     Hilda::IngestionProcessTemplate.new_template('Bagit ingest','bagit_ingest','Ingest a BagIt bag into Oubliette') do |template|
       template \
         .add_start_module(Hilda::Modules::FileReceiver, module_name: 'Upload_bagit', module_group: 'Setup') \

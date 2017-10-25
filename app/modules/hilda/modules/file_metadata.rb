@@ -11,6 +11,10 @@ module Hilda::Modules
       self.param_defs = {}
     end
 
+    def groups
+      (param_defs || {}).map do |k,x| x[:group] end .uniq
+    end
+
     def build_param_defs
       self.param_defs = self.class.sanitise_field_defs( (module_graph.graph_params[:source_file_names] || []).each_with_object({}) do |file_name,defs|
         metadata_fields.each_with_object(defs) do |(key,field),defs|
@@ -48,10 +52,7 @@ module Hilda::Modules
     end
     
     def set_default_values
-      if self.param_values[:defaults_setter].present?
-        values = self.param_values[:defaults_setter].constantize.set_default_values(self)
-        self.receive_params(values) unless values.nil? || !self.can_receive_params?
-      end
+      # bulk_file_metadata uses this, not implemented here
     end
 
     def params_output_key

@@ -5,25 +5,28 @@ namespace :hilda_durham do
                          # in particular text direction markers and the like
   end
   
-  def csv_values(folder, xml_record, ark, fragment)
+  def csv_values(folder, xml_record, source_record, fragment, with_files=false)
     xml_record = xml_record.sub_item(fragment) if fragment.present?
-    [
+    ret = [
       folder,
       clean_value(xml_record.title || xml_record.id),
       clean_value(xml_record.author),
       clean_value(xml_record.date),
       clean_value(xml_record.scopecontent),
-      ark,
+      source_record,
       fragment
     ]
+    ret += [xml_record.reproductions.join(';')] if with_files
+    ret
   end
-  def output_record_csv(folder, xml_record, ark, fragment)
-    csv_line = csv_values(folder, xml_record, ark, fragment).to_csv(force_quotes: true)
+  def output_record_csv(folder, xml_record, source_record, fragment, with_files=false)
+    csv_line = csv_values(folder, xml_record, source_record, fragment, with_files).to_csv(force_quotes: true)
     puts csv_line    
   end
   
-  desc "Fetches metadata from Schmit for letters ingestion"
-  task "fetch_records" , [:csv_path] => :environment do |t,args|
+  desc "Fetches metadata for letters ingestion"
+  task "fetch_records" , [:csv_path,:with_files] => :environment do |t,args|
+    with_files = (args[:with_files].to_s == 'true')
     csv_path = args[:csv_path].to_s
     unless csv_path.present? && File.exists?(csv_path)
       puts 'Usage:'
@@ -34,22 +37,35 @@ namespace :hilda_durham do
       csv_file.each_line do |line|
         line = line.strip
         next if line.blank? || line.start_with?('#')
-        folder, ark, fragment = line.parse_csv
-        unless ark.present?
-          puts "Error parsing input file. File should be CSV with three values per line: letter image folder, record ARK and optional record fragment id."
+        folder, source_record, fragment = line.parse_csv
+        unless source_record.present?
+          puts "Error parsing input file. File should be CSV with three values per line: letter image folder, source record identifier and optional record fragment id."
           return
         end
-        xml_record = if cached_records.key?(ark)
-          cached_records[ark]
+        xml_record = if cached_records.key?(source_record)
+          cached_records[source_record]
         else
-          record = Schmit::API::Catalogue.find(ark)
-          unless record
-            puts "Couldn't find record #{ark} in Schmit"
+          sys, identifier = source_record.split(':', 2)
+          cached_records[source_record] = case sys
+          when 'schmit'
+            Schmit::API::Catalogue.find(identifier).try(:xml_record)
+          when 'adlib'
+            record = DurhamRails::LibrarySystems::Adlib.connection.record(identifier)
+            record.exists? ? record : nil
+          when 'millennium'
+            record = DurhamRails::LibrarySystems::Millennium.connection.record(identifier)
+            record.exists? ? record : nil            
+          else
+            puts "Invalid library system #{sys}"
             return
+          end .tap do |record|
+            unless record
+              puts "Couldn't find record #{identifier} in #{sys}"
+              return
+            end
           end
-          cached_records[ark] = record.xml_record
         end
-        output_record_csv(folder, xml_record, ark, fragment)
+        output_record_csv(folder, xml_record, source_record, fragment, with_files)
       end
     end
   end

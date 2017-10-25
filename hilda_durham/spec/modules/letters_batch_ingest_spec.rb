@@ -127,6 +127,18 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
       expect(module_input[:file_metadata][:"file2.tiff__title"]).to eql('2')
       expect(module_input[:trifle_collection]).to eql('trifle_test_collection')
     end
+    it "can use preset file titles" do
+      letter_data[:source_files]['file1.tiff'][:title] = 'test title'
+      mod.set_sub_module_input(module_input, letter_data)
+      expect(module_input[:file_metadata][:"file1.tiff__title"]).to eql('test title')
+      expect(module_input[:file_metadata][:"file2.tiff__title"]).to eql('2')
+    end    
+    it "works with adlib source record" do
+      letter_data[:source_record] = "adlib:12345"
+      letter_data[:source_fragment] = nil
+      mod.set_sub_module_input(module_input, letter_data)
+      expect(module_input[:process_metadata][:source_record]).to eql('adlib:12345')
+    end
     it "works with millennium source record" do
       letter_data[:source_record] = "millennium:m12345"
       letter_data[:source_fragment] = "i6789abc"
@@ -211,6 +223,24 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
       expect(mod.fetch_millennium_metadata(source_id,record_fragment)).to eql(sub_hash)
     end
   end
+
+  describe "#fetch_adlib_metadata" do
+    let(:adlib_record) { double('adlib_record', priref: 'mainid', title: 'maintitle', date: 'date', description: 'description', author: nil) }
+    let(:main_hash) { { id: 'mainid', title: 'maintitle', date: 'date', author: nil, description: 'description' } }
+    let(:source_id) { '12abcde' }
+    before {
+      allow(DurhamRails::LibrarySystems::Adlib.connection).to receive(:record).with(source_id).and_return(adlib_record)
+    }
+    it "returns fetched record" do
+      expect(mod.fetch_adlib_metadata(source_id,nil)).to eql(main_hash)
+      expect(mod.fetch_adlib_metadata("adlib:#{source_id}",nil)).to eql(main_hash)
+    end
+    it "cachecs records" do
+      expect(mod.fetch_adlib_metadata(source_id)).to eql(main_hash)
+      expect(DurhamRails::LibrarySystems::Adlib.connection).not_to receive(:record)
+      expect(mod.fetch_adlib_metadata(source_id)).to eql(main_hash)
+    end
+  end
   
   describe "#fetch_linked_metadata" do
     it "works with schmit: prefix" do
@@ -220,6 +250,10 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
     it "works with millennium: prefix" do
       expect(mod).to receive(:fetch_millennium_metadata).with("millennium:testid", "fragmentid")
       mod.fetch_linked_metadata("millennium:testid","fragmentid")
+    end
+    it "works with adlib: prefix" do
+      expect(mod).to receive(:fetch_adlib_metadata).with("adlib:testid", nil)
+      mod.fetch_linked_metadata("adlib:testid",nil)
     end
     it "uses schmit if no prefix" do
       expect(mod).to receive(:fetch_schmit_metadata).with("testid", "fragmentid")
@@ -408,19 +442,107 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
       ])
       expect(mod.letters[1][:title].encoding.to_s).to eql('UTF-8')
     end
+    context "with files specified in csv" do
+      let( :batch_metadata ) { fixture('letters_batch_with_files.csv') }      
+      let!(:temp_file4) { 
+        File.open(File.join(letters2_dir,'test2.tiff'),'wb') do |file| 
+          file.write('1234')
+          file.path
+        end 
+      }
+      after {
+        File.unlink(temp_file4)
+      }
+      it "uses the specified files" do
+        expect(mod).to receive(:populate_source_metadata).exactly(2).times
+        mod.read_letters_data
+        expect(mod.letters[0][:source_files].count).to eql(1)
+        expect(mod.letters[0][:source_files]['test2.tiff']).to eql({
+                path: "#{letters1_dir}/test2.tiff",
+                original_filename: "test2.tiff",
+                content_type: "image/tiff",
+                md5: "674f3c2c1a8a6f90461e8a66fb5550ba"
+              })
+        expect(mod.letters[1][:source_files].count).to eql(2)
+        expect(mod.letters[1][:source_files]['test1.tiff']).to eql({
+                path: "#{letters2_dir}/test1.tiff",
+                original_filename: "test1.tiff",
+                content_type: "image/tiff",
+                md5: "c5c53759e4dd1bfe8b3dcfec37d0ea72"
+              })
+        expect(mod.letters[1][:source_files]['test2.tiff']).to eql({
+                path: "#{letters2_dir}/test2.tiff",
+                original_filename: "test2.tiff",
+                content_type: "image/tiff",
+                md5: "81dc9bdb52d04dc20036dbd8313ed055"
+              })
+      end
+    end
   end
   
   describe "#ingest_letter" do
     let(:letter) { double('letter') }
     it "calls functions" do
+      expect(mod).to receive(:set_letter_metadata).with(letter)
       expect(mod).to receive(:ingest_oubliette).with(letter).and_return(true)
       expect(mod).to receive(:ingest_trifle).with(letter).and_return(true)
       expect(mod.ingest_letter(letter)).to eql(true)
     end
-    it "hats if anything fails" do
+    it "halts if anything fails" do
+      expect(mod).to receive(:set_letter_metadata).with(letter)
       expect(mod).to receive(:ingest_oubliette).with(letter).and_return(false)
       expect(mod).not_to receive(:ingest_trifle)
       expect(mod.ingest_letter(letter)).to eql(false)
+    end
+  end
+  
+  describe "#set_letter_metadata" do
+    before {
+      class TestSorter
+        def self.sort(files)
+          files.keys.sort.each_with_object({}) do |key, ret|
+            ret[key] = files[key]
+          end
+        end
+      end
+      class TestDefaults
+        def self.default_file_labels(file_names)
+          file_names.map(&:upcase)
+        end
+      end
+    }
+    after {
+      Object.send(:remove_const, :TestSorter)
+      Object.send(:remove_const, :TestDefaults)
+    }
+    let(:letter_data){
+      { source_files: {
+          'bbb.tiff' => { original_filename: 'bbb.tiff'},
+          'aaa.tiff' => { original_filename: 'aaa.tiff'},
+          'ccc.tiff' => { original_filename: 'ccc.tiff'}
+      } }
+    }    
+    it "sorts files if file_sorter is set" do
+      expect(letter_data[:source_files].keys).to eql(['bbb.tiff', 'aaa.tiff', 'ccc.tiff'])
+      mod.param_values[:file_sorter] = 'TestSorter'
+      mod.set_letter_metadata(letter_data)
+      expect(letter_data[:source_files].keys).to eql(['aaa.tiff', 'bbb.tiff', 'ccc.tiff'])
+    end
+    it "sets titles if defaults_setter is set" do
+      mod.param_values[:defaults_setter] = 'TestDefaults'
+      mod.set_letter_metadata(letter_data)
+      expect(letter_data[:source_files].values.map do |f| f[:title] end).to eql(['BBB.TIFF','AAA.TIFF','CCC.TIFF'])
+    end
+    it "works if both are set" do
+      mod.param_values[:file_sorter] = 'TestSorter'
+      mod.param_values[:defaults_setter] = 'TestDefaults'
+      mod.set_letter_metadata(letter_data)
+      expect(letter_data[:source_files].values.map do |f| f[:title] end).to eql(['AAA.TIFF','BBB.TIFF','CCC.TIFF'])
+    end
+    it "doesn't do anything if nothing is set" do
+      mod.set_letter_metadata(letter_data)
+      expect(letter_data[:source_files].keys).to eql(['bbb.tiff', 'aaa.tiff', 'ccc.tiff'])
+      expect(letter_data[:source_files].values.first[:title]).to be_nil
     end
   end
   

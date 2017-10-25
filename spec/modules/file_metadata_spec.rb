@@ -31,32 +31,6 @@ RSpec.describe Hilda::Modules::FileMetadata do
     end
   end
   
-  describe "#set_default_values" do
-    before {
-      class TestSetter
-        def self.set_default_values(mod)
-        end
-      end
-    }
-    after {
-      Object.send(:remove_const,:TestSetter)
-    }
-    let(:params_mock) { double('params') }
-    it "calls setter if specified in options" do
-      mod.param_values[:defaults_setter]='TestSetter'
-      expect(mod).to receive(:receive_params).with(params_mock)
-      expect(TestSetter).to receive(:set_default_values).with(mod).and_return(params_mock)
-      mod.set_default_values
-    end
-    it "does nothing if not specified in options" do
-      expect(mod).not_to receive(:receive_params)
-      expect(TestSetter).not_to receive(:set_default_values)
-      expect {
-        mod.set_default_values
-      } .not_to raise_error
-    end
-  end
-
   describe "#build_param_defs" do
     it "works with nil input" do
       graph.graph_params[:source_file_names] = nil

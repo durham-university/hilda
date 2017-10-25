@@ -22,25 +22,19 @@ RSpec.describe HildaDurham::MuseumTools do
   
   describe "#sort" do
     it "sorts files" do
-      expect(sorted_suffixes(['ff','q1','rr','q2','bb','q3','ll','q4','tt','uu','gg','d1','d2','fx','bx','lx','rx','tx','ux','pc1','pc2','other1','other2'])).to eql(['ff','q1','rr','q2','bb','q3','ll','q4','tt','uu','gg','d1','d2','fx','bx','lx','rx','tx','ux','pc1','pc2','other1','other2'])
-      expect(sorted_suffixes(['other','ll','rr','ff','bb','q1','q4','fx'])).to eql(['ff','q1','rr','bb','ll','q4','fx','other'])
+      expect(sorted_suffixes(['ff','q1','ll','q2','bb','q3','rr','q4','tt','uu','gg','d1','d2','fx','bx','lx','rx','tx','ux','pc1','pc2','other1','other2'])).to eql(['ff','q1','ll','q2','bb','q3','rr','q4','tt','uu','gg','d1','d2','fx','bx','lx','rx','tx','ux','pc1','pc2','other1','other2'])
+      expect(sorted_suffixes(['other','rr','ll','ff','bb','q1','q4','fx'])).to eql(['ff','q1','ll','bb','rr','q4','fx','other'])
       expect(sorted_suffixes(['ll'])).to eql(['ll'])
     end
   end
   
-  describe "#set_default_values" do
-    let(:mod) { double('mod', groups: [], data_key: :bulk_data)}
-    
+  describe "#default_file_labels" do
     it "sets default values" do
       all_suffixes = ['ff','q1','rr','q2','bb','q3','ll','q4','tt','uu','gg','d1','d2','fx','bx','lx','rx','tx','ux','pc1','pc2','other1','other2'] \
                         .map do |s| "file_#{s}.jpg" end
-      mod.groups.concat(all_suffixes)
-      expect(tools.set_default_values(mod)[:bulk_data]).to eql("front\nquarter 1\nright\nquarter 2\nback\nquarter 3\nleft\nquarter 4\ntop\nunderside\ngroup\ndetail 1\ndetail 2\nfront inscription\nback inscription\nleft inscription\nright inscription\ntop inscription\nunderside inscription\npost conservation image 1\npost conservation image 2\n\n")
-      mod.groups.clear
-      mod.groups.concat(['1_ll.jpg','2_d1.jpg'])
-      expect(tools.set_default_values(mod)[:bulk_data]).to eql("left\ndetail 1")
-      mod.groups.clear
-      expect(tools.set_default_values(mod)[:bulk_data]).to eql("")
+      expect(tools.default_file_labels(all_suffixes)).to eql(["front","quarter 1","right","quarter 2","back","quarter 3","left","quarter 4","top","underside","group","detail 1","detail 2","front inscription","back inscription","left inscription","right inscription","top inscription","underside inscription","post conservation image 1","post conservation image 2","",""])
+      expect(tools.default_file_labels(['1_ll.jpg','2_d1.jpg'])).to eql(["left","detail 1"])
+      expect(tools.default_file_labels([])).to eql([])
     end
   end
 

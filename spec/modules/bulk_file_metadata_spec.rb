@@ -33,6 +33,35 @@ RSpec.describe Hilda::Modules::BulkFileMetadata do
     end
   end
   
+  describe "#set_default_values" do
+    before {
+      class TestSetter
+        def self.default_file_labels(files)
+        end
+      end
+    }
+    after {
+      Object.send(:remove_const,:TestSetter)
+    }
+    let(:file_list) { ['testfile.tiff','testfile2.tiff'] }
+    let(:file_labels) { ['test1','test2'] }
+    let(:defaults_mock) { double('defaults') }
+    it "calls setter if specified in options" do
+      mod.param_values[:defaults_setter]='TestSetter'
+      expect(mod).to receive(:groups).and_return(file_list)
+      expect(TestSetter).to receive(:default_file_labels).with(file_list).and_return(file_labels)
+      expect(mod).to receive(:receive_params).with(hash_including(mod.data_key => file_labels.join("\n")))
+      mod.set_default_values
+    end
+    it "does nothing if not specified in options" do
+      expect(mod).not_to receive(:receive_params)
+      expect(TestSetter).not_to receive(:default_file_labels)
+      expect {
+        mod.set_default_values
+      } .not_to raise_error
+    end
+  end
+  
   describe "#all_params_valid?" do
     it "returns true when bulk line count matches group count" do
       mod.receive_params({'bulk_data' => "aa\nbb\ncc"})

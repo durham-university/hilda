@@ -60,12 +60,12 @@ module HildaDurham
         input[:trifle_collection] = self.module_input[:trifle_collection]
         input[:file_metadata] = {}
         letter[:source_files].each_with_index do |(file_key,file), index|
-          input[:file_metadata][:"#{file_key}__title"] = (index+1).to_s
+          input[:file_metadata][:"#{file_key}__title"] = file[:title].present? ? file[:title] : ((index+1).to_s)
         end
         source_link = nil
         if letter[:source_record].present?
           source_link = letter[:source_record]
-          source_link = "schmit:#{source_link}" unless source_link.starts_with?("millennium:") || source_link.starts_with?("schmit:")
+          source_link = "schmit:#{source_link}" unless source_link.starts_with?("millennium:") || source_link.starts_with?("schmit:") || source_link.starts_with?("adlib:")
           source_link += "##{letter[:source_fragment]}" if letter[:source_fragment].present?
         end
         input[:process_metadata] = { 
@@ -106,6 +106,31 @@ module HildaDurham
           author: record.author
         }
       end
+
+      def fetch_adlib_metadata(source_id, fragment_id=nil)
+        source_id = source_id[6..-1] if source_id.start_with?("adlib:")
+        
+        @cached_records ||= {}
+        record = if @cached_records.key?("adlib:#{source_id}")
+          @cached_records["adlib:#{source_id}"]
+        else
+          log!(:info,"Fetching record #{source_id} from Adlib")
+          adlib_record = DurhamRails::LibrarySystems::Adlib.connection.record(source_id)
+          unless adlib_record
+            log!(:error,"Couldn't find record #{source_id} in Adlib")
+            return nil
+          end
+          @cached_records["adlib:#{source_id}"] = adlib_record
+        end
+        return nil unless record
+        {
+          id: record.priref,
+          title: record.title,
+          date: record.date,
+          description: record.description,
+          author: record.author
+        }
+      end
       
       def fetch_schmit_metadata(source_id, fragment_id=nil)
         source_id = source_id[7..-1] if source_id.start_with?("schmit:")
@@ -139,6 +164,8 @@ module HildaDurham
           fetch_millennium_metadata(source_id,fragment_id)
         elsif source_id.start_with?("schmit:")
           fetch_schmit_metadata(source_id,fragment_id)
+        elsif source_id.start_with?("adlib:")
+          fetch_adlib_metadata(source_id, fragment_id)
         else
           fetch_schmit_metadata(source_id,fragment_id)
         end
@@ -243,17 +270,33 @@ module HildaDurham
             csv = line.parse_csv
             
             source_files = {}
-            list_files(csv[0]).each do |file|
-              file_name = File.basename(file)
-              md5 = calculate_md5(file)
-              log!(:info, "Found #{file}, MD5 is #{md5}")
-              source_files[file_name] = {
-                path: file,
-                original_filename: file_name,
-                content_type: 'image/tiff', # this is usually set by detect_content_type module rather than hard coded
-                md5: calculate_md5(file)
-              }
+            if csv.length >= 8
+              csv[7].split(';').each do |f|
+                file = File.join(resolve_path(csv[0]),f)
+                file_name = File.basename(file)
+                md5 = calculate_md5(file)
+                log!(:info, "Using file #{file}, MD5 is #{md5}")
+                source_files[file_name] = {
+                  path: file,
+                  original_filename: file_name,
+                  content_type: 'image/tiff',
+                  md5: md5
+                }
+              end
+            else
+              list_files(csv[0]).each do |file|
+                file_name = File.basename(file)
+                md5 = calculate_md5(file)
+                log!(:info, "Found #{file}, MD5 is #{md5}")
+                source_files[file_name] = {
+                  path: file,
+                  original_filename: file_name,
+                  content_type: 'image/tiff', # this is usually set by detect_content_type module rather than hard coded
+                  md5: md5
+                }
+              end
             end
+            
             if source_files.empty?
               log!(:error, "Found no files in #{line[0]} for letter #{line[1]}.")
               return false
@@ -282,8 +325,22 @@ module HildaDurham
       end
       
       def ingest_letter(letter)
+        set_letter_metadata(letter)
         ingest_oubliette(letter) && \
           ingest_trifle(letter)
+      end
+      
+      def set_letter_metadata(letter)
+        if self.param_values[:file_sorter]
+          letter[:source_files] = self.param_values[:file_sorter].constantize.sort(letter[:source_files])
+        end
+        if self.param_values[:defaults_setter]
+          letter_files = letter[:source_files].map do |file_key, file_data| file_data[:original_filename] end
+          labels = self.param_values[:defaults_setter].constantize.default_file_labels(letter_files)
+          letter[:source_files].zip(labels).each do |(file_key, file_data), label|
+            file_data[:title] = label
+          end
+        end
       end
       
       def validate_letter(letter)

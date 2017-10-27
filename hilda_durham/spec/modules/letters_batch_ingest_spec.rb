@@ -226,14 +226,18 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
 
   describe "#fetch_adlib_metadata" do
     let(:adlib_record) { double('adlib_record', priref: 'mainid', title: 'maintitle', date: 'date', description: 'description', author: nil) }
-    let(:main_hash) { { id: 'mainid', title: 'maintitle', date: 'date', author: nil, description: 'description' } }
+    let(:main_hash) { { id: 'mainid', title: 'maintitle', date: 'date', author: nil, description: 'description', source_record: "adlib:mainid" } }
     let(:source_id) { '12abcde' }
     before {
       allow(DurhamRails::LibrarySystems::Adlib.connection).to receive(:record).with(source_id).and_return(adlib_record)
+      allow(DurhamRails::LibrarySystems::Adlib.connection).to receive(:record).with("object_number:#{source_id}").and_return(adlib_record)
     }
     it "returns fetched record" do
       expect(mod.fetch_adlib_metadata(source_id,nil)).to eql(main_hash)
       expect(mod.fetch_adlib_metadata("adlib:#{source_id}",nil)).to eql(main_hash)
+      # main_hash has source_record: "adlib:mainid" rather than object_number:adlib:mainid,
+      # this is how it should work.
+      expect(mod.fetch_adlib_metadata("adlib:object_number:#{source_id}",nil)).to eql(main_hash)
     end
     it "cachecs records" do
       expect(mod.fetch_adlib_metadata(source_id)).to eql(main_hash)

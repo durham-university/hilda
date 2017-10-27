@@ -128,7 +128,10 @@ module HildaDurham
           title: record.title,
           date: record.date,
           description: record.description,
-          author: record.author
+          author: record.author,
+          # source lookup might have been done with object_identifier but we want
+          # to store priref instead
+          source_record: "adlib:#{record.priref}" 
         }
       end
       
@@ -182,7 +185,9 @@ module HildaDurham
         letter_data[:date] = record[:date] || '' unless letter_data[:date].present?
         letter_data[:description] = record[:description] || '' unless letter_data[:description].present?
         letter_data[:author] = record[:author] || '' unless letter_data[:author].present?
-        
+        # rewrite source_record, this allows us to do source lookups with different
+        # identifiers than what we actually store
+        letter_data[:source_record] = record[:source_record] if record[:source_record].present?
         true
       end
       

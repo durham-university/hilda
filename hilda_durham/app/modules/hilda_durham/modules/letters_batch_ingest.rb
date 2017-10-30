@@ -303,7 +303,7 @@ module HildaDurham
             end
             
             if source_files.empty?
-              log!(:error, "Found no files in #{line[0]} for letter #{line[1]}.")
+              log!(:error, "Found no files in #{csv[0]} for item #{csv[1]}.")
               return false
             end
             

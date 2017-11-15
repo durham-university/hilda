@@ -30,7 +30,8 @@ module HildaDurham
             'title' => file.title, 
             'temp_file' => file_json['temp_file'],
             'description' => file_metadata[:"#{file_key}__image_description"],
-            'source_record' => file_metadata[:"#{file_key}__image_record"]
+            'source_record' => file_metadata[:"#{file_key}__image_record"],
+            'identifier' => file_metadata[:"#{file_key}__identifier"]
           }
           image_hash['conversion_profile'] = process_metadata[:conversion_profile] if process_metadata.key?(:conversion_profile)
           image_hash

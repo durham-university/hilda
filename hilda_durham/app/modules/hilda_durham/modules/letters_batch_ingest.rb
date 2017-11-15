@@ -1,5 +1,7 @@
 module HildaDurham
   module Modules
+    # Originally created for batch ingesting letters. Now used for all kinds of other items
+    # as well.
     class LettersBatchIngest
       include Hilda::ModuleBase
       include Hilda::Modules::WithJobTag
@@ -265,7 +267,7 @@ module HildaDurham
       end
       
       def read_letters_data
-        log!(:info, "Reading letters data")
+        log!(:info, "Reading item data")
         @letters = []
         file = metadata_file
         module_graph.file_service.get_file(file[:path]) do |open_file|
@@ -322,7 +324,7 @@ module HildaDurham
             
             @letters << letter_data
             
-            log!(:info,"Found letter #{letter_data[:title]} with #{source_files.count} files in #{letter_data[:folder]}")
+            log!(:info,"Found item #{letter_data[:title]} with #{source_files.count} files in #{letter_data[:folder]}")
           end
         end
         log!(:info,"Found #{@letters.count} letters.")
@@ -381,7 +383,7 @@ module HildaDurham
         letters.each do |letter|
           unless ingest_letter(letter)
             self.run_status = :error
-            log!(:error, "Unable to ingest letter #{letter[:title]}. Aborting.")
+            log!(:error, "Unable to ingest item #{letter[:title]}. Aborting.")
             break
           end
         end

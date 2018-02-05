@@ -21,21 +21,8 @@ module HildaDurham
         end
 
         process_metadata = module_input[:process_metadata] || {}
-        file_metadata = module_input[:file_metadata] || {}
 
-        deposit_items = ingest_files.map do |file_key,file_json|
-          file = Oubliette::API::PreservedFile.from_json(file_json)
-          image_hash = { 
-            'source_path' => "oubliette:#{file.id}", 
-            'title' => file.title, 
-            'temp_file' => file_json['temp_file'],
-            'description' => file_metadata[:"#{file_key}__image_description"],
-            'source_record' => file_metadata[:"#{file_key}__image_record"],
-            'identifier' => file_metadata[:"#{file_key}__identifier"]
-          }
-          image_hash['conversion_profile'] = process_metadata[:conversion_profile] if process_metadata.key?(:conversion_profile)
-          image_hash
-        end
+        deposit_items = build_deposit_items
                 
         title = process_metadata[:title]
         title += process_metadata[:subtitle] if process_metadata[:subtitle].present?
@@ -98,6 +85,27 @@ module HildaDurham
           end
         end
         return super
+      end
+
+      protected
+
+      def build_deposit_items
+        process_metadata = module_input[:process_metadata] || {}
+        file_metadata = module_input[:file_metadata] || {}
+
+        ingest_files.map do |file_key,file_json|
+          file = Oubliette::API::PreservedFile.from_json(file_json)
+          image_hash = { 
+            'source_path' => "oubliette:#{file.id}", 
+            'title' => file.title, 
+            'temp_file' => file_json['temp_file'],
+            'description' => file_metadata[:"#{file_key}__image_description"],
+            'source_record' => file_metadata[:"#{file_key}__image_record"],
+            'identifier' => file_metadata[:"#{file_key}__identifier"]
+          }
+          image_hash['conversion_profile'] = process_metadata[:conversion_profile] if process_metadata.key?(:conversion_profile)
+          image_hash
+        end
       end
                   
     end

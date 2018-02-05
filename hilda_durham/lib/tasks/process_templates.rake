@@ -55,6 +55,31 @@ namespace :hilda_durham do
         .add_module(HildaDurham::Modules::OublietteIngest, module_name: 'Ingest_to_Oubliette', module_group: 'Ingest') \
         .add_module(HildaDurham::Modules::TrifleIngest, module_name: 'Ingest_to_Trifle', module_group: 'Ingest') # \
     end
+
+    iiif_ingest_into = Hilda::IngestionProcessTemplate.new_template('IIIF Ingestion into','iiif_ingest_into','Add a batch of images into existing containers in Oubliette and Trifle') do |template|
+      template \
+        .add_start_module(Hilda::Modules::FileSelector, module_name: 'Select_files', module_group: 'Upload', root_path: file_selector_root, filter_re: '(?i)^.*\\.tiff?$') \
+        .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Linking identifiers', module_group: 'Metadata',
+          param_defs: {
+            oubliette_file_batch_id: {label: 'Oubliette file batch id', type: :string},
+            trifle_manifest_id: {label: 'Trifle manifest id', type: :string}
+          }) \
+        .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Conversion_profile', module_group: 'Metadata',
+          param_defs: {
+            conversion_profile: {label: 'Conversion profile', type: :select, collection: ['default'], default: 'default'},
+          }) \
+        .add_module(Hilda::Modules::BulkFileMetadata, module_name: 'Set_canvas_metadata', module_group: 'Metadata',
+          metadata_fields: {
+            title: {label: 'Title', type: :string },
+            image_record: {label: 'Image record', type: :string, optional: true },
+            image_description: {label: 'Image description', type: :string, optional: true }
+          },
+          data_delimiter: ';',
+          note: "image label, [image record], [image description]<br>Use double quotes around values if they contain any commas.") \
+        .add_module(Hilda::Modules::FitsValidator, module_name: 'Fits_validation', module_group: 'Verify', validation_rules: validation_rules) \
+        .add_module(HildaDurham::Modules::OublietteIngestInto, module_name: 'Ingest_to_Oubliette', module_group: 'Ingest') \
+        .add_module(HildaDurham::Modules::TrifleIngestInto, module_name: 'Ingest_to_Trifle', module_group: 'Ingest') # \
+    end
     
     iiif_ingest.clone('Museum IIIF Ingest', 'museum_ingest', 'Ingest a batch of images into Oubliette and Trifle and generate IIIF metadata using museum presets') do |template|
       template.find_module('Select_files').param_values[:file_sorter] = 'HildaDurham::MuseumTools'

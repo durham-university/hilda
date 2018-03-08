@@ -66,7 +66,7 @@ namespace :hilda_durham do
           }) \
         .add_module(Hilda::Modules::ProcessMetadata, module_name: 'Conversion_profile', module_group: 'Metadata',
           param_defs: {
-            conversion_profile: {label: 'Conversion profile', type: :select, collection: ['default'], default: 'default'},
+            conversion_profile: {label: 'Conversion profile', type: :select, collection: ['default','Abbas Hilmi watermark'], default: 'default'},
           }) \
         .add_module(Hilda::Modules::BulkFileMetadata, module_name: 'Set_canvas_metadata', module_group: 'Metadata',
           metadata_fields: {

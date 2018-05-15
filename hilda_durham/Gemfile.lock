@@ -24,7 +24,7 @@ PATH
       active-fedora (~> 9.13)
       httparty
       net-sftp
-      rails (~> 4.2.5)
+      rails (>= 4.2.4)
       redlock
 
 PATH
@@ -272,7 +272,7 @@ GEM
     net-ldap (0.11)
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
-    net-ssh (4.0.1)
+    net-ssh (4.2.0)
     nokogiri (1.6.8.1)
       mini_portile2 (~> 2.1.0)
     nom-xml (0.6.0)
@@ -375,8 +375,8 @@ GEM
     redis-session-store (0.8.0)
       actionpack (>= 3, < 5)
       redis
-    redlock (0.1.8)
-      redis (~> 3, >= 3.0.0)
+    redlock (0.2.2)
+      redis (>= 3.0.0, < 5.0)
     responders (2.1.0)
       railties (>= 4.2.0, < 5)
     resque (1.25.2)
@@ -509,4 +509,4 @@ DEPENDENCIES
   web-console (~> 2.0)
 
 BUNDLED WITH
-   1.12.5
+   1.16.1

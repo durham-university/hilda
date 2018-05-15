@@ -73,6 +73,19 @@ RSpec.describe HildaDurham::Modules::OublietteIngest do
       expect(log).to include 'test message'
       expect(log).to include 'another message'
     end
+
+    it "prunes excessive messages" do
+      expect(graph).to receive(:combined_log).and_return(
+      (1..500).map do |i|  
+        DurhamRails::Log::LogMessage.new(:info,"test message #{i}")
+      end )
+      log = mod.ingestion_log
+      expect(log).to be_a String
+      expect(log).to include 'test message 1'
+      expect(log).to include 'test message 500'
+      expect(log).to include 'messages pruned'
+      expect(log).not_to include 'test message 250'
+    end
   end
 
   describe "#run_module" do

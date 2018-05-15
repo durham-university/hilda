@@ -19,7 +19,11 @@ module HildaDurham
       end
 
       def ingestion_log
-        module_graph.combined_log.map(&:to_full_s).join("\n")
+        full_log = module_graph.combined_log
+        if full_log.count > 100
+          full_log = full_log[0..49] + [DurhamRails::Log::LogMessage.new(:info,"... (#{full_log.count-100} messages pruned)",nil,DateTime.now)] + full_log[-50..-1]
+        end
+        full_log.map(&:to_full_s).join("\n")
       end
 
       def autorun?

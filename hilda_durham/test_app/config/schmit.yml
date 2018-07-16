@@ -23,7 +23,9 @@ development:
     root: /home/qgkb58/library/xtf/data/ark/
     redirect_root: /home/qgkb58/library/xtf/data/redirect/
     public_url_base: 'http://localhost/xtf/view?docId='
-    
+  dropbox_config:
+    path: '/DurhamOutputTest/'
+    token: <%= Rails.application.secrets.dropbox_token %>    
 
 test:
   <<: *defaults

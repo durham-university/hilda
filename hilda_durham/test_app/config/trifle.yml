@@ -24,6 +24,7 @@ development:
   image_convert_command: ['trifle_scripts/convert_jp2.sh']
   image_size_command: ['trifle_scripts/image_size_jp2.sh']
   image_convert_format: 'jp2'
+#  hidden_root_collection_id: t0c1j92g7444
   image_server_config:
     local_copy: true
     file_permissions: 0644

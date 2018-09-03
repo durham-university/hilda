@@ -276,7 +276,9 @@ module HildaDurham
         file = metadata_file
         module_graph.file_service.get_file(file[:path]) do |open_file|
           open_file.each_line do |line|
-            line = line.strip.force_encoding('UTF-8')
+            line = line.force_encoding('UTF-8')
+            line = line[1..-1] if line[0] == "\ufeff" # remove byte order mark
+            line.strip!
             next if line.start_with?('#') || line.blank?
             csv = line.parse_csv
             

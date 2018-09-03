@@ -446,6 +446,26 @@ RSpec.describe HildaDurham::Modules::LettersBatchIngest do
       ])
       expect(mod.letters[1][:title].encoding.to_s).to eql('UTF-8')
     end
+
+    context "with byte order mark in file" do
+      let(:batch_metadata) { 
+        double('file').tap do |d|
+          lines = [
+            "Letters_1/,Test Letters L1,Test Author,1892,Letters from foo to bar relating to moo,ark:/12345/abcdegh,ABC-1",
+            "Letters_2/,Test Letters L2,Test Author,1892,Letters from foo to bar relating to moo,ark:/12345/abcdegh,ABC-2"
+          ]
+          lines[0] = "\ufeff#{lines[0]}"
+          allow(d).to receive(:each_line) do |&block| lines.each(&block) end
+        end
+      }
+      it "removes the byte order mark" do
+        expect(mod).to receive(:populate_source_metadata).exactly(2).times
+        expect(mod.read_letters_data).to eql(true)
+        expect(mod.letters[0][:folder]).to eql("Letters_1/")
+        expect(mod.letters[1][:folder]).to eql("Letters_2/")
+      end
+    end
+
     context "with files specified in csv" do
       let( :batch_metadata ) { fixture('letters_batch_with_files.csv') }      
       let!(:temp_file4) { 

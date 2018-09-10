@@ -28,7 +28,7 @@ PATH
       active-fedora (~> 9.13)
       httparty
       net-sftp
-      rails (>= 4.2.4)
+      rails (~> 4.2.5)
       redlock
 
 GEM
@@ -225,7 +225,7 @@ GEM
     net-ldap (0.11)
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
-    net-ssh (4.2.0)
+    net-ssh (5.0.2)
     nokogiri (1.6.7.2)
       mini_portile2 (~> 2.0.0.rc2)
     nom-xml (0.6.0)
@@ -459,4 +459,4 @@ DEPENDENCIES
   web-console (~> 2.0)
 
 BUNDLED WITH
-   1.16.1
+   1.16.2

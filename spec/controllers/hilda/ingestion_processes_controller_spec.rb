@@ -146,6 +146,19 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
         expect(response).to redirect_to('/users/sign_in')
       end
     end    
+    describe "POST #purge_old_processes" do
+      before {
+        ingestion_process # create        
+        allow_any_instance_of(Hilda::IngestionProcess).to receive(:modified_date).and_return(DateTime.now - 60)
+        allow_any_instance_of(Hilda::IngestionProcess).to receive(:run_status).and_return(:finished)
+      }
+      it "fails authentication" do
+        expect {
+          post :purge_old_processes
+        } .not_to change { Hilda::IngestionProcess.count }
+        expect(response).to redirect_to('/users/sign_in')
+      end
+    end
   end
 
   context "with admin user" do
@@ -473,6 +486,34 @@ RSpec.describe Hilda::IngestionProcessesController, type: :controller do
         post :rollback_module, {id: ingestion_process.to_param, module: other_mod.module_name }
         expect(mod_loaded.run_status).to eql :finished
         expect(other_mod_loaded.run_status).to eql :initialized
+      end
+    end
+
+    describe "POST #purge_old_processes" do
+      let!(:old_processes) { (0..25).map do |i| FactoryGirl.create(:ingestion_process, :params) end }
+      let!(:old_ids) { old_processes.map(&:id) }
+      before {
+        all = Hilda::IngestionProcess.all
+        allow(Hilda::IngestionProcess).to receive(:all).and_return(all)
+        # creating processes like quickly results in identical create dates and arbitrary ordering
+        # when getting everything from Solr. Need to mock it to have a consistent test
+        expect(all).to receive(:from_solr!).and_return(
+          double('from_solr').tap do |d| allow(d).to receive(:order) do |o| old_processes end end
+        )
+        allow_any_instance_of(Hilda::IngestionProcess).to receive(:modified_date) do |p|
+          index = old_ids.index(p.id)
+          DateTime.now - ( 20 + index )
+        end
+        allow_any_instance_of(Hilda::IngestionProcess).to receive(:run_status) do |p|
+          index = old_ids.index(p.id)
+          index % 2 == 0 ? :finished : :initialized
+        end
+      }
+      it "destroys old processes" do
+        expect {
+          post :purge_old_processes
+        } .to change { Hilda::IngestionProcess.count } .by(-4)
+        expect(response).not_to redirect_to('/users/sign_in')
       end
     end
   end  

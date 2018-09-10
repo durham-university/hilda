@@ -210,6 +210,14 @@ module Hilda
       end
     end
 
+    def purge_old_processes
+      ps = Hilda::IngestionProcess.all.from_solr!.order('system_create_dtsi asc').to_a
+      psf = ps[0..-20].select do |p| p.run_status == :finished && (DateTime.now - p.modified_date).to_f > 14 end
+      psf.each do |p| Hilda::IngestionProcess.find(p.id).destroy end            
+
+      redirect_to ingestion_processes_url, notice: "#{psf.count} old ingestion processes purged."
+    end
+
     private
     
       def autosave_graph

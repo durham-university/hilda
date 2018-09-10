@@ -1,0 +1,25 @@
+<% if can?(:purg_old_processes, Hilda::IngestionProcess) %>
+  <li><a href="#" data-target="#purge_confirm_modal" data-toggle="modal"><%= "Purge old processes" %></a></li>
+
+  <% content_for :modal_dialogs do %>
+    <div id="purge_confirm_modal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="ajax-modal-close close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h1 class="modal-title">Purge old processes</h1>
+          </div>
+          <div class="popup-tool-form">
+          <%= form_tag hilda.ingestion_processes_purge_path, method: 'post' do |f| %>
+            <p><%= check_box_tag(:confirm_purge) %> <%= label_tag(:confirm_deletion, "Yes, I really want to purge all old processes") %></p>
+            <p>
+              <input type="submit" class="btn btn-primary" onclick="return ($(this).closest('form').find('#confirm_purge').prop('checked') === true)" value="Purge"/>
+              <button type="button" class="btn" data-dismiss="modal">Cancel</button>
+            </p>
+          <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>

@@ -66,5 +66,9 @@ RSpec.describe Hilda::IngestionProcessesController, type: :routing do
       expect(:post => "/processes/1/rollback").to route_to("hilda/ingestion_processes#rollback_graph", id: '1')
     end
 
+    it "routes to #purge_old_processes" do
+      expect(:post => "/processes/purge").to route_to("hilda/ingestion_processes#purge_old_processes")
+    end
+
   end
 end

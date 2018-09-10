@@ -13,4 +13,5 @@ Hilda::Engine.routes.draw do
   post 'processes/:id/reset' => 'ingestion_processes#reset_graph', as: 'ingestion_process_reset'
   post 'processes/:id/start' => 'ingestion_processes#start_graph', as: 'ingestion_process_start'
   post 'processes/:id/rollback' => 'ingestion_processes#rollback_graph', as: 'ingestion_process_rollback'
+  post 'processes/purge' => 'ingestion_processes#purge_old_processes', as: 'ingestion_processes_purge'
 end
